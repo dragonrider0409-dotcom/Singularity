@@ -1,0 +1,31 @@
+{
+  "version": 2,
+  "routes": [
+    { "src": "/",             "dest": "/website/index.html" },
+    { "src": "/hub",          "dest": "/hub/index.html" },
+    { "src": "/hub/",         "dest": "/hub/index.html" },
+    { "src": "/mc",           "dest": "/mc/index.html" },
+    { "src": "/mc/",          "dest": "/mc/index.html" },
+    { "src": "/iv",           "dest": "/iv/index.html" },
+    { "src": "/iv/",          "dest": "/iv/index.html" },
+    { "src": "/portfolio",    "dest": "/portfolio/index.html" },
+    { "src": "/portfolio/",   "dest": "/portfolio/index.html" },
+    { "src": "/fi",           "dest": "/fi/index.html" },
+    { "src": "/fi/",          "dest": "/fi/index.html" },
+    { "src": "/pairs",        "dest": "/pairs/index.html" },
+    { "src": "/pairs/",       "dest": "/pairs/index.html" },
+    { "src": "/vol",          "dest": "/vol/index.html" },
+    { "src": "/vol/",         "dest": "/vol/index.html" },
+    { "src": "/alpha",        "dest": "/alpha/index.html" },
+    { "src": "/alpha/",       "dest": "/alpha/index.html" },
+    { "src": "/credit",       "dest": "/credit/index.html" },
+    { "src": "/credit/",      "dest": "/credit/index.html" },
+    { "src": "/(.*)",         "dest": "/$1" }
+  ],
+  "functions": {
+    "api/**/*.py": {
+      "runtime": "python3.12",
+      "maxDuration": 30
+    }
+  }
+}

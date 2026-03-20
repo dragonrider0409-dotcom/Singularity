@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AEQUITAS — Quantitative Finance Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --black:#000;--off-black:#0a0a0a;--near-black:#111;--card:#141414;
+  --border:#222;--border-light:#2a2a2a;
+  --gold:#c9a84c;--gold-light:#e8c97a;--gold-dim:#7a6030;
+  --white:#f0ede6;--white-dim:#8a8680;--white-muted:#444;
+  --green:#2d6a4f;--green-bright:#52b788;
+  --red:#922b21;--red-bright:#e74c3c;
+  --blue:#1a5276;--blue-bright:#3498db;
+  --display:'Syne',sans-serif;
+  --mono:'DM Mono',monospace;
+  --serif:'Instrument Serif',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--black);color:var(--white);
+  font-family:var(--mono);font-size:13px;
+  overflow-x:hidden;
+}
+::selection{background:var(--gold);color:var(--black)}
+
+/* ── SCROLLBAR ──────────────────────────────────── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--black)}
+::-webkit-scrollbar-thumb{background:var(--gold-dim)}
+
+/* ── TICKER TAPE ───────────────────────────────── */
+.ticker-tape{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  height:32px;background:var(--off-black);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;overflow:hidden;
+}
+.ticker-inner{
+  display:flex;gap:0;white-space:nowrap;
+  animation:ticker-scroll 80s linear infinite;
+}
+.ticker-item{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:0 24px;border-right:1px solid var(--border);
+  font-family:var(--mono);font-size:.65rem;letter-spacing:.04em;
+}
+.ticker-sym{color:var(--gold);font-weight:500}
+.ticker-price{color:var(--white)}
+.ticker-chg.up{color:var(--green-bright)}
+.ticker-chg.dn{color:var(--red-bright)}
+@keyframes ticker-scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ── NAV ───────────────────────────────────────── */
+nav{
+  position:fixed;top:32px;left:0;right:0;z-index:999;
+  height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 48px;
+  background:rgba(0,0,0,.88);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  display:flex;align-items:baseline;gap:10px;cursor:pointer;text-decoration:none;
+}
+.nav-logo-mark{
+  font-family:var(--display);font-size:1.3rem;font-weight:800;
+  letter-spacing:-.02em;color:var(--white);
+}
+.nav-logo-mark span{color:var(--gold)}
+.nav-logo-sub{
+  font-family:var(--mono);font-size:.55rem;color:var(--white-dim);
+  letter-spacing:.2em;text-transform:uppercase;
+}
+.nav-links{display:flex;align-items:center;gap:2px}
+.nav-link{
+  font-family:var(--mono);font-size:.65rem;color:var(--white-dim);
+  padding:6px 14px;border-radius:2px;cursor:pointer;transition:all .15s;
+  text-decoration:none;letter-spacing:.06em;text-transform:uppercase;
+}
+.nav-link:hover{color:var(--white);background:var(--near-black)}
+.nav-cta{
+  font-family:var(--mono);font-size:.65rem;font-weight:500;
+  padding:7px 18px;background:var(--gold);color:var(--black);
+  border:none;border-radius:2px;cursor:pointer;transition:all .15s;
+  letter-spacing:.08em;text-transform:uppercase;text-decoration:none;
+}
+.nav-cta:hover{background:var(--gold-light)}
+
+/* ── HERO ───────────────────────────────────────── */
+.hero{
+  min-height:100vh;padding-top:88px;
+  display:flex;flex-direction:column;
+  position:relative;overflow:hidden;
+}
+
+/* Animated data grid background */
+#hero-canvas{
+  position:absolute;inset:0;
+  opacity:.12;pointer-events:none;
+}
+
+.hero-content{
+  flex:1;display:flex;flex-direction:column;justify-content:center;
+  padding:80px 48px 60px;
+  position:relative;z-index:2;
+  max-width:1400px;margin:0 auto;width:100%;
+}
+.hero-eyebrow{
+  font-family:var(--mono);font-size:.6rem;letter-spacing:.3em;
+  color:var(--gold);text-transform:uppercase;margin-bottom:24px;
+  display:flex;align-items:center;gap:12px;
+}
+.hero-eyebrow::before{content:'';width:32px;height:1px;background:var(--gold)}
+.hero-title{
+  font-family:var(--display);font-size:clamp(3.5rem,7vw,7.5rem);
+  font-weight:800;line-height:.92;letter-spacing:-.04em;
+  color:var(--white);margin-bottom:8px;
+}
+.hero-title .italic{
+  font-family:var(--serif);font-style:italic;font-weight:400;
+  color:var(--gold);
+}
+.hero-sub{
+  font-family:var(--mono);font-size:.82rem;color:var(--white-dim);
+  max-width:480px;line-height:1.8;margin:28px 0 48px;
+  letter-spacing:.02em;
+}
+.hero-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.btn-primary{
+  font-family:var(--mono);font-size:.75rem;font-weight:500;
+  padding:14px 32px;background:var(--gold);color:var(--black);
+  border:none;border-radius:2px;cursor:pointer;transition:all .2s;
+  letter-spacing:.1em;text-transform:uppercase;text-decoration:none;
+  display:inline-flex;align-items:center;gap:8px;
+}
+.btn-primary:hover{background:var(--gold-light);transform:translateY(-1px)}
+.btn-outline{
+  font-family:var(--mono);font-size:.75rem;
+  padding:13px 28px;background:transparent;color:var(--white-dim);
+  border:1px solid var(--border-light);border-radius:2px;cursor:pointer;
+  transition:all .2s;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;
+}
+.btn-outline:hover{border-color:var(--white-dim);color:var(--white)}
+
+/* live stat strip */
+.hero-stats{
+  display:flex;gap:0;border-top:1px solid var(--border);
+  margin-top:auto;padding-top:0;
+}
+.hstat{
+  flex:1;padding:20px 0 20px 24px;border-right:1px solid var(--border);
+}
+.hstat:last-child{border-right:none}
+.hstat-label{font-size:.55rem;color:var(--white-muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px}
+.hstat-value{font-family:var(--display);font-size:1.6rem;font-weight:700;color:var(--white)}
+.hstat-value .unit{font-size:.65rem;color:var(--white-dim);font-family:var(--mono);font-weight:400;margin-left:3px}
+
+/* ── SECTION BASE ───────────────────────────────── */
+.section{padding:100px 48px;max-width:1400px;margin:0 auto;width:100%}
+.section-full{padding:100px 0;width:100%}
+.section-eyebrow{
+  font-family:var(--mono);font-size:.55rem;letter-spacing:.25em;
+  color:var(--gold);text-transform:uppercase;margin-bottom:20px;
+}
+.section-title{
+  font-family:var(--display);font-size:clamp(2rem,4vw,3.5rem);
+  font-weight:700;letter-spacing:-.03em;color:var(--white);
+  line-height:1.05;margin-bottom:16px;
+}
+.section-title em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--gold)}
+.section-sub{
+  font-family:var(--mono);font-size:.78rem;color:var(--white-dim);
+  max-width:540px;line-height:1.8;
+}
+
+/* ── PLATFORM GRID ──────────────────────────────── */
+#platform{
+  border-top:1px solid var(--border);background:var(--off-black);
+}
+.platform-inner{padding:100px 48px;max-width:1400px;margin:0 auto}
+.platform-header{
+  display:grid;grid-template-columns:1fr 1fr;gap:80px;
+  align-items:end;margin-bottom:64px;
+}
+.platform-kpis{
+  display:flex;flex-direction:column;gap:0;
+  border:1px solid var(--border);
+}
+.pkpi{
+  padding:20px 24px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:baseline;
+}
+.pkpi:last-child{border-bottom:none}
+.pkpi-label{font-size:.6rem;color:var(--white-muted);letter-spacing:.12em;text-transform:uppercase}
+.pkpi-value{font-family:var(--display);font-size:1.4rem;font-weight:700;color:var(--gold)}
+
+/* Module cards */
+.modules-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1px;background:var(--border);
+  border:1px solid var(--border);
+}
+.module-card{
+  background:var(--card);padding:28px;
+  cursor:pointer;transition:all .2s;
+  text-decoration:none;display:block;
+  position:relative;overflow:hidden;
+}
+.module-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--gold);transform:scaleX(0);transition:transform .2s;
+  transform-origin:left;
+}
+.module-card:hover{background:var(--near-black)}
+.module-card:hover::before{transform:scaleX(1)}
+.module-card:hover .mc-arrow{transform:translate(3px,-3px)}
+
+.mc-num{
+  font-family:var(--mono);font-size:.55rem;color:var(--white-muted);
+  letter-spacing:.15em;margin-bottom:16px;
+}
+.mc-icon{
+  width:36px;height:36px;margin-bottom:20px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--border-light);
+  font-size:.9rem;
+}
+.mc-title{
+  font-family:var(--display);font-size:.95rem;font-weight:700;
+  color:var(--white);margin-bottom:8px;letter-spacing:-.01em;
+}
+.mc-desc{
+  font-family:var(--mono);font-size:.62rem;color:var(--white-muted);
+  line-height:1.7;margin-bottom:20px;
+}
+.mc-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px}
+.mc-tag{
+  font-family:var(--mono);font-size:.52rem;color:var(--white-muted);
+  padding:2px 7px;border:1px solid var(--border-light);border-radius:1px;
+  letter-spacing:.05em;
+}
+.mc-footer{
+  display:flex;justify-content:space-between;align-items:center;
+  border-top:1px solid var(--border);padding-top:14px;margin-top:auto;
+}
+.mc-port{font-family:var(--mono);font-size:.6rem;color:var(--gold-dim)}
+.mc-arrow{
+  font-size:.9rem;color:var(--gold);transition:transform .2s;
+}
+.mc-status{
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:var(--mono);font-size:.55rem;color:var(--green-bright);
+  margin-bottom:12px;
+}
+.mc-status::before{
+  content:'';width:5px;height:5px;border-radius:50%;
+  background:var(--green-bright);
+  animation:pulse-dot 2s ease infinite;
+}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+
+/* ── ARCHITECTURE SECTION ───────────────────────── */
+#architecture{border-top:1px solid var(--border)}
+.arch-diagram{
+  display:grid;grid-template-columns:1fr 80px 1fr;
+  gap:0;margin-top:60px;align-items:start;
+}
+.arch-col{display:flex;flex-direction:column;gap:1px;border:1px solid var(--border)}
+.arch-item{
+  padding:16px 20px;background:var(--card);border-bottom:1px solid var(--border);
+}
+.arch-item:last-child{border-bottom:none}
+.arch-item-label{
+  font-family:var(--mono);font-size:.6rem;color:var(--gold);
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;
+}
+.arch-item-desc{font-family:var(--mono);font-size:.65rem;color:var(--white-muted)}
+.arch-center{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:20px 0;gap:8px;
+}
+.arch-arrow{font-size:.7rem;color:var(--border-light)}
+.arch-center-label{
+  font-size:.5rem;color:var(--white-muted);letter-spacing:.1em;
+  writing-mode:vertical-rl;text-transform:uppercase;
+}
+
+/* ── ABOUT / METHOD ─────────────────────────────── */
+#method{border-top:1px solid var(--border);background:var(--off-black)}
+.method-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  background:var(--border);margin-top:60px;
+  border:1px solid var(--border);
+}
+.method-item{
+  background:var(--card);padding:32px;
+}
+.method-num{
+  font-family:var(--display);font-size:3rem;font-weight:800;
+  color:var(--border-light);line-height:1;margin-bottom:16px;
+  letter-spacing:-.04em;
+}
+.method-title{
+  font-family:var(--display);font-size:1rem;font-weight:700;
+  color:var(--white);margin-bottom:10px;
+}
+.method-desc{
+  font-family:var(--mono);font-size:.65rem;color:var(--white-muted);
+  line-height:1.8;
+}
+
+/* ── SIGNIN SECTION ─────────────────────────────── */
+#signin{
+  border-top:1px solid var(--border);
+  background:var(--black);
+  padding:0;
+}
+.signin-split{
+  display:grid;grid-template-columns:1fr 1fr;min-height:70vh;
+}
+.signin-left{
+  padding:80px 64px;display:flex;flex-direction:column;justify-content:center;
+  border-right:1px solid var(--border);
+}
+.signin-right{
+  padding:80px 64px;display:flex;flex-direction:column;justify-content:center;
+  background:var(--off-black);
+}
+.signin-title{
+  font-family:var(--display);font-size:2.5rem;font-weight:800;
+  letter-spacing:-.03em;color:var(--white);margin-bottom:16px;
+}
+.signin-sub{
+  font-family:var(--mono);font-size:.72rem;color:var(--white-muted);
+  line-height:1.8;max-width:360px;margin-bottom:40px;
+}
+.form-field{margin-bottom:16px}
+.form-field label{
+  display:block;font-family:var(--mono);font-size:.6rem;
+  color:var(--white-muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;
+}
+.form-field input{
+  width:100%;background:var(--card);
+  border:1px solid var(--border);border-radius:2px;
+  color:var(--white);font-family:var(--mono);font-size:.82rem;
+  padding:12px 14px;outline:none;transition:border-color .15s;
+}
+.form-field input:focus{border-color:var(--gold)}
+.form-field input::placeholder{color:var(--white-muted)}
+.form-divider{
+  display:flex;align-items:center;gap:12px;margin:20px 0;
+}
+.form-divider::before,.form-divider::after{
+  content:'';flex:1;height:1px;background:var(--border);
+}
+.form-divider-text{
+  font-family:var(--mono);font-size:.58rem;color:var(--white-muted);
+  letter-spacing:.1em;white-space:nowrap;
+}
+.btn-full{
+  width:100%;font-family:var(--mono);font-size:.75rem;font-weight:500;
+  padding:13px;background:var(--gold);color:var(--black);
+  border:none;border-radius:2px;cursor:pointer;transition:all .15s;
+  letter-spacing:.1em;text-transform:uppercase;
+}
+.btn-full:hover{background:var(--gold-light)}
+.btn-full.outline{
+  background:transparent;color:var(--white-dim);
+  border:1px solid var(--border-light);margin-top:10px;
+}
+.btn-full.outline:hover{border-color:var(--white-dim);color:var(--white);background:transparent}
+
+/* Feature list in sign-in */
+.feature-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--border)}
+.feature-row{
+  display:flex;align-items:flex-start;gap:16px;
+  padding:20px 24px;border-bottom:1px solid var(--border);
+}
+.feature-row:last-child{border-bottom:none}
+.feature-icon{
+  width:28px;height:28px;border:1px solid var(--border-light);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;flex-shrink:0;color:var(--gold);
+}
+.feature-content-title{
+  font-family:var(--mono);font-size:.72rem;color:var(--white);
+  margin-bottom:3px;font-weight:500;
+}
+.feature-content-desc{font-family:var(--mono);font-size:.6rem;color:var(--white-muted);line-height:1.6}
+
+/* ── FOOTER ─────────────────────────────────────── */
+footer{
+  border-top:1px solid var(--border);background:var(--off-black);
+  padding:40px 48px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.footer-logo{
+  font-family:var(--display);font-size:1rem;font-weight:800;
+  color:var(--white);letter-spacing:-.01em;
+}
+.footer-logo span{color:var(--gold)}
+.footer-text{font-family:var(--mono);font-size:.58rem;color:var(--white-muted);letter-spacing:.06em}
+.footer-links{display:flex;gap:20px}
+.footer-link{
+  font-family:var(--mono);font-size:.6rem;color:var(--white-muted);
+  text-decoration:none;letter-spacing:.06em;transition:color .12s;
+}
+.footer-link:hover{color:var(--white)}
+
+/* ── DASHBOARD MODAL ────────────────────────────── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;z-index:2000;
+  background:rgba(0,0,0,.92);backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--off-black);border:1px solid var(--border);
+  width:min(1100px,96vw);max-height:90vh;overflow-y:auto;
+  position:relative;
+}
+.modal-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:24px 32px;border-bottom:1px solid var(--border);
+  position:sticky;top:0;background:var(--off-black);z-index:10;
+}
+.modal-title{font-family:var(--display);font-size:1.2rem;font-weight:700;color:var(--white)}
+.modal-close{
+  background:transparent;border:1px solid var(--border);color:var(--white-dim);
+  width:32px;height:32px;cursor:pointer;font-size:1rem;border-radius:2px;
+  transition:all .12s;display:flex;align-items:center;justify-content:center;
+}
+.modal-close:hover{border-color:var(--white-dim);color:var(--white)}
+.modal-body{padding:32px}
+
+/* Dashboard status grid */
+.dash-status-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  background:var(--border);border:1px solid var(--border);margin-bottom:32px;
+}
+.dash-status-card{
+  background:var(--card);padding:20px 16px;cursor:pointer;
+  transition:all .15s;text-decoration:none;display:block;
+}
+.dash-status-card:hover{background:var(--near-black)}
+.dsc-num{font-family:var(--mono);font-size:.52rem;color:var(--white-muted);margin-bottom:8px}
+.dsc-name{font-family:var(--display);font-size:.82rem;font-weight:700;color:var(--white);margin-bottom:4px}
+.dsc-port{font-family:var(--mono);font-size:.58rem;color:var(--gold-dim);margin-bottom:10px}
+.dsc-indicator{
+  display:flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:.58rem;
+}
+.dsc-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--border-light);
+  transition:background .3s;
+}
+.dsc-dot.live{background:var(--green-bright);animation:pulse-dot 2s ease infinite}
+.dsc-dot.checking{background:var(--gold);animation:pulse-dot .8s ease infinite}
+.dsc-dot.down{background:var(--red-bright)}
+
+/* Live feed in modal */
+.live-feed{
+  border:1px solid var(--border);font-family:var(--mono);font-size:.65rem;
+  max-height:200px;overflow-y:auto;
+}
+.feed-row{
+  padding:8px 16px;border-bottom:1px solid var(--border);
+  display:flex;gap:16px;align-items:center;
+}
+.feed-row:last-child{border-bottom:none}
+.feed-time{color:var(--white-muted);flex-shrink:0}
+.feed-msg{color:var(--white)}
+.feed-badge{
+  padding:2px 6px;font-size:.52rem;border-radius:1px;flex-shrink:0;
+}
+.feed-badge.ok{background:rgba(82,183,136,.15);color:var(--green-bright)}
+.feed-badge.warn{background:rgba(201,168,76,.15);color:var(--gold)}
+
+/* Responsive */
+@media(max-width:900px){
+  .modules-grid{grid-template-columns:repeat(2,1fr)}
+  .platform-header{grid-template-columns:1fr}
+  .method-grid{grid-template-columns:1fr}
+  .signin-split{grid-template-columns:1fr}
+  .signin-right{display:none}
+  nav{padding:0 20px}
+  .hero-content{padding:60px 20px 40px}
+  .section{padding:60px 20px}
+  .platform-inner{padding:60px 20px}
+  footer{flex-direction:column;gap:20px;text-align:center}
+}
+@media(max-width:600px){
+  .modules-grid{grid-template-columns:1fr}
+  .hero-title{font-size:2.8rem}
+  .dash-status-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+/* Entry animation */
+.fade-up{opacity:0;transform:translateY(20px);animation:fade-in-up .6s ease forwards}
+@keyframes fade-in-up{to{opacity:1;transform:translateY(0)}}
+.delay-1{animation-delay:.1s}.delay-2{animation-delay:.2s}
+.delay-3{animation-delay:.3s}.delay-4{animation-delay:.4s}
+
+/* Quick nav grid */
+.qnav-grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 1px; background: var(--bdr);
+  border: 1px solid var(--bdr);
+}
+.qnav-card {
+  background: var(--card); padding: 22px 20px;
+  cursor: pointer; transition: background .18s;
+  text-decoration: none; display: block;
+  position: relative; overflow: hidden;
+}
+.qnav-card::after {
+  content: ''; position: absolute;
+  bottom: 0; left: 0; right: 0; height: 2px;
+  background: var(--gold); transform: scaleX(0);
+  transition: transform .2s; transform-origin: left;
+}
+.qnav-card:hover { background: var(--near-black); }
+.qnav-card:hover::after { transform: scaleX(1); }
+.qnav-num { font-family: var(--mono); font-size: .52rem; color: var(--gold-dim); margin-bottom: 8px; }
+.qnav-title { font-family: var(--display); font-size: .9rem; font-weight: 700; color: var(--white); margin-bottom: 5px; }
+.qnav-desc { font-family: var(--mono); font-size: .58rem; color: var(--white-dim); line-height: 1.6; }
+.qnav-arrow { position: absolute; top: 16px; right: 16px; color: var(--gold); font-size: .8rem; opacity: 0; transition: opacity .18s; }
+.qnav-card:hover .qnav-arrow { opacity: 1; }
+@media(max-width:900px) { .qnav-grid { grid-template-columns: repeat(2,1fr); } }
+@media(max-width:500px) { .qnav-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- TICKER TAPE -->
+<div class="ticker-tape">
+  <div class="ticker-inner" id="ticker-inner"></div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#" onclick="showDash()">
+    <span class="nav-logo-mark">AEQ<span>UITAS</span></span>
+    <span class="nav-logo-sub">Quantitative Platform</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="#platform">Platform</a>
+    <a class="nav-link" href="#architecture">Architecture</a>
+    <a class="nav-link" href="#method">Methodology</a>
+    <a class="nav-link" href="#signin">Access</a>
+    <a class="nav-cta" href="#" onclick="showDash()">Launch Platform →</a>
+    <a class="pill" href="#" onclick="signOut()" style="margin-left:4px">Sign Out</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-eyebrow fade-up">Institutional Quantitative Finance</div>
+    <h1 class="hero-title fade-up delay-1">
+      AEQUITAS<br/>
+      <span class="italic">Quant Suite</span>
+    </h1>
+    <p class="hero-sub fade-up delay-2">
+      Eight production-grade quantitative finance engines. 
+      Monte Carlo simulation. Yield curve modelling. Portfolio optimization. 
+      Regime detection. Credit risk. Built for the quantitative analyst.
+    </p>
+    <div class="hero-actions fade-up delay-3">
+      <a class="btn-primary" href="#" onclick="showDash()">
+        Enter Platform <span>→</span>
+      </a>
+      <a class="btn-outline" href="#platform">View Modules</a>
+    </div>
+  </div>
+  <div class="hero-stats fade-up delay-4">
+    <div class="hstat">
+      <div class="hstat-label">Simulation Models</div>
+      <div class="hstat-value">8<span class="unit">engines</span></div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-label">Max Path Count</div>
+      <div class="hstat-value">100k<span class="unit">paths</span></div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-label">Yield Curve Pts</div>
+      <div class="hstat-value">200<span class="unit">fitted</span></div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-label">Credit MC Sims</div>
+      <div class="hstat-value">50k<span class="unit">trials</span></div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-label">Live Data</div>
+      <div class="hstat-value" id="live-tickers">—<span class="unit">tickers</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PLATFORM MODULES -->
+<section id="platform">
+<div class="platform-inner">
+  <div class="platform-header">
+    <div>
+      <div class="section-eyebrow">The Platform</div>
+      <h2 class="section-title">Eight <em>precision</em><br/>instruments</h2>
+      <p class="section-sub" style="margin-top:16px">Each module is a standalone production engine — not a toy. Click any card to open it directly.</p>
+    </div>
+    <div class="platform-kpis">
+      <div class="pkpi"><span class="pkpi-label">Total Routes</span><span class="pkpi-value">32</span></div>
+      <div class="pkpi"><span class="pkpi-label">Engine Lines</span><span class="pkpi-value">4,200+</span></div>
+      <div class="pkpi"><span class="pkpi-label">Models Implemented</span><span class="pkpi-value">28</span></div>
+      <div class="pkpi"><span class="pkpi-label">Live Data Sources</span><span class="pkpi-value">3</span></div>
+    </div>
+  </div>
+  <div class="modules-grid" id="modules-grid"></div>
+</div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="architecture">
+<div class="section">
+  <div class="section-eyebrow">Architecture</div>
+  <h2 class="section-title">How it's <em>structured</em></h2>
+  <p class="section-sub">Each module follows a strict three-layer architecture. The engine layer contains pure mathematics with no web dependencies. The API layer handles serialization, async jobs, and live data. The frontend layer renders with Plotly and pure JS.</p>
+  <div class="arch-diagram" style="margin-top:60px">
+    <div class="arch-col">
+      <div class="arch-item" style="background:rgba(201,168,76,.06);border-bottom:1px solid var(--border)">
+        <div class="arch-item-label">Engine Layer</div>
+        <div class="arch-item-desc">Pure Python numerical engines. NumPy, SciPy, Pandas. No HTTP, no side effects. Unit-testable in isolation.</div>
+      </div>
+      <div class="arch-item"><div class="arch-item-label">GARCH / GJR / HAR-RV</div><div class="arch-item-desc">vol_regime/engine.py</div></div>
+      <div class="arch-item"><div class="arch-item-label">Merton / CDS / CVA</div><div class="arch-item-desc">credit_risk/engine.py</div></div>
+      <div class="arch-item"><div class="arch-item-label">Almgren-Chriss / FF3</div><div class="arch-item-desc">alpha_execution/engine.py</div></div>
+      <div class="arch-item"><div class="arch-item-label">GBM / Heston / SABR / JD</div><div class="arch-item-desc">mc_engine_v2.py</div></div>
+    </div>
+    <div class="arch-center">
+      <div class="arch-arrow">→</div>
+      <div class="arch-center-label">Flask API</div>
+      <div class="arch-arrow">←</div>
+    </div>
+    <div class="arch-col">
+      <div class="arch-item" style="background:rgba(201,168,76,.06);border-bottom:1px solid var(--border)">
+        <div class="arch-item-label">Frontend Layer</div>
+        <div class="arch-item-desc">Vanilla JS + Plotly. No framework dependencies. Drag-resize 3-column layout. Live data polling.</div>
+      </div>
+      <div class="arch-item"><div class="arch-item-label">3-Column Resizable Layout</div><div class="arch-item-desc">CSS grid + drag handles + localStorage</div></div>
+      <div class="arch-item"><div class="arch-item-label">Plotly Charts</div><div class="arch-item-desc">2D/3D interactive. Double-click expands fullscreen.</div></div>
+      <div class="arch-item"><div class="arch-item-label">Async Job Queue</div><div class="arch-item-desc">POST → job_id → polling → result</div></div>
+      <div class="arch-item"><div class="arch-item-label">SSE Live Animation</div><div class="arch-item-desc">Canvas-based real-time path streaming (MC only)</div></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- METHODOLOGY -->
+<section id="method">
+<div class="section">
+  <div class="section-eyebrow">Methodology</div>
+  <h2 class="section-title">Built to <em>professional</em><br/>standards</h2>
+  <div class="method-grid">
+    <div class="method-item">
+      <div class="method-num">01</div>
+      <div class="method-title">No Toy Models</div>
+      <div class="method-desc">Every model is production-grade. GARCH uses maximum likelihood estimation with multiple restarts. HMM uses Baum-Welch EM. The Heston model uses characteristic function integration — exact pricing, no Monte Carlo noise.</div>
+    </div>
+    <div class="method-item">
+      <div class="method-num">02</div>
+      <div class="method-title">Real Live Data</div>
+      <div class="method-desc">All price data, options chains, and Treasury yields are pulled live via yfinance. No hardcoded prices. The yield curve bootstraps actual par rates. Options IVs are computed from live bid/ask midpoints.</div>
+    </div>
+    <div class="method-item">
+      <div class="method-num">03</div>
+      <div class="method-title">Numerically Robust</div>
+      <div class="method-desc">float32 arrays for memory efficiency. Ledoit-Wolf shrinkage for covariance estimation. Nearest positive-definite matrix projection. Brent's method for IV inversion. All NaN/Inf values sanitized before JSON transport.</div>
+    </div>
+    <div class="method-item">
+      <div class="method-num">04</div>
+      <div class="method-title">Memory Safe</div>
+      <div class="method-desc">Hard caps on simulation counts (100k paths). Step-by-step GBM to avoid chunk allocation. One-model-at-a-time worker with explicit del and gc.collect() between models. Payload size capped at ~1MB via histogram bins.</div>
+    </div>
+    <div class="method-item">
+      <div class="method-num">05</div>
+      <div class="method-title">Academic Rigor</div>
+      <div class="method-desc">Each model cites its primary source: Hagan (2002) for SABR, Andersen (2007) for Heston QE, Almgren-Chriss (2001) for optimal execution, Merton (1974) for structural credit, Baum-Welch (1970) for HMM.</div>
+    </div>
+    <div class="method-item">
+      <div class="method-num">06</div>
+      <div class="method-title">Extensible Architecture</div>
+      <div class="method-desc">Each project is fully self-contained in its own folder. The engine layer has zero HTTP dependencies. New models can be added to any engine without touching the Flask layer or frontend.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- WELCOME BACK / QUICK NAV -->
+<section id="quicknav">
+<div class="section">
+  <div class="section-eyebrow">Platform Access</div>
+  <h2 class="section-title">Select a <em>module</em></h2>
+  <p class="section-sub" style="margin:12px 0 40px">Click any module below to open it. All data is live from your local servers.</p>
+  <div class="qnav-grid" id="qnav-grid"></div>
+</div>
+</section>
+
+
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">AEQ<span>UITAS</span></div>
+  <div class="footer-text">QUANTITATIVE FINANCE PLATFORM · ALL MODELS RUN LOCALLY · DATA VIA YFINANCE</div>
+  <div class="footer-links">
+    <a class="footer-link" href="#platform">Platform</a>
+    <a class="footer-link" href="#architecture">Docs</a>
+    <a class="footer-link" href="#method">Methodology</a>
+    <a class="footer-link" href="#signin">Sign In</a>
+  </div>
+</footer>
+
+<!-- DASHBOARD MODAL -->
+<div class="modal-overlay" id="dash-modal" onclick="closeDashOnOverlay(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">AEQUITAS — Platform Dashboard</div>
+      <button class="modal-close" onclick="closeDash()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-family:var(--mono);font-size:.6rem;color:var(--white-muted);margin-bottom:20px;letter-spacing:.08em">
+        LIVE MODULE STATUS — Click any card to open the dashboard in a new tab
+      </div>
+      <div class="dash-status-grid" id="dash-grid"></div>
+      <div style="margin-top:32px;border-top:1px solid var(--border);padding-top:24px">
+        <div style="font-family:var(--mono);font-size:.6rem;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px">System Feed</div>
+        <div class="live-feed" id="live-feed"></div>
+      </div>
+      
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ── AUTH GATE ──────────────────────────────────────────────────────────
+(function(){
+  const token = localStorage.getItem('aeq_auth');
+  if(!token){
+    // Not signed in — redirect to marketing site
+    // In production this would be: window.location.href = 'https://aequitas.io'
+    // For local use, redirect to website/index.html
+    const base = window.location.href.replace(/hub\/index\.html.*$/, '');
+    window.location.replace(base + 'website/index.html#signup');
+    return;
+  }
+  // Show personalised greeting
+  const name = localStorage.getItem('aeq_name') || 'Analyst';
+  const plan = localStorage.getItem('aeq_plan') || 'free';
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const hst = document.getElementById('hst');
+    if(hst) hst.textContent = 'Welcome back, ' + name + '  ·  Plan: ' + plan.toUpperCase();
+  });
+})();
+
+// ── MODULE DEFINITIONS ─────────────────────────────────────────────────────
+const MODULES = [
+  {
+    num:'01', title:'Monte Carlo Suite', port:5000, url:'/mc',
+    icon:'◈', desc:'GBM, Heston, Merton Jump-Diffusion, SABR stochastic vol. Live Canvas animation. IV Surface and Calibrator tabs.',
+    tags:['GBM','Heston','SABR','Jump-Diffusion','Greeks','VaR/CVaR'],
+    accent:'#c9a84c',
+  },
+  {
+    num:'02', title:'IV Surface & Calibrator', port:5001, url:'/iv',
+    icon:'◉', desc:'SABR closed-form (Hagan 2002), Heston CF pricing, calibration to live options chain. 3D surface, smile, term structure.',
+    tags:['SABR','Heston CF','IV Calibration','Options Chain'],
+    accent:'#3498db',
+  },
+  {
+    num:'03', title:'Portfolio Optimizer', port:5002, url:'/portfolio',
+    icon:'◎', desc:'Markowitz efficient frontier, Black-Litterman, Risk Parity (ERC), Ledoit-Wolf covariance. Walk-forward backtest.',
+    tags:['Markowitz','Black-Litterman','Risk Parity','Factor Model'],
+    accent:'#84cc16',
+  },
+  {
+    num:'04', title:'Fixed Income', port:5003, url:'/fi',
+    icon:'⊕', desc:'Nelson-Siegel & Svensson yield curves, zero-curve bootstrap, duration/convexity/DV01, swap pricing, Z-spread.',
+    tags:['Nelson-Siegel','Duration','Swaps','Z-Spread'],
+    accent:'#22d3ee',
+  },
+  {
+    num:'05', title:'Pairs Trading & MR Scanner', port:5004, url:'/pairs',
+    icon:'⊗', desc:'Engle-Granger cointegration, OU fitting, Z-score signals, universe scan with half-life filter, full backtest.',
+    tags:['Cointegration','OU Process','Z-Score','Backtest'],
+    accent:'#22c55e',
+  },
+  {
+    num:'06', title:'Vol & Regime', port:5005, url:'/vol',
+    icon:'⊘', desc:'GARCH(1,1), GJR-GARCH, HAR-RV, Kalman filter vol. 2/3-state HMM regime detection with Baum-Welch EM.',
+    tags:['GARCH','GJR','HAR-RV','HMM','Kalman'],
+    accent:'#e879f9',
+  },
+  {
+    num:'07', title:'Alpha & Execution', port:5006, url:'/alpha',
+    icon:'⊙', desc:'Fama-French 3-factor regression, rolling betas, PCA, alpha decay IC. Almgren-Chriss optimal execution vs TWAP/VWAP.',
+    tags:['Fama-French','PCA','Alpha Decay','Almgren-Chriss'],
+    accent:'#38bdf8',
+  },
+  {
+    num:'08', title:'Credit Risk', port:5007, url:'/credit',
+    icon:'⊛', desc:'Merton structural model, CDS curve bootstrapping, CVA attribution, Gaussian copula portfolio credit loss.',
+    tags:['Merton','CDS','CVA','Gaussian Copula'],
+    accent:'#f43f5e',
+  },
+];
+
+// ── TICKER TAPE ─────────────────────────────────────────────────────────────
+const TICKERS = [
+  {s:'SPY',p:589.42,c:+0.38},{s:'QQQ',p:512.18,c:+0.61},{s:'AAPL',p:228.87,c:-0.22},
+  {s:'MSFT',p:415.32,c:+0.45},{s:'GOOGL',p:198.74,c:+0.18},{s:'NVDA',p:875.39,c:+1.23},
+  {s:'GLD',p:242.18,c:+0.74},{s:'TLT',p:89.45,c:-0.15},{s:'VIX',p:14.82,c:-3.21},
+  {s:'BTC',p:67842,c:+2.18},{s:'EUR/USD',p:1.0821,c:-0.08},{s:'10Y',p:4.452,c:+0.03},
+  {s:'2Y',p:4.761,c:+0.01},{s:'JPM',p:231.44,c:+0.33},{s:'GS',p:568.92,c:+0.61},
+  {s:'XOM',p:118.73,c:+0.42},{s:'WTI',p:79.84,c:-0.55},{s:'DXY',p:104.32,c:+0.12},
+];
+
+function buildTicker(){
+  const inner = document.getElementById('ticker-inner');
+  // Duplicate for seamless loop
+  const items = [...TICKERS, ...TICKERS].map(t => {
+    const chg = (Math.random()*2-1)*t.p*0.002;  // small live drift
+    const price = t.p + chg;
+    const pct = (chg/t.p*100);
+    const up = pct >= 0;
+    return `<div class="ticker-item">
+      <span class="ticker-sym">${t.s}</span>
+      <span class="ticker-price">${price < 100 ? price.toFixed(3) : price.toFixed(2)}</span>
+      <span class="ticker-chg ${up?'up':'dn'}">${up?'▲':'▼'}${Math.abs(pct).toFixed(2)}%</span>
+    </div>`;
+  }).join('');
+  inner.innerHTML = items;
+}
+buildTicker();
+// Refresh ticker values every 5s
+setInterval(buildTicker, 5000);
+
+// ── HERO CANVAS ─────────────────────────────────────────────────────────────
+(function(){
+  const cv = document.getElementById('hero-canvas');
+  if(!cv) return;
+  const ctx = cv.getContext('2d');
+  let W, H, cols, rows, cells = [];
+
+  function resize(){
+    W = cv.width  = cv.offsetWidth;
+    H = cv.height = cv.offsetHeight;
+    const CW = 64, CH = 24;
+    cols = Math.ceil(W/CW); rows = Math.ceil(H/CH);
+    cells = [];
+    for(let r=0;r<rows;r++) for(let c=0;c<cols;c++)
+      cells.push({x:c*CW+4, y:r*CH+16, val:Math.random(), speed:0.002+Math.random()*0.004});
+  }
+
+  const nums = '0123456789.-+%';
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.font = '10px "DM Mono",monospace';
+    cells.forEach(c=>{
+      c.val += c.speed;
+      if(c.val > 1) c.val = 0;
+      const bright = Math.abs(Math.sin(c.val*Math.PI));
+      const char = nums[Math.floor(Math.random()*nums.length)];
+      ctx.fillStyle = `rgba(201,168,76,${bright*0.6})`;
+      ctx.fillText(char, c.x, c.y);
+    });
+    requestAnimationFrame(draw);
+  }
+  new ResizeObserver(resize).observe(cv);
+  resize(); draw();
+})();
+
+// ── LIVE TICKER COUNT ───────────────────────────────────────────────────────
+document.getElementById('live-tickers').innerHTML = TICKERS.length + '<span class="unit">live</span>';
+
+// ── MODULE CARDS ─────────────────────────────────────────────────────────────
+function buildModuleCards(){
+  const grid = document.getElementById('modules-grid');
+  grid.innerHTML = MODULES.map(m => `
+    <a class="module-card" href="${m.url}" target="_blank" title="Open ${m.title}">
+      <div class="mc-num">${m.num}</div>
+      <div class="mc-status">LIVE</div>
+      <div class="mc-icon" style="border-color:${m.accent}22;color:${m.accent}">${m.icon}</div>
+      <div class="mc-title">${m.title}</div>
+      <div class="mc-desc">${m.desc}</div>
+      <div class="mc-tags">${m.tags.map(t=>`<span class="mc-tag">${t}</span>`).join('')}</div>
+      <div class="mc-footer">
+        <span class="mc-port">:${m.port}</span>
+        <span class="mc-arrow" style="color:${m.accent}">↗</span>
+      </div>
+    </a>
+  `).join('');
+}
+buildModuleCards();
+
+// ── DASHBOARD MODAL ──────────────────────────────────────────────────────────
+function buildDashGrid(){
+  const grid = document.getElementById('dash-grid');
+  grid.innerHTML = MODULES.map(m => `
+    <a class="dash-status-card" href="${m.url}" target="_blank">
+      <div class="dsc-num">${m.num}</div>
+      <div class="dsc-name">${m.title}</div>
+      <div class="dsc-port">localhost:${m.port}</div>
+      <div class="dsc-indicator">
+        <div class="dsc-dot checking" id="dot-${m.port}"></div>
+        <span id="status-${m.port}" style="color:var(--white-muted)">checking…</span>
+      </div>
+    </a>
+  `).join('');
+}
+
+function showDash(){
+  document.getElementById('dash-modal').classList.add('open');
+  buildDashGrid();
+  checkAllStatus();
+  addFeedEntry('Platform dashboard opened', 'ok');
+}
+function closeDash(){
+  document.getElementById('dash-modal').classList.remove('open');
+}
+function closeDashOnOverlay(e){
+  if(e.target === document.getElementById('dash-modal')) closeDash();
+}
+document.addEventListener('keydown', e=>{if(e.key==='Escape') closeDash()});
+
+// Check each module's health
+async function checkStatus(module){
+  const dot  = document.getElementById('dot-'+module.port);
+  const stat = document.getElementById('status-'+module.port);
+  try{
+    const ctrl = new AbortController();
+    const timer = setTimeout(()=>ctrl.abort(), 2500);
+    await fetch(module.url, {signal:ctrl.signal, mode:'no-cors'});
+    clearTimeout(timer);
+    if(dot){ dot.className='dsc-dot live' }
+    if(stat){ stat.textContent='running'; stat.style.color='var(--green-bright)' }
+    addFeedEntry(`${module.title} responded on :${module.port}`, 'ok');
+  } catch(e){
+    if(dot){ dot.className='dsc-dot down' }
+    if(stat){ stat.textContent='offline'; stat.style.color='var(--white-muted)' }
+  }
+}
+
+function checkAllStatus(){
+  MODULES.forEach((m,i) => setTimeout(()=>checkStatus(m), i*150));
+}
+
+// System feed
+let _feedLines = [];
+function addFeedEntry(msg, type='ok'){
+  const now = new Date();
+  const time = now.toTimeString().slice(0,8);
+  _feedLines.unshift({time, msg, type});
+  if(_feedLines.length > 20) _feedLines.pop();
+  const feed = document.getElementById('live-feed');
+  if(!feed) return;
+  feed.innerHTML = _feedLines.map(l=>`
+    <div class="feed-row">
+      <span class="feed-time">${l.time}</span>
+      <span class="feed-msg">${l.msg}</span>
+      <span class="feed-badge ${l.type}">${l.type.toUpperCase()}</span>
+    </div>`).join('');
+}
+
+// Seed the feed
+setTimeout(()=>addFeedEntry('AEQUITAS platform initialized', 'ok'), 500);
+setTimeout(()=>addFeedEntry('yfinance data connection available', 'ok'), 1200);
+setTimeout(()=>addFeedEntry('8 quantitative modules registered', 'ok'), 1800);
+
+// Build quick-nav grid
+function buildQNav(){
+  const g = document.getElementById('qnav-grid');
+  if(!g) return;
+  g.innerHTML = MODULES.map(m => `
+    <a class="qnav-card" href="${m.url}" target="_blank">
+      <div class="qnav-num">${m.num}</div>
+      <div class="qnav-title">${m.title}</div>
+      <div class="qnav-desc">${m.desc.slice(0, 80)}…</div>
+      <span class="qnav-arrow">↗</span>
+    </a>
+  `).join('');
+}
+buildQNav();
+
+function signOut(){
+  localStorage.removeItem('aeq_auth');
+  localStorage.removeItem('aeq_email');
+  localStorage.removeItem('aeq_name');
+  localStorage.removeItem('aeq_plan');
+  const base = window.location.href.replace(/hub\/index\.html.*$/, '');
+  window.location.replace(base + 'website/index.html');
+}
+
+</script>
+</body>
+</html>
