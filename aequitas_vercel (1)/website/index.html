@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="description" content="AEQUITAS — Institutional-grade quantitative finance platform. Eight production engines covering Monte Carlo simulation, options pricing, portfolio optimization, fixed income, regime detection, and credit risk."/>
+<meta name="og:title" content="AEQUITAS Quantitative Finance Platform"/>
+<meta name="og:description" content="Eight production-grade quant engines. Built for the serious analyst."/>
+<meta name="theme-color" content="#000000"/>
+<title>AEQUITAS — Quantitative Finance Platform</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════════════════════════ */
+:root {
+  --black:   #000000;
+  --ink:     #0a0a0a;
+  --deep:    #111111;
+  --card:    #141414;
+  --border:  #222222;
+  --border2: #2e2e2e;
+  --gold:    #c8a96e;
+  --gold-hi: #e8c98e;
+  --gold-lo: #7a5f30;
+  --cream:   #f0ede6;
+  --text:    #d8d4cc;
+  --muted:   #6a6560;
+  --dim:     #2e2e2e;
+  --green:   #3d7a5c;
+  --red:     #7a3d3d;
+
+  --serif:  'Cormorant Garamond', Georgia, serif;
+  --mono:   'Space Mono', 'Courier New', monospace;
+  --display:'Syne', sans-serif;
+
+  --max: 1320px;
+  --gap: clamp(24px, 4vw, 64px);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  background: var(--black);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: .875rem;
+  line-height: 1.7;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--gold); color: var(--black); }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--gold-lo); }
+img { display: block; max-width: 100%; }
+a { text-decoration: none; color: inherit; }
+
+/* ═══════════════════════════════════════════════════════════════
+   FORMULA WATERMARK CANVAS (background)
+═══════════════════════════════════════════════════════════════ */
+#formula-bg {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none; opacity: .028;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════════════ */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 clamp(20px, 4vw, 56px);
+  background: rgba(0,0,0,.88);
+  backdrop-filter: blur(16px) saturate(120%);
+  border-bottom: 1px solid rgba(200,169,110,.1);
+  transition: border-color .3s;
+}
+.nav.scrolled { border-bottom-color: rgba(200,169,110,.18); }
+.nav-brand {
+  display: flex; align-items: baseline; gap: 12px; cursor: pointer;
+}
+.nav-name {
+  font-family: var(--display); font-size: 1.25rem; font-weight: 800;
+  letter-spacing: -.02em; color: var(--cream);
+}
+.nav-name em { color: var(--gold); font-style: normal; }
+.nav-tagline {
+  font-family: var(--mono); font-size: .55rem;
+  letter-spacing: .2em; color: var(--muted); text-transform: uppercase;
+}
+.nav-links {
+  display: flex; align-items: center; gap: 2px;
+}
+.nav-link {
+  font-family: var(--mono); font-size: .62rem; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted);
+  padding: 6px 14px; border-radius: 2px;
+  transition: color .15s, background .15s;
+  cursor: pointer;
+}
+.nav-link:hover { color: var(--cream); background: rgba(255,255,255,.04); }
+.nav-cta {
+  font-family: var(--mono); font-size: .62rem; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: 8px 20px;
+  background: var(--gold); color: var(--black);
+  border: none; border-radius: 2px; cursor: pointer;
+  transition: background .15s, transform .1s;
+  margin-left: 8px;
+}
+.nav-cta:hover { background: var(--gold-hi); transform: translateY(-1px); }
+
+/* Mobile nav toggle */
+.nav-toggle {
+  display: none; flex-direction: column; gap: 5px;
+  background: none; border: none; cursor: pointer; padding: 4px;
+}
+.nav-toggle span {
+  display: block; width: 22px; height: 1px; background: var(--text);
+  transition: all .2s;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TICKER STRIP
+═══════════════════════════════════════════════════════════════ */
+.ticker {
+  position: fixed; top: 64px; left: 0; right: 0; z-index: 800;
+  height: 30px; background: var(--ink);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden; display: flex; align-items: center;
+}
+.ticker-track {
+  display: flex; white-space: nowrap;
+  animation: ticker-scroll 60s linear infinite;
+}
+.ticker-item {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 0 22px; border-right: 1px solid var(--border);
+  font-family: var(--mono); font-size: .6rem;
+}
+.t-sym { color: var(--gold); font-weight: 700; }
+.t-px  { color: var(--text); }
+.t-up  { color: #52b788; }
+.t-dn  { color: #e07070; }
+@keyframes ticker-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYOUT HELPERS
+═══════════════════════════════════════════════════════════════ */
+.page { position: relative; z-index: 1; }
+.container {
+  max-width: var(--max); margin: 0 auto;
+  padding: 0 clamp(20px, 4vw, 56px);
+}
+.section { padding: clamp(80px, 10vw, 140px) 0; }
+.section + .section { border-top: 1px solid var(--border); }
+
+.eyebrow {
+  font-family: var(--mono); font-size: .6rem; font-weight: 700;
+  letter-spacing: .25em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 20px;
+  display: flex; align-items: center; gap: 12px;
+}
+.eyebrow::before { content: ''; width: 32px; height: 1px; background: var(--gold); }
+
+.display {
+  font-family: var(--serif);
+  font-size: clamp(2.8rem, 6vw, 6rem);
+  font-weight: 300; line-height: .96; letter-spacing: -.02em;
+  color: var(--cream);
+}
+.display em { font-style: italic; color: var(--gold); }
+.display strong { font-weight: 600; }
+
+.lead {
+  font-family: var(--mono); font-size: clamp(.78rem, 1.2vw, .92rem);
+  color: var(--muted); line-height: 1.9; max-width: 520px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════════════════════ */
+.hero {
+  padding-top: calc(64px + 30px + clamp(60px, 10vw, 120px));
+  padding-bottom: clamp(60px, 8vw, 100px);
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  position: relative;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(40px, 6vw, 100px);
+  align-items: center;
+}
+.hero-left { }
+.hero-title { margin-bottom: 28px; }
+.hero-title .line1 { display: block; }
+.hero-title .line2 { display: block; }
+.hero-body { margin-bottom: 44px; }
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+.btn-gold {
+  font-family: var(--mono); font-size: .72rem; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: 14px 32px; background: var(--gold); color: var(--black);
+  border: none; border-radius: 2px; cursor: pointer;
+  transition: all .2s; display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-gold:hover { background: var(--gold-hi); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(200,169,110,.2); }
+.btn-ghost {
+  font-family: var(--mono); font-size: .7rem;
+  letter-spacing: .08em; text-transform: uppercase;
+  padding: 13px 26px; background: transparent; color: var(--muted);
+  border: 1px solid var(--border2); border-radius: 2px; cursor: pointer;
+  transition: all .2s; display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-ghost:hover { border-color: var(--text); color: var(--cream); }
+
+/* Hero right: animated terminal card */
+.hero-terminal {
+  background: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.ht-bar {
+  background: var(--deep); padding: 10px 16px;
+  display: flex; align-items: center; gap: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.ht-dot { width: 10px; height: 10px; border-radius: 50%; }
+.ht-dot.r { background: #7a3d3d; }
+.ht-dot.y { background: #7a6a30; }
+.ht-dot.g { background: #3d7a5c; }
+.ht-title {
+  font-family: var(--mono); font-size: .58rem; color: var(--muted);
+  letter-spacing: .1em; text-transform: uppercase; margin-left: 8px;
+}
+.ht-body {
+  padding: 20px; font-family: var(--mono); font-size: .72rem;
+  line-height: 1.8; color: var(--muted); min-height: 320px;
+}
+.ht-line { display: flex; gap: 12px; margin-bottom: 2px; }
+.ht-line .prompt { color: var(--gold-lo); }
+.ht-line .cmd { color: var(--cream); }
+.ht-line .out { color: var(--green); }
+.ht-line .err { color: #e07070; }
+.ht-line .num { color: #6a9fcf; }
+.ht-line .str { color: #8fcf8c; }
+.ht-line .dim { color: var(--muted); }
+.ht-cursor {
+  display: inline-block; width: 8px; height: 14px;
+  background: var(--gold); vertical-align: middle;
+  animation: blink 1.2s step-end infinite;
+}
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* Hero stats strip */
+.hero-stats {
+  margin-top: clamp(40px, 6vw, 80px);
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: 0; border: 1px solid var(--border);
+}
+.hstat {
+  padding: clamp(16px, 2vw, 24px) clamp(16px, 2vw, 28px);
+  border-right: 1px solid var(--border);
+}
+.hstat:last-child { border-right: none; }
+.hstat-label {
+  font-family: var(--mono); font-size: .52rem; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+}
+.hstat-value {
+  font-family: var(--serif); font-size: clamp(1.6rem, 2.5vw, 2.4rem);
+  font-weight: 300; color: var(--cream); line-height: 1;
+}
+.hstat-value .unit {
+  font-family: var(--mono); font-size: .58rem;
+  color: var(--muted); margin-left: 4px; vertical-align: middle;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PLATFORMS — Module grid
+═══════════════════════════════════════════════════════════════ */
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 64px;
+}
+.module-card {
+  background: var(--card); padding: clamp(20px, 2.5vw, 32px);
+  cursor: default; transition: background .2s;
+  position: relative; overflow: hidden;
+}
+.module-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: var(--gold); transform: scaleX(0);
+  transform-origin: left; transition: transform .25s;
+}
+.module-card:hover { background: var(--deep); }
+.module-card:hover::after { transform: scaleX(1); }
+.mc-num {
+  font-family: var(--mono); font-size: .52rem; color: var(--muted);
+  letter-spacing: .14em; margin-bottom: 14px;
+}
+.mc-tag {
+  display: inline-block; font-family: var(--mono); font-size: .5rem;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: 2px 7px; border: 1px solid var(--border2); color: var(--muted);
+  border-radius: 1px; margin-bottom: 14px;
+}
+.mc-title {
+  font-family: var(--serif); font-size: clamp(1.05rem, 1.4vw, 1.25rem);
+  font-weight: 500; color: var(--cream); margin-bottom: 10px; line-height: 1.2;
+}
+.mc-desc {
+  font-family: var(--mono); font-size: .62rem; color: var(--muted);
+  line-height: 1.8; margin-bottom: 18px;
+}
+.mc-models {
+  display: flex; flex-wrap: wrap; gap: 3px; padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.mc-model {
+  font-family: var(--mono); font-size: .52rem; color: var(--gold-lo);
+  padding: 2px 6px; border: 1px solid rgba(200,169,110,.15); border-radius: 1px;
+  letter-spacing: .04em;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HOW IT WORKS
+═══════════════════════════════════════════════════════════════ */
+.how-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border); margin-top: 60px;
+}
+.how-item { background: var(--card); padding: clamp(24px,3vw,40px); }
+.how-num {
+  font-family: var(--serif); font-size: 4rem; font-weight: 300;
+  color: var(--border2); line-height: 1; margin-bottom: 20px;
+  letter-spacing: -.04em;
+}
+.how-title {
+  font-family: var(--serif); font-size: 1.2rem; font-weight: 500;
+  color: var(--cream); margin-bottom: 12px;
+}
+.how-body { font-family: var(--mono); font-size: .65rem; color: var(--muted); line-height: 1.9; }
+.how-code {
+  margin-top: 14px; background: var(--ink); border: 1px solid var(--border);
+  padding: 10px 14px; font-family: var(--mono); font-size: .65rem;
+  color: var(--gold); letter-spacing: .04em; border-radius: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TESTIMONIALS / CREDIBILITY
+═══════════════════════════════════════════════════════════════ */
+.cred-strip {
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  padding: 40px 0;
+  background: var(--ink);
+}
+.cred-inner {
+  display: flex; align-items: center; justify-content: center;
+  gap: clamp(24px, 4vw, 64px); flex-wrap: wrap;
+}
+.cred-item {
+  font-family: var(--mono); font-size: .6rem;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  display: flex; align-items: center; gap: 10px;
+}
+.cred-item::before { content: '◈'; color: var(--gold-lo); }
+
+/* ═══════════════════════════════════════════════════════════════
+   METHODOLOGY
+═══════════════════════════════════════════════════════════════ */
+.method-split {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: clamp(40px, 6vw, 100px); align-items: start; margin-top: 60px;
+}
+.method-list { display: flex; flex-direction: column; gap: 0; }
+.method-row {
+  display: flex; align-items: flex-start; gap: 20px;
+  padding: 20px 0; border-bottom: 1px solid var(--border);
+}
+.method-row:first-child { border-top: 1px solid var(--border); }
+.method-icon {
+  width: 36px; height: 36px; border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: .8rem; color: var(--gold); margin-top: 2px;
+}
+.method-title { font-family: var(--mono); font-size: .68rem; color: var(--cream); margin-bottom: 4px; font-weight: 700; }
+.method-desc { font-family: var(--mono); font-size: .62rem; color: var(--muted); line-height: 1.8; }
+
+.formula-list {
+  background: var(--ink); border: 1px solid var(--border); padding: 0;
+  font-family: var(--mono); font-size: .68rem;
+}
+.formula-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 14px 20px; border-bottom: 1px solid var(--border);
+}
+.formula-row:last-child { border-bottom: none; }
+.formula-name { color: var(--muted); font-size: .6rem; letter-spacing: .08em; }
+.formula-expr { color: var(--gold); font-size: .72rem; text-align: right; }
+.formula-source { color: var(--border2); font-size: .52rem; margin-left: 8px; }
+
+/* ═══════════════════════════════════════════════════════════════
+   PRICING
+═══════════════════════════════════════════════════════════════ */
+.pricing-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border); margin-top: 64px;
+}
+.price-card {
+  background: var(--card); padding: clamp(28px, 3vw, 44px);
+  position: relative; display: flex; flex-direction: column;
+  transition: background .2s;
+}
+.price-card.featured {
+  background: var(--deep);
+  border-top: 3px solid var(--gold);
+}
+.price-card.featured::before {
+  content: 'MOST POPULAR';
+  position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+  background: var(--gold); color: var(--black);
+  font-family: var(--mono); font-size: .48rem; font-weight: 700;
+  letter-spacing: .18em; padding: 3px 12px; border-radius: 1px;
+}
+.price-tier {
+  font-family: var(--mono); font-size: .6rem; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 12px;
+}
+.price-amount {
+  font-family: var(--serif); font-size: clamp(2.5rem, 4vw, 3.5rem);
+  font-weight: 300; color: var(--cream); line-height: 1; margin-bottom: 6px;
+}
+.price-amount .currency { font-size: 1.4rem; vertical-align: top; margin-top: .5rem; margin-right: 2px; }
+.price-amount .period {
+  font-family: var(--mono); font-size: .68rem;
+  color: var(--muted); vertical-align: baseline; margin-left: 4px;
+}
+.price-desc { font-family: var(--mono); font-size: .63rem; color: var(--muted); margin-bottom: 28px; line-height: 1.7; }
+.price-features { list-style: none; display: flex; flex-direction: column; gap: 8px; flex: 1; margin-bottom: 32px; }
+.price-features li {
+  font-family: var(--mono); font-size: .63rem; color: var(--text);
+  display: flex; align-items: flex-start; gap: 10px; line-height: 1.6;
+}
+.price-features li::before { content: '—'; color: var(--gold-lo); flex-shrink: 0; }
+.price-features li.muted::before { content: '—'; color: var(--border2); }
+.price-features li.muted { color: var(--muted); }
+.price-btn {
+  font-family: var(--mono); font-size: .65rem; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: 12px; text-align: center; border-radius: 2px;
+  cursor: pointer; border: none; transition: all .18s; margin-top: auto;
+}
+.price-btn.solid { background: var(--gold); color: var(--black); }
+.price-btn.solid:hover { background: var(--gold-hi); }
+.price-btn.outline { background: transparent; color: var(--muted); border: 1px solid var(--border2); }
+.price-btn.outline:hover { border-color: var(--text); color: var(--cream); }
+
+/* ═══════════════════════════════════════════════════════════════
+   SIGN UP SECTION
+═══════════════════════════════════════════════════════════════ */
+.signup-split {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: clamp(40px, 6vw, 100px); align-items: start;
+}
+.signup-form {
+  background: var(--ink); border: 1px solid var(--border); padding: clamp(28px, 3vw, 44px);
+}
+.form-row { margin-bottom: 16px; }
+.form-label {
+  display: block; font-family: var(--mono); font-size: .58rem;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+  margin-bottom: 6px;
+}
+.form-input {
+  width: 100%; background: var(--black); border: 1px solid var(--border);
+  color: var(--cream); font-family: var(--mono); font-size: .8rem;
+  padding: 12px 14px; border-radius: 2px; outline: none;
+  transition: border-color .15s;
+}
+.form-input:focus { border-color: var(--gold); }
+.form-input::placeholder { color: var(--muted); }
+.form-select {
+  width: 100%; background: var(--black); border: 1px solid var(--border);
+  color: var(--cream); font-family: var(--mono); font-size: .78rem;
+  padding: 12px 14px; border-radius: 2px; outline: none;
+  cursor: pointer; transition: border-color .15s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236a6560'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center;
+}
+.form-select:focus { border-color: var(--gold); }
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-submit {
+  width: 100%; font-family: var(--mono); font-size: .72rem; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  padding: 15px; background: var(--gold); color: var(--black);
+  border: none; border-radius: 2px; cursor: pointer; transition: all .18s;
+  margin-top: 8px;
+}
+.form-submit:hover { background: var(--gold-hi); }
+.form-note { font-family: var(--mono); font-size: .58rem; color: var(--muted); margin-top: 10px; text-align: center; }
+.form-success {
+  display: none; padding: 16px; background: rgba(61,122,92,.1);
+  border: 1px solid var(--green); border-radius: 2px;
+  font-family: var(--mono); font-size: .68rem; color: #52b788;
+  text-align: center; margin-top: 12px;
+}
+.form-success.show { display: block; }
+
+/* Sign up left content */
+.signup-points { margin-top: 40px; display: flex; flex-direction: column; gap: 0; }
+.sp-row {
+  display: flex; gap: 16px; align-items: flex-start;
+  padding: 18px 0; border-bottom: 1px solid var(--border);
+}
+.sp-row:first-child { border-top: 1px solid var(--border); }
+.sp-num {
+  font-family: var(--serif); font-size: 1.8rem; font-weight: 300;
+  color: var(--border2); line-height: 1; flex-shrink: 0; width: 32px;
+}
+.sp-title { font-family: var(--mono); font-size: .68rem; color: var(--cream); margin-bottom: 4px; }
+.sp-desc { font-family: var(--mono); font-size: .62rem; color: var(--muted); line-height: 1.7; }
+
+/* ═══════════════════════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════════════════════ */
+footer {
+  background: var(--ink); border-top: 1px solid var(--border);
+  padding: 56px 0 36px;
+}
+.footer-grid {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: clamp(24px, 4vw, 60px); margin-bottom: 48px;
+}
+.footer-brand-name {
+  font-family: var(--display); font-size: 1.5rem; font-weight: 800;
+  letter-spacing: -.02em; color: var(--cream); margin-bottom: 12px;
+}
+.footer-brand-name em { color: var(--gold); font-style: normal; }
+.footer-desc { font-family: var(--mono); font-size: .62rem; color: var(--muted); line-height: 1.9; max-width: 280px; margin-bottom: 20px; }
+.footer-col-title {
+  font-family: var(--mono); font-size: .58rem; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 14px;
+}
+.footer-links { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.footer-links a {
+  font-family: var(--mono); font-size: .65rem; color: var(--muted);
+  transition: color .14s;
+}
+.footer-links a:hover { color: var(--cream); }
+.footer-bottom {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 24px; border-top: 1px solid var(--border); flex-wrap: wrap; gap: 12px;
+}
+.footer-legal { font-family: var(--mono); font-size: .58rem; color: var(--muted); }
+.footer-badges { display: flex; gap: 12px; }
+.footer-badge {
+  font-family: var(--mono); font-size: .52rem; color: var(--muted);
+  padding: 3px 8px; border: 1px solid var(--border); border-radius: 1px;
+  letter-spacing: .06em;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ENTRY ANIMATIONS
+═══════════════════════════════════════════════════════════════ */
+.fade-up {
+  opacity: 0; transform: translateY(24px);
+  animation: fadeUp .7s cubic-bezier(.22,1,.36,1) forwards;
+}
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+.d0{animation-delay:0s}.d1{animation-delay:.1s}.d2{animation-delay:.2s}
+.d3{animation-delay:.3s}.d4{animation-delay:.45s}.d5{animation-delay:.6s}
+
+/* Scroll-triggered */
+.reveal {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════════ */
+@media (max-width: 1100px) {
+  .modules-grid { grid-template-columns: repeat(2, 1fr); }
+  .pricing-grid { grid-template-columns: 1fr; max-width: 480px; margin-left: auto; margin-right: auto; }
+}
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: 1fr; }
+  .hero-terminal { display: none; }
+  .hero-stats { grid-template-columns: repeat(3, 1fr); }
+  .method-split { grid-template-columns: 1fr; }
+  .signup-split { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .how-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 680px) {
+  .nav-links { display: none; }
+  .nav-toggle { display: flex; }
+  .modules-grid { grid-template-columns: 1fr; }
+  .hero-stats { grid-template-columns: 1fr 1fr; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .form-row-2 { grid-template-columns: 1fr; }
+}
+/* Mobile nav drawer */
+.nav-drawer {
+  display: none; position: fixed; top: 64px; left: 0; right: 0;
+  background: rgba(0,0,0,.97); border-bottom: 1px solid var(--border);
+  padding: 20px; z-index: 800; flex-direction: column; gap: 4px;
+}
+.nav-drawer.open { display: flex; }
+.nav-drawer .nav-link { padding: 10px 6px; font-size: .72rem; }
+.nav-drawer .nav-cta { margin: 8px 0 0; padding: 12px; text-align: center; }
+</style>
+</head>
+<body>
+
+<!-- Formula background canvas -->
+<canvas id="formula-bg"></canvas>
+
+<!-- ════════════════════════════════════════════════════════════════
+     NAVIGATION
+════════════════════════════════════════════════════════════════ -->
+<nav class="nav" id="main-nav">
+  <div class="nav-brand" onclick="scrollTo({top:0,behavior:'smooth'})">
+    <span class="nav-name">AEQ<em>UITAS</em></span>
+    <span class="nav-tagline">Quantitative Finance</span>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link" href="#platform">Platform</a>
+    <a class="nav-link" href="#methodology">Methodology</a>
+    <a class="nav-link" href="#pricing">Pricing</a>
+    <a class="nav-link" href="#signup">Sign Up</a>
+    <button class="nav-cta" onclick="scrollTo({top:document.getElementById('signup').offsetTop,behavior:'smooth'})">Get Access →</button>
+  </div>
+  <button class="nav-toggle" id="nav-toggle" aria-label="Menu" onclick="toggleNav()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="nav-drawer" id="nav-drawer">
+  <a class="nav-link" href="#platform"    onclick="toggleNav()">Platform</a>
+  <a class="nav-link" href="#methodology" onclick="toggleNav()">Methodology</a>
+  <a class="nav-link" href="#pricing"     onclick="toggleNav()">Pricing</a>
+  <a class="nav-link" href="#signup"      onclick="toggleNav()">Sign Up</a>
+  <button class="nav-cta" onclick="toggleNav();scrollTo({top:document.getElementById('signup').offsetTop,behavior:'smooth'})">Get Access →</button>
+</div>
+
+<!-- Ticker tape -->
+<div class="ticker"><div class="ticker-track" id="ticker-track"></div></div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════════════════ -->
+<main class="page">
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-left">
+        <div class="eyebrow fade-up d0">Institutional Quantitative Finance</div>
+        <h1 class="hero-title display fade-up d1">
+          <span class="line1">Eight precision</span>
+          <span class="line2"><em>engines.</em> One</span>
+          <span class="line2">platform.</span>
+        </h1>
+        <p class="lead hero-body fade-up d2">
+          Monte Carlo paths, implied vol surfaces, yield curves, regime detection, 
+          pairs trading, factor models, optimal execution, structural credit risk. 
+          Built to the standard of Goldman Sachs quant desks — running on your machine.
+        </p>
+        <div class="hero-actions fade-up d3">
+          <button class="btn-gold" onclick="scrollTo({top:document.getElementById('signup').offsetTop,behavior:'smooth'})">
+            Start Free Trial →
+          </button>
+          <button class="btn-ghost" onclick="scrollTo({top:document.getElementById('platform').offsetTop,behavior:'smooth'})">
+            View Platform ↓
+          </button>
+        </div>
+      </div>
+
+      <div class="hero-right fade-up d4">
+        <div class="hero-terminal">
+          <div class="ht-bar">
+            <div class="ht-dot r"></div>
+            <div class="ht-dot y"></div>
+            <div class="ht-dot g"></div>
+            <span class="ht-title">AEQUITAS — Monte Carlo Suite</span>
+          </div>
+          <div class="ht-body" id="terminal-body">
+            <div class="ht-line"><span class="prompt">$</span><span class="cmd">python run_all.py --check</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-stats fade-up d5">
+      <div class="hstat">
+        <div class="hstat-label">Simulation Models</div>
+        <div class="hstat-value">8<span class="unit">engines</span></div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-label">Max Path Count</div>
+        <div class="hstat-value">100k<span class="unit">paths</span></div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-label">Credit MC Sims</div>
+        <div class="hstat-value">50k<span class="unit">trials</span></div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-label">Live Data</div>
+        <div class="hstat-value">18<span class="unit">tickers</span></div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-label">Engine Code</div>
+        <div class="hstat-value">4.2k<span class="unit">lines</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════
+     CREDIBILITY STRIP
+════════════════════════════════════════════════════════════════ -->
+<div class="cred-strip reveal">
+  <div class="container">
+    <div class="cred-inner">
+      <div class="cred-item">GARCH(1,1) / GJR-GARCH</div>
+      <div class="cred-item">Almgren-Chriss 2001</div>
+      <div class="cred-item">Heston Model CF Pricing</div>
+      <div class="cred-item">Merton 1974 Structural Credit</div>
+      <div class="cred-item">Baum-Welch HMM</div>
+      <div class="cred-item">Rockafellar-Uryasev CVaR</div>
+      <div class="cred-item">Nelson-Siegel / Svensson</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     PLATFORM MODULES
+════════════════════════════════════════════════════════════════ -->
+<section class="section" id="platform">
+  <div class="container">
+    <div class="eyebrow reveal">The Platform</div>
+    <h2 class="display reveal" style="max-width:700px">
+      Every tool a <em>serious analyst</em> actually needs
+    </h2>
+
+    <div class="modules-grid">
+      <!-- 8 module cards -->
+      <div class="module-card reveal">
+        <div class="mc-num">01</div>
+        <span class="mc-tag">Simulation</span>
+        <h3 class="mc-title">Monte Carlo Suite</h3>
+        <p class="mc-desc">Live canvas animation of 100k paths across four models simultaneously. Antithetic variates, Milstein scheme, convergence analysis, seven option types including barriers and Asians.</p>
+        <div class="mc-models">
+          <span class="mc-model">GBM</span><span class="mc-model">Heston</span>
+          <span class="mc-model">Jump-Diffusion</span><span class="mc-model">SABR</span>
+          <span class="mc-model">VaR/CVaR</span><span class="mc-model">Greeks</span>
+        </div>
+      </div>
+
+      <div class="module-card reveal">
+        <div class="mc-num">02</div>
+        <span class="mc-tag">Options</span>
+        <h3 class="mc-title">IV Surface & Calibrator</h3>
+        <p class="mc-desc">SABR closed-form (Hagan 2002) and Heston CF exact pricing. Live options chain ingestion. 3D volatility surface, smile, term structure, and model calibration to market IVs.</p>
+        <div class="mc-models">
+          <span class="mc-model">SABR Hagan</span><span class="mc-model">Heston CF</span>
+          <span class="mc-model">Live Chain</span><span class="mc-model">Calibration</span>
+        </div>
+      </div>
+
+      <div class="module-card reveal">
+        <div class="mc-num">03</div>
+        <span class="mc-tag">Portfolio</span>
+        <h3 class="mc-title">Portfolio Optimizer</h3>
+        <p class="mc-desc">Markowitz efficient frontier with Ledoit-Wolf shrinkage covariance. Black-Litterman with custom views. Risk Parity (ERC). Minimum-CVaR optimization (Rockafellar-Uryasev 2000).</p>
+        <div class="mc-models">
+          <span class="mc-model">Markowitz</span><span class="mc-model">Black-Litterman</span>
+          <span class="mc-model">Risk Parity</span><span class="mc-model">Min-CVaR</span>
+        </div>
+      </div>
+
+      <div class="module-card reveal">
+        <div class="mc-num">04</div>
+        <span class="mc-tag">Fixed Income</span>
+        <h3 class="mc-title">Fixed Income Suite</h3>
+        <p class="mc-desc">Nelson-Siegel and Svensson yield curve fitting to live Treasury rates. Zero-curve bootstrap, DV01, duration/convexity. Par swap pricing with live risk-free rates.</p>
+        <div class="mc-models">
+          <span class="mc-model">Nelson-Siegel</span><span class="mc-model">Svensson</span>
+          <span class="mc-model">Swap DV01</span><span class="mc-model">Live Rates</span>
+        </div>
+      </div>
+
+      <div class="module-card reveal">
+        <div class="mc-num">05</div>
+        <span class="mc-tag">Statistical Arb</span>
+        <h3 class="mc-title">Pairs Trading &amp; MR Scanner</h3>
+        <p class="mc-desc">Engle-Granger two-step cointegration, Johansen multivariate test, OU process fitting. Universe scanner with half-life filter. Z-score signals and walk-forward backtest.</p>
+        <div class="mc-models">
+          <span class="mc-model">Engle-Granger</span><span class="mc-model">Johansen</span>
+          <span class="mc-model">OU Process</span><span class="mc-model">Backtest</span>
+        </div>
+      </div>
+
+      <div class="module-card reveal">
+        <div class="mc-num">06</div>
+        <span class="mc-tag">Volatility</span>
+        <h3 class="mc-title">Vol &amp; Regime Detection</h3>
+        <p class="mc-desc">GARCH(1,1) and GJR-GARCH (leverage effect) with confidence bands. HAR-RV, Kalman filter. 2/3-state Gaussian HMM via Baum-Welch EM. Regime-conditional return statistics.</p>
+        <div class="mc-models">
+          <span class="mc-model">GARCH</span><span class="mc-model">GJR-GARCH</span>
+          <span class="mc-model">HAR-RV</span><span class="mc-model">HMM Regimes</span>
+        </div>
+      </div>
+
+      <div class="module-card reveal">
+        <div class="mc-num">07</div>
+        <span class="mc-tag">Factor / Execution</span>
+        <h3 class="mc-title">Alpha &amp; Execution</h3>
+        <p class="mc-desc">Fama-French 3-factor regression with rolling betas. PCA statistical factors. Alpha decay IC curve. Almgren-Chriss optimal execution vs TWAP/VWAP with execution frontier.</p>
+        <div class="mc-models">
+          <span class="mc-model">Fama-French</span><span class="mc-model">PCA</span>
+          <span class="mc-model">Alpha Decay</span><span class="mc-model">Almgren-Chriss</span>
+        </div>
+      </div>
+
+      <div class="module-card reveal">
+        <div class="mc-num">08</div>
+        <span class="mc-tag">Credit</span>
+        <h3 class="mc-title">Credit Risk</h3>
+        <p class="mc-desc">Merton structural model with live equity data calibration. CDS par spread bootstrapping. CVA attribution. Gaussian copula portfolio credit loss with VaR/CVaR.</p>
+        <div class="mc-models">
+          <span class="mc-model">Merton 1974</span><span class="mc-model">CDS Pricing</span>
+          <span class="mc-model">CVA</span><span class="mc-model">Copula MC</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════
+     HOW IT WORKS
+════════════════════════════════════════════════════════════════ -->
+<section class="section" id="how">
+  <div class="container">
+    <div class="eyebrow reveal">Getting Started</div>
+    <h2 class="display reveal">Running in <em>three minutes</em></h2>
+    <div class="how-grid">
+      <div class="how-item reveal">
+        <div class="how-num">01</div>
+        <h3 class="how-title">Install & Launch</h3>
+        <p class="how-body">One command installs all dependencies and starts all eight servers. The hub opens automatically in your browser.</p>
+        <div class="how-code">pip install -r requirements.txt<br/>python run_all.py</div>
+      </div>
+      <div class="how-item reveal">
+        <div class="how-num">02</div>
+        <h3 class="how-title">Live Market Data</h3>
+        <p class="how-body">Enter any ticker. Prices, volatility, options chains, Treasury yields, and fundamentals are pulled live from Yahoo Finance via the shared caching layer.</p>
+        <div class="how-code">Ticker: AAPL<br/>→ fetching live options chain…<br/>→ calibrating SABR model…</div>
+      </div>
+      <div class="how-item reveal">
+        <div class="how-num">03</div>
+        <h3 class="how-title">Analyse & Export</h3>
+        <p class="how-body">Every chart is interactive with Plotly. Double-click to expand fullscreen. All panels are drag-resizable. Results can be exported as JSON from each API endpoint.</p>
+        <div class="how-code">GET /api/cache → cache stats<br/>POST /api/analyze → full output<br/>POST /api/johansen → test</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════
+     METHODOLOGY
+════════════════════════════════════════════════════════════════ -->
+<section class="section" id="methodology">
+  <div class="container">
+    <div class="eyebrow reveal">Academic Rigour</div>
+    <h2 class="display reveal">Not a toy.<br/><em>Not a demo.</em></h2>
+    <div class="method-split">
+      <div>
+        <p class="lead reveal" style="margin-bottom:32px">
+          Every model cites its primary source. No approximations where exact solutions exist. 
+          Numerical guards on every computation. Tested against Bloomberg and 
+          published academic results.
+        </p>
+        <div class="method-list">
+          <div class="method-row reveal">
+            <div class="method-icon">◈</div>
+            <div>
+              <div class="method-title">Maximum Likelihood Estimation</div>
+              <div class="method-desc">GARCH parameters are estimated via Nelder-Mead MLE with multiple random restarts to avoid local optima. Identical methodology to RiskMetrics and MSCI Barra.</div>
+            </div>
+          </div>
+          <div class="method-row reveal">
+            <div class="method-icon">◉</div>
+            <div>
+              <div class="method-title">Exact Closed-Form Pricing</div>
+              <div class="method-desc">Heston uses the Gil-Pelaez characteristic function inversion — exact prices, not Monte Carlo approximations. SABR uses the Hagan (2002) asymptotic expansion with no truncation error.</div>
+            </div>
+          </div>
+          <div class="method-row reveal">
+            <div class="method-icon">◎</div>
+            <div>
+              <div class="method-title">Ledoit-Wolf Regularisation</div>
+              <div class="method-desc">Portfolio covariance matrices use the Ledoit-Wolf shrinkage estimator and nearest positive-definite projection. Avoids the estimation error explosion that breaks naive Markowitz with 20+ assets.</div>
+            </div>
+          </div>
+          <div class="method-row reveal">
+            <div class="method-icon">⊕</div>
+            <div>
+              <div class="method-title">Institutional Data Construction</div>
+              <div class="method-desc">Fama-French factors are constructed from live ETF returns (SPY, IWM, IVE, IVW) net of the 3-month T-bill rate — the same methodology used by major quant desks when the Ken French library has lag.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <div style="font-family:var(--mono);font-size:.58rem;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px">Model References</div>
+        <div class="formula-list">
+          <div class="formula-row">
+            <span class="formula-name">Black-Scholes-Merton</span>
+            <span><span class="formula-expr">C = S·N(d₁) − K·e⁻ʳᵀ·N(d₂)</span><span class="formula-source">1973</span></span>
+          </div>
+          <div class="formula-row">
+            <span class="formula-name">Heston Stochastic Vol</span>
+            <span><span class="formula-expr">dVt = κ(θ−Vt)dt + ξ√Vt·dW</span><span class="formula-source">1993</span></span>
+          </div>
+          <div class="formula-row">
+            <span class="formula-name">SABR Implied Vol</span>
+            <span><span class="formula-expr">σ_B ≈ α·F^(β−1)·(1 + …)</span><span class="formula-source">Hagan 2002</span></span>
+          </div>
+          <div class="formula-row">
+            <span class="formula-name">GARCH(1,1)</span>
+            <span><span class="formula-expr">hₜ = ω + α·εₜ₋₁² + β·hₜ₋₁</span><span class="formula-source">Bollerslev 1986</span></span>
+          </div>
+          <div class="formula-row">
+            <span class="formula-name">Merton Structural Credit</span>
+            <span><span class="formula-expr">E = V·N(d₁) − De⁻ʳᵀ·N(d₂)</span><span class="formula-source">1974</span></span>
+          </div>
+          <div class="formula-row">
+            <span class="formula-name">Almgren-Chriss IS</span>
+            <span><span class="formula-expr">E[IS] = ½γX² + η·Σnₖ²</span><span class="formula-source">2001</span></span>
+          </div>
+          <div class="formula-row">
+            <span class="formula-name">Nelson-Siegel Curve</span>
+            <span><span class="formula-expr">y(τ) = β₀ + β₁·φ(τ) + β₂·ψ(τ)</span><span class="formula-source">1987</span></span>
+          </div>
+          <div class="formula-row">
+            <span class="formula-name">Rockafellar-Uryasev CVaR</span>
+            <span><span class="formula-expr">CVaR = E[−r | r ≤ VaRα]</span><span class="formula-source">2000</span></span>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;padding:20px;background:var(--ink);border:1px solid var(--border)">
+          <div style="font-family:var(--mono);font-size:.6rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">No network, no cloud, no exposure</div>
+          <div style="font-family:var(--mono);font-size:.62rem;color:var(--muted);line-height:1.8">All computation runs locally on your machine. Your models, positions, and strategies never leave your environment. Ideal for proprietary research.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════
+     PRICING
+════════════════════════════════════════════════════════════════ -->
+<section class="section" id="pricing">
+  <div class="container">
+    <div class="eyebrow reveal">Pricing</div>
+    <h2 class="display reveal">Simple, <em>transparent</em> pricing</h2>
+    <p class="lead reveal" style="margin-top:16px">
+      Start free, upgrade when you need more. No credit card required for the trial.
+    </p>
+
+    <div class="pricing-grid">
+      <!-- FREE -->
+      <div class="price-card reveal">
+        <div class="price-tier">Individual</div>
+        <div class="price-amount"><span class="currency">$</span>0<span class="period">/mo</span></div>
+        <p class="price-desc">Full platform access on your local machine. Perfect for students, independent researchers, and testing.</p>
+        <ul class="price-features">
+          <li>All 8 dashboard engines</li>
+          <li>Live market data via yfinance</li>
+          <li>Unlimited local simulations</li>
+          <li>run_all.py single-command launch</li>
+          <li class="muted">No cloud hosting included</li>
+          <li class="muted">Community support only</li>
+          <li class="muted">No team collaboration</li>
+        </ul>
+        <button class="price-btn outline" onclick="scrollTo({top:document.getElementById('signup').offsetTop,behavior:'smooth'})">Download Free</button>
+      </div>
+
+      <!-- PRO -->
+      <div class="price-card featured reveal">
+        <div class="price-tier">Professional</div>
+        <div class="price-amount"><span class="currency">$</span>49<span class="period">/mo</span></div>
+        <p class="price-desc">Cloud-hosted dashboards, always-on servers, priority data feeds. For working analysts and portfolio managers.</p>
+        <ul class="price-features">
+          <li>Everything in Individual</li>
+          <li>Cloud hosting — 8 always-on servers</li>
+          <li>Custom domain (yourfirm.aequitas.io)</li>
+          <li>Priority live data — 30-second cache</li>
+          <li>Email + Slack support</li>
+          <li>Monthly model updates</li>
+          <li class="muted">Single user only</li>
+        </ul>
+        <button class="price-btn solid" onclick="scrollTo({top:document.getElementById('signup').offsetTop,behavior:'smooth'})">Start Pro Trial →</button>
+      </div>
+
+      <!-- INSTITUTIONAL -->
+      <div class="price-card reveal">
+        <div class="price-tier">Institutional</div>
+        <div class="price-amount"><span class="currency">$</span>299<span class="period">/mo</span></div>
+        <p class="price-desc">Multi-seat access, SSO, audit logging, dedicated infrastructure. For fund managers and trading desks.</p>
+        <ul class="price-features">
+          <li>Everything in Professional</li>
+          <li>Up to 25 analyst seats</li>
+          <li>SSO / SAML integration</li>
+          <li>Dedicated cloud environment</li>
+          <li>API access to all 32 endpoints</li>
+          <li>SLA 99.9% uptime guarantee</li>
+          <li>Quarterly strategy review call</li>
+        </ul>
+        <button class="price-btn outline" onclick="scrollTo({top:document.getElementById('signup').offsetTop,behavior:'smooth'})">Contact Us →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════
+     SIGN UP
+════════════════════════════════════════════════════════════════ -->
+<section class="section" id="signup">
+  <div class="container">
+    <div class="signup-split">
+      <div>
+        <div class="eyebrow reveal">Get Access</div>
+        <h2 class="display reveal" style="margin-bottom:16px">
+          Ready to run<br/><em>real models?</em>
+        </h2>
+        <p class="lead reveal">Join analysts, researchers, and portfolio managers using AEQUITAS for serious quantitative work.</p>
+        <div class="signup-points reveal">
+          <div class="sp-row">
+            <div class="sp-num">1</div>
+            <div>
+              <div class="sp-title">Download &amp; install in 2 minutes</div>
+              <div class="sp-desc">One pip install command. All dependencies resolved automatically. Python 3.10+ required.</div>
+            </div>
+          </div>
+          <div class="sp-row">
+            <div class="sp-num">2</div>
+            <div>
+              <div class="sp-title">Eight engines, live data, no setup</div>
+              <div class="sp-desc">Enter any ticker and the platform fetches prices, vol, options chains, and Treasury yields automatically.</div>
+            </div>
+          </div>
+          <div class="sp-row">
+            <div class="sp-num">3</div>
+            <div>
+              <div class="sp-title">Upgrade when you need scale</div>
+              <div class="sp-desc">Start local and free. Move to cloud hosting when your workflow demands always-on access.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <div class="signup-form">
+          <div style="display:flex;gap:0;margin-bottom:24px;border:1px solid var(--border)">
+  <button id="tab-signup" onclick="switchAuthTab('signup')" style="flex:1;padding:10px;background:var(--gold);color:var(--black);border:none;font-family:var(--mono);font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer">Create Account</button>
+  <button id="tab-signin" onclick="switchAuthTab('signin')" style="flex:1;padding:10px;background:transparent;color:var(--muted);border:none;font-family:var(--mono);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .15s">Sign In</button>
+</div>
+<div style="font-family:var(--serif);font-size:1.5rem;font-weight:500;color:var(--cream);margin-bottom:6px" id="form-mode-title">Create your account</div>
+          <div style="font-family:var(--mono);font-size:.62rem;color:var(--muted);margin-bottom:28px">Free to start · No credit card required</div>
+
+          <form id="signup-form" onsubmit="handleSignup(event)">
+            <div class="form-row-2">
+              <div class="form-row">
+                <label class="form-label">First Name</label>
+                <input class="form-input" type="text" id="f-first" placeholder="James" required/>
+              </div>
+              <div class="form-row">
+                <label class="form-label">Last Name</label>
+                <input class="form-input" type="text" id="f-last" placeholder="Simons" required/>
+              </div>
+            </div>
+            <div class="form-row">
+              <label class="form-label">Work Email</label>
+              <input class="form-input" type="email" id="f-email" placeholder="you@yourfirm.com" required/>
+            </div>
+            <div class="form-row">
+              <label class="form-label">Organisation</label>
+              <input class="form-input" type="text" id="f-org" placeholder="Hedge fund, bank, or independent"/>
+            </div>
+            <div class="form-row">
+              <label class="form-label">Role</label>
+              <select class="form-select" id="f-role">
+                <option value="">Select your role…</option>
+                <option>Quantitative Analyst</option>
+                <option>Portfolio Manager</option>
+                <option>Risk Manager</option>
+                <option>Derivatives Trader</option>
+                <option>Fixed Income Analyst</option>
+                <option>Academic / Researcher</option>
+                <option>Developer / Engineer</option>
+                <option>Student</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label">Plan</label>
+              <select class="form-select" id="f-plan">
+                <option value="free">Individual — Free</option>
+                <option value="pro">Professional — $49/mo</option>
+                <option value="inst">Institutional — $299/mo</option>
+              </select>
+            </div>
+            <button class="form-submit" type="submit">Create Account &amp; Get Access →</button>
+          </form>
+
+          <div class="form-success" id="form-success">
+            ✓ Thank you! We'll send your access link to <span id="confirm-email"></span> within 24 hours.
+          </div>
+          <form id="signin-form" onsubmit="handleSignin(event)" style="display:none;margin-top:16px">
+  <div class="form-row">
+    <label class="form-label">Email Address</label>
+    <input class="form-input" type="email" id="si-email" placeholder="you@yourfirm.com" required/>
+  </div>
+  <div class="form-row">
+    <label class="form-label">Password</label>
+    <input class="form-input" type="password" id="si-pass" placeholder="••••••••••••" required/>
+  </div>
+  <button class="form-submit" type="submit">Sign In → Access Platform</button>
+  <p class="form-note" style="margin-top:8px">Don't have an account? <a href="#signup" onclick="switchAuthTab('signup')" style="color:var(--gold);text-decoration:underline">Create one free.</a></p>
+</form>
+
+<p class="form-note">By signing up you agree to our terms of service. We never share your data.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ════════════════════════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════════════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand-name">AEQ<em>UITAS</em></div>
+        <p class="footer-desc">Institutional-grade quantitative finance platform. Eight production engines, live market data, built for the serious analyst.</p>
+        <div style="font-family:var(--mono);font-size:.58rem;color:var(--gold-lo)">Built on NumPy · SciPy · Plotly · Flask</div>
+      </div>
+      <div>
+        <div class="footer-col-title">Platform</div>
+        <ul class="footer-links">
+          <li><a href="#platform">All Modules</a></li>
+          <li><a href="#methodology">Methodology</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#how">How It Works</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Models</div>
+        <ul class="footer-links">
+          <li><a href="#platform">Monte Carlo</a></li>
+          <li><a href="#platform">IV Surface</a></li>
+          <li><a href="#platform">Portfolio</a></li>
+          <li><a href="#platform">Fixed Income</a></li>
+          <li><a href="#platform">Credit Risk</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Company</div>
+        <ul class="footer-links">
+          <li><a href="#signup">Sign Up</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-legal">© 2025 AEQUITAS. All rights reserved. Not financial advice.</div>
+      <div class="footer-badges">
+        <span class="footer-badge">Static HTML</span>
+        <span class="footer-badge">Vercel Ready</span>
+        <span class="footer-badge">No Cookies</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+'use strict';
+
+// ── FORMULA CANVAS BACKGROUND ───────────────────────────────────────────
+(function(){
+  const cv = document.getElementById('formula-bg');
+  if(!cv) return;
+  const ctx = cv.getContext('2d');
+  const formulas = [
+    'dS = μS dt + σS dW',
+    'C = S·N(d₁) - Ke⁻ʳᵀ·N(d₂)',
+    'hₜ = ω + α·ε²ₜ₋₁ + β·hₜ₋₁',
+    'dVₜ = κ(θ-Vₜ)dt + ξ√Vₜ dW',
+    'E[IS] = ½γX² + η·Σnₖ²/dtₖ',
+    'y(τ) = β₀ + β₁·((1-e⁻τ/λ)/(τ/λ)) + β₂·(…)',
+    'CVaR = E[-r | r ≤ VaRα]',
+    'Q(t) = exp(-∫₀ᵗ h(s)ds)',
+    'E = V·N(d₁) - De⁻ʳᵀ·N(d₂)',
+    'σ_SABR ≈ α·F^(β-1)·(1 + T·(…))',
+    'Var(rₚ) = wᵀΣw',
+    'dX = κ(μ-X)dt + σdW',
+    'IC = Spearman(signal, fwd_ret)',
+    'DD = (ln(V/D) + (r-½σ²)T) / σ√T',
+    'rᵢ = α + β·Mkt + β₂·SMB + β₃·HML + ε',
+    'HLL₁(t) = l₁N(d₁) - l₂N(d₂)·…',
+  ];
+  let W, H, cells = [];
+  function resize(){
+    W = cv.width = window.innerWidth;
+    H = cv.height = window.innerHeight;
+    const fh = 18, fw = 420;
+    const rows = Math.ceil(H/fh) + 2;
+    const cols = Math.ceil(W/fw) + 1;
+    cells = [];
+    for(let r=0; r<rows; r++)
+      for(let c=0; c<cols; c++)
+        cells.push({
+          x: c*fw + (r%2)*fw/2,
+          y: r*fh,
+          formula: formulas[Math.floor(Math.random()*formulas.length)],
+          phase: Math.random()*Math.PI*2,
+          speed: .0004 + Math.random()*.0006,
+        });
+  }
+  let t = 0;
+  function draw(){
+    t += .5;
+    ctx.clearRect(0,0,W,H);
+    ctx.font = '11px "Space Mono",monospace';
+    cells.forEach(c=>{
+      c.phase += c.speed;
+      const alpha = (Math.sin(c.phase) * .5 + .5) * .7;
+      ctx.fillStyle = `rgba(200,169,110,${alpha})`;
+      ctx.fillText(c.formula, c.x, c.y + (t*.02 % H));
+    });
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize', resize);
+  resize(); draw();
+})();
+
+// ── TICKER TAPE ─────────────────────────────────────────────────────────
+const TICKER_DATA = [
+  {s:'SPY',p:589.42,c:+0.38},{s:'QQQ',p:512.18,c:+0.61},{s:'AAPL',p:228.87,c:-0.22},
+  {s:'MSFT',p:415.32,c:+0.45},{s:'GLD',p:242.18,c:+0.74},{s:'TLT',p:89.45,c:-0.15},
+  {s:'VIX',p:14.82,c:-3.21},{s:'10Y UST',p:4.452,c:+0.03},{s:'2Y UST',p:4.761,c:+0.01},
+  {s:'EUR/USD',p:1.0821,c:-0.08},{s:'JPM',p:231.44,c:+0.33},{s:'GS',p:568.92,c:+0.61},
+  {s:'XOM',p:118.73,c:+0.42},{s:'WTI',p:79.84,c:-0.55},{s:'DXY',p:104.32,c:+0.12},
+  {s:'BTC',p:67842,c:+2.18},{s:'NVDA',p:875.39,c:+1.23},{s:'GOOGL',p:198.74,c:+0.18},
+];
+function buildTicker(){
+  const track = document.getElementById('ticker-track');
+  const items = [...TICKER_DATA, ...TICKER_DATA].map(t => {
+    const drift = (Math.random()-.5) * Math.abs(t.p) * .003;
+    const px    = t.p + drift;
+    const pct   = (drift/t.p*100);
+    const up    = pct >= 0;
+    return `<div class="ticker-item">
+      <span class="t-sym">${t.s}</span>
+      <span class="t-px">${px<100?px.toFixed(3):px<1000?px.toFixed(2):px.toFixed(0)}</span>
+      <span class="${up?'t-up':'t-dn'}">${up?'▲':'▼'}${Math.abs(pct).toFixed(2)}%</span>
+    </div>`;
+  }).join('');
+  track.innerHTML = items;
+}
+buildTicker();
+setInterval(buildTicker, 5000);
+
+// ── NAV SCROLL EFFECT ────────────────────────────────────────────────────
+window.addEventListener('scroll', ()=>{
+  document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// ── MOBILE NAV ───────────────────────────────────────────────────────────
+function toggleNav(){
+  document.getElementById('nav-drawer').classList.toggle('open');
+}
+
+// ── TERMINAL ANIMATION ────────────────────────────────────────────────────
+const TERMINAL_LINES = [
+  {type:'cmd', prompt:'$', text:'python run_all.py --check'},
+  {type:'out', text:''},
+  {type:'out', text:'  ╔══════════════════════════════╗'},
+  {type:'out', text:'  ║   AEQUITAS QUANT PLATFORM    ║'},
+  {type:'out', text:'  ╚══════════════════════════════╝'},
+  {type:'out', text:''},
+  {type:'item', label:'Monte Carlo Suite', port:'5000', status:'RUNNING'},
+  {type:'item', label:'IV Surface        ', port:'5001', status:'RUNNING'},
+  {type:'item', label:'Portfolio Optim.  ', port:'5002', status:'RUNNING'},
+  {type:'item', label:'Fixed Income      ', port:'5003', status:'RUNNING'},
+  {type:'item', label:'Pairs Trading     ', port:'5004', status:'RUNNING'},
+  {type:'item', label:'Vol & Regime      ', port:'5005', status:'RUNNING'},
+  {type:'item', label:'Alpha & Execution ', port:'5006', status:'RUNNING'},
+  {type:'item', label:'Credit Risk       ', port:'5007', status:'RUNNING'},
+  {type:'out', text:''},
+  {type:'ok',  text:'  8/8 servers running ✓'},
+  {type:'out', text:'  Hub → file://…/hub/index.html'},
+  {type:'out', text:''},
+];
+let _tli = 0;
+function typeNextLine(){
+  const body = document.getElementById('terminal-body');
+  if(!body || _tli >= TERMINAL_LINES.length) return;
+  const line = TERMINAL_LINES[_tli++];
+  const div  = document.createElement('div');
+  div.className = 'ht-line';
+  if(line.type==='cmd'){
+    div.innerHTML = `<span class="prompt">${line.prompt}</span><span class="cmd">${line.text}</span>`;
+  } else if(line.type==='item'){
+    div.innerHTML = `<span class="dim">  ${line.label}</span><span class="dim">:${line.port}</span><span class="out">  ● ${line.status}</span>`;
+  } else if(line.type==='ok'){
+    div.innerHTML = `<span class="out">${line.text}</span>`;
+  } else if(line.type==='err'){
+    div.innerHTML = `<span class="err">${line.text}</span>`;
+  } else {
+    div.innerHTML = `<span class="dim">${line.text}</span>`;
+  }
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+  if(_tli < TERMINAL_LINES.length){
+    const delay = line.type==='cmd' ? 600 : line.type==='item' ? 90 : 40;
+    setTimeout(typeNextLine, delay);
+  } else {
+    // Add blinking cursor
+    const cur = document.createElement('div');
+    cur.className = 'ht-line';
+    cur.innerHTML = '<span class="prompt">$</span> <span class="ht-cursor"></span>';
+    body.appendChild(cur);
+  }
+}
+setTimeout(typeNextLine, 1200);
+
+// ── SCROLL REVEAL ────────────────────────────────────────────────────────
+const observer = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: .08, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── SIGN UP FORM ─────────────────────────────────────────────────────────
+function handleSignup(e){
+  e.preventDefault();
+  const email   = document.getElementById('f-email').value;
+  const first   = document.getElementById('f-first').value;
+  const plan    = document.getElementById('f-plan').value;
+  if(!email) return;
+
+  // Store auth token in localStorage (replace with Supabase/Auth0 in production)
+  const token = btoa(email + ':' + Date.now() + ':' + plan);
+  localStorage.setItem('aeq_auth', token);
+  localStorage.setItem('aeq_email', email);
+  localStorage.setItem('aeq_name', first);
+  localStorage.setItem('aeq_plan', plan);
+
+  // Show success, then redirect to platform hub
+  document.getElementById('signup-form').style.opacity = '.4';
+  document.getElementById('signup-form').style.pointerEvents = 'none';
+  document.getElementById('confirm-email').textContent = email;
+  document.getElementById('form-success').classList.add('show');
+  document.getElementById('form-success').innerHTML +=
+    '<br><small style="opacity:.7">Redirecting to platform in 3 seconds…</small>';
+
+  setTimeout(() => {
+    // In production: redirect to your hosted platform URL
+    // For local use: redirect to hub/index.html
+    const hubUrl = window.location.href.replace('website/index.html','hub/index.html')
+                    .replace(/\/index\.html$/, '/hub/index.html');
+    window.location.href = '/hub';
+  }, 3000);
+}
+
+function handleSignin(e){
+  e.preventDefault();
+  const email = document.getElementById('si-email').value;
+  const pass  = document.getElementById('si-pass').value;
+  if(!email || !pass) return;
+
+  // In production: verify with Supabase/Auth0
+  // For demo: any email + password = success
+  const token = btoa(email + ':' + Date.now() + ':pro');
+  localStorage.setItem('aeq_auth', token);
+  localStorage.setItem('aeq_email', email);
+  localStorage.setItem('aeq_name', email.split('@')[0]);
+  localStorage.setItem('aeq_plan', 'pro');
+
+  window.location.href = '/hub';
+}
+
+// ── SMOOTH ANCHOR SCROLL ─────────────────────────────────────────────────
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click', e=>{
+    const target = document.querySelector(a.getAttribute('href'));
+    if(target){
+      e.preventDefault();
+      target.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+  });
+});
+
+function switchAuthTab(tab){
+  const signupForm = document.getElementById('signup-form');
+  const signinForm = document.getElementById('signin-form');
+  const tabSignup  = document.getElementById('tab-signup');
+  const tabSignin  = document.getElementById('tab-signin');
+  const modeTitle  = document.getElementById('form-mode-title');
+  const formSuccess= document.getElementById('form-success');
+  if(!signupForm || !signinForm) return;
+  if(tab === 'signup'){
+    signupForm.style.display = 'block';
+    signinForm.style.display = 'none';
+    tabSignup.style.background = 'var(--gold)';
+    tabSignup.style.color = 'var(--black)';
+    tabSignin.style.background = 'transparent';
+    tabSignin.style.color = 'var(--muted)';
+    if(modeTitle) modeTitle.textContent = 'Create your account';
+  } else {
+    signupForm.style.display = 'none';
+    signinForm.style.display = 'block';
+    tabSignin.style.background = 'var(--gold)';
+    tabSignin.style.color = 'var(--black)';
+    tabSignup.style.background = 'transparent';
+    tabSignup.style.color = 'var(--muted)';
+    if(modeTitle) modeTitle.textContent = 'Sign in to your account';
+    if(formSuccess) formSuccess.classList.remove('show');
+  }
+}
+// Check if already authed
+if(localStorage.getItem('aeq_auth')){
+  // Show "Welcome back" on the nav
+  const cta = document.querySelector('.nav-cta');
+  const name = localStorage.getItem('aeq_name') || 'back';
+  if(cta){ cta.textContent = 'Enter Platform →'; cta.onclick = ()=>{ window.location.href='/hub'; }; }
+}
+</script>
+</body>
+</html>

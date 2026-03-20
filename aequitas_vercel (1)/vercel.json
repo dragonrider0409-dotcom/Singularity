@@ -1,0 +1,66 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/hub",
+      "destination": "/hub/index.html"
+    },
+    {
+      "source": "/mc",
+      "destination": "/mc/index.html"
+    },
+    {
+      "source": "/iv",
+      "destination": "/iv/index.html"
+    },
+    {
+      "source": "/portfolio",
+      "destination": "/portfolio/index.html"
+    },
+    {
+      "source": "/fi",
+      "destination": "/fi/index.html"
+    },
+    {
+      "source": "/pairs",
+      "destination": "/pairs/index.html"
+    },
+    {
+      "source": "/vol",
+      "destination": "/vol/index.html"
+    },
+    {
+      "source": "/alpha",
+      "destination": "/alpha/index.html"
+    },
+    {
+      "source": "/credit",
+      "destination": "/credit/index.html"
+    }
+  ],
+  "functions": {
+    "api/**/*.py": {
+      "runtime": "python3.12",
+      "maxDuration": 30
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET,POST,OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type"
+        }
+      ]
+    }
+  ]
+}
