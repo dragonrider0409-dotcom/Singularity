@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SINGULARITY — Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#05030d;--s0:#07050f;--s1:#0a0714;--s2:#0d0a1a;
+  --bdr:#1a1030;--bdr2:#241540;--bdr3:#2e1a50;
+  --violet:#7c3aed;--vio2:#a78bfa;--vio3:#c4b5fd;
+  --cyan:#06b6d4;--cyn2:#22d3ee;
+  --grn:#10b981;--red:#f43f5e;--amb:#f59e0b;--rose:#fb7185;
+  --txt:#c8c0e0;--dim:#3d2d6a;--ghost:#180f30;--cream:#f5f0ff;
+  --mono:'JetBrains Mono',monospace;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --display:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--txt);font-family:var(--mono);font-size:13px;line-height:1.6}
+::selection{background:var(--violet);color:var(--cream)}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--bdr2)}
+
+/* ── NAV ── */
+.sg-nav{position:sticky;top:0;z-index:500;height:54px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 24px;
+  background:rgba(5,3,13,.97);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--bdr2);gap:16px}
+.sg-brand{display:flex;align-items:center;gap:11px;text-decoration:none;flex-shrink:0}
+.sg-glyph{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--violet);
+  display:flex;align-items:center;justify-content:center;font-size:.95rem;color:var(--violet);
+  flex-shrink:0;box-shadow:0 0 18px rgba(124,58,237,.35);animation:gp 3s ease-in-out infinite}
+@keyframes gp{0%,100%{box-shadow:0 0 18px rgba(124,58,237,.35)}50%{box-shadow:0 0 32px rgba(124,58,237,.6)}}
+.sg-wordmark{font-family:var(--display);font-size:.92rem;font-weight:700;color:var(--cream);letter-spacing:.14em}
+.sg-tagline{font-size:.42rem;color:var(--dim);letter-spacing:.2em;text-transform:uppercase;margin-top:1px}
+.sg-nav-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.sg-session{display:flex;align-items:center;gap:5px;font-size:.54rem;color:var(--dim);
+  padding:4px 11px;border:1px solid var(--bdr);border-radius:20px}
+.sg-session-dot{width:6px;height:6px;border-radius:50%;background:var(--bdr2)}
+.sg-session-dot.open{background:var(--grn);box-shadow:0 0 6px rgba(16,185,129,.5);animation:sdot 2s ease-in-out infinite}
+.sg-session-dot.pre{background:var(--amb)}
+@keyframes sdot{0%,100%{opacity:1}50%{opacity:.4}}
+.sg-user-pill{font-size:.54rem;color:var(--dim);padding:4px 11px;background:var(--ghost);
+  border:1px solid var(--bdr);border-radius:20px;white-space:nowrap}
+.sg-nav-link{font-size:.56rem;letter-spacing:.08em;color:var(--dim);text-decoration:none;
+  padding:4px 10px;border:1px solid transparent;border-radius:2px;transition:all .14s}
+.sg-nav-link:hover{border-color:var(--bdr2);color:var(--txt)}
+.sg-btn-sm{background:transparent;border:1px solid var(--bdr2);color:var(--dim);
+  font-family:var(--mono);font-size:.54rem;padding:4px 11px;cursor:pointer;letter-spacing:.06em;
+  transition:all .14s;border-radius:2px}
+.sg-btn-sm:hover{border-color:var(--red);color:var(--red)}
+
+/* ── TICKER STRIP ── */
+.ticker-strip{height:28px;background:var(--s0);border-bottom:1px solid var(--bdr);overflow:hidden;display:flex;align-items:center}
+.ticker-track{display:flex;white-space:nowrap;animation:ts 60s linear infinite}
+.ticker-track:hover{animation-play-state:paused}
+.ti{display:inline-flex;align-items:center;gap:5px;padding:0 16px;border-right:1px solid var(--bdr);font-size:.58rem}
+.ts-sym{color:var(--vio2);font-weight:600}.ts-price{color:var(--txt)}.ts-up{color:var(--grn)}.ts-dn{color:var(--red)}
+@keyframes ts{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ── PAGE LAYOUT ── */
+.page{padding:28px 24px;max-width:1480px;margin:0 auto;display:flex;flex-direction:column;gap:32px}
+
+/* ── SECTION HEADERS ── */
+.sh{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.sh-label{font-family:var(--display);font-size:.72rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--vio2);white-space:nowrap}
+.sh::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--bdr2),transparent)}
+
+/* ── MARKET SNAPSHOT ── */
+.mkt-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--bdr);border:1px solid var(--bdr)}
+.mkt-cell{background:var(--s0);padding:13px 15px;transition:background .14s;cursor:default}
+.mkt-cell:hover{background:var(--s1)}
+.mkt-sym{font-size:.52rem;color:var(--dim);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
+.mkt-price{font-family:var(--serif);font-size:1.3rem;font-weight:300;color:var(--cream);line-height:1}
+.mkt-chg{font-size:.58rem;margin-top:3px}
+.up{color:var(--grn)}.dn{color:var(--red)}.fl{color:var(--dim)}
+
+/* ── QUICK ANALYSE ── */
+.qa-row{display:flex;gap:8px;margin-bottom:14px}
+.qa-input{flex:1;background:var(--s0);border:1px solid var(--bdr2);color:var(--cream);
+  font-family:var(--mono);font-size:.76rem;padding:11px 15px;border-radius:3px;outline:none;letter-spacing:.04em}
+.qa-input:focus{border-color:var(--violet);box-shadow:0 0 0 2px rgba(124,58,237,.12)}
+.qa-input::placeholder{color:var(--dim)}
+.qa-btn{background:linear-gradient(135deg,var(--violet),#5b21b6);color:var(--cream);border:none;
+  font-family:var(--display);font-size:.72rem;font-weight:600;padding:11px 22px;border-radius:3px;
+  cursor:pointer;letter-spacing:.08em;white-space:nowrap;transition:filter .14s}
+.qa-btn:hover{filter:brightness(1.15)}
+.qa-btn:disabled{opacity:.5;cursor:not-allowed}
+.qa-panel{animation:fadeUp .25s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.qa-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bdr);border:1px solid var(--bdr);margin-bottom:1px}
+.qa-stat{background:var(--s0);padding:14px 16px;position:relative}
+.qa-stat-label{font-size:.52rem;color:var(--dim);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px}
+.qa-stat-val{font-family:var(--serif);font-size:1.4rem;font-weight:300;color:var(--cream);line-height:1;margin-bottom:3px}
+.qa-stat-sub{font-size:.58rem;color:var(--dim)}
+.qa-badge{position:absolute;top:10px;right:10px;font-size:.5rem;padding:2px 6px;border-radius:2px;font-weight:600;letter-spacing:.06em}
+.bull .qa-badge{background:rgba(16,185,129,.12);color:var(--grn);border:1px solid rgba(16,185,129,.2)}
+.bear .qa-badge{background:rgba(244,63,94,.12);color:var(--red);border:1px solid rgba(244,63,94,.2)}
+.neut .qa-badge{background:rgba(124,58,237,.1);color:var(--vio2);border:1px solid rgba(124,58,237,.2)}
+.qa-details{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bdr);border:1px solid var(--bdr);border-top:none}
+.qa-detail{background:var(--s1);padding:11px 14px}
+.qa-detail-title{font-family:var(--display);font-size:.6rem;font-weight:600;color:var(--vio2);margin-bottom:7px;letter-spacing:.06em}
+.qa-row-stat{display:flex;justify-content:space-between;padding:2px 0;font-size:.6rem;border-bottom:1px solid var(--bdr)}
+.qa-row-stat:last-child{border-bottom:none}
+.qa-k{color:var(--dim)}.qa-v{color:var(--cream);text-align:right}
+.qa-v.up{color:var(--grn)}.qa-v.dn{color:var(--red)}.qa-v.warn{color:var(--amb)}
+.qa-loading{display:flex;align-items:center;gap:12px;padding:24px 16px;background:var(--s0);border:1px solid var(--bdr)}
+.qa-spinner{width:18px;height:18px;border:2px solid var(--bdr2);border-top-color:var(--violet);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── ALL DASHBOARDS GRID ── */
+.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.dash-card{background:var(--s0);border:1px solid var(--bdr);padding:20px;position:relative;
+  overflow:hidden;transition:all .18s;text-decoration:none;display:block;cursor:pointer;border-radius:3px}
+.dash-card:hover{border-color:var(--bdr3);background:var(--s1);transform:translateY(-1px)}
+.dash-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .18s;
+  background:radial-gradient(ellipse at top left,rgba(124,58,237,.08),transparent 60%)}
+.dash-card:hover::before{opacity:1}
+.dash-card-accent{position:absolute;top:0;left:0;right:0;height:2px;border-radius:3px 3px 0 0}
+.dash-card-num{font-size:.48rem;color:var(--dim);letter-spacing:.16em;margin-bottom:8px}
+.dash-card-icon{font-size:1.4rem;margin-bottom:10px}
+.dash-card-name{font-family:var(--display);font-size:.88rem;font-weight:600;color:var(--cream);margin-bottom:5px}
+.dash-card-desc{font-size:.6rem;color:var(--dim);line-height:1.6;margin-bottom:12px}
+.dash-card-tags{display:flex;flex-wrap:wrap;gap:3px}
+.dash-tag{font-size:.48rem;padding:2px 6px;border:1px solid var(--bdr2);color:var(--dim);border-radius:2px}
+.dash-card-arrow{position:absolute;top:16px;right:16px;color:var(--dim);font-size:.7rem;
+  opacity:0;transition:all .16s}
+.dash-card:hover .dash-card-arrow{opacity:1;color:var(--vio2)}
+
+/* ── BOT DASHBOARD SECTION ── */
+.bot-section{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.bot-card{background:var(--s0);border:1px solid var(--bdr);padding:22px;position:relative;
+  overflow:hidden;border-radius:3px;transition:all .16s}
+.bot-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px}
+.bot-card.primary::before{background:linear-gradient(to bottom,var(--violet),var(--cyan))}
+.bot-card.secondary::before{background:linear-gradient(to bottom,var(--cyan),var(--grn))}
+.bot-card-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.bot-card-icon{font-size:1.5rem;margin-right:12px}
+.bot-card-title{font-family:var(--display);font-size:.86rem;font-weight:600;color:var(--cream);margin-bottom:3px}
+.bot-card-sub{font-size:.6rem;color:var(--dim);line-height:1.5}
+.bot-status{display:flex;align-items:center;gap:6px;font-size:.6rem;color:var(--dim)}
+.bot-dot{width:7px;height:7px;border-radius:50%;background:var(--bdr2);flex-shrink:0}
+.bot-dot.active{background:var(--grn);box-shadow:0 0 7px rgba(16,185,129,.4)}
+.bot-plan{font-size:.58rem;margin-bottom:10px}
+.bot-plan.pro{color:var(--grn)}.bot-plan.locked{color:var(--amb)}
+.bot-actions{display:flex;gap:6px;flex-wrap:wrap}
+.btn-violet{background:linear-gradient(135deg,var(--violet),#5b21b6);color:var(--cream);border:none;
+  font-family:var(--display);font-size:.62rem;font-weight:600;padding:8px 16px;border-radius:3px;
+  cursor:pointer;letter-spacing:.06em;transition:filter .14s}
+.btn-violet:hover{filter:brightness(1.12)}
+.btn-outline{background:transparent;border:1px solid var(--bdr2);color:var(--dim);
+  font-family:var(--mono);font-size:.6rem;padding:7px 14px;border-radius:3px;cursor:pointer;transition:all .14s}
+.btn-outline:hover{border-color:var(--cyan);color:var(--cyan)}
+.btn-locked{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:var(--amb);
+  font-family:var(--mono);font-size:.6rem;padding:7px 14px;border-radius:3px;cursor:pointer;transition:all .14s}
+.btn-locked:hover{background:rgba(245,158,11,.14)}
+
+/* ── API KEY DISPLAY ── */
+.api-key-row{display:flex;align-items:center;gap:6px;margin-top:8px}
+.api-key-val{font-size:.6rem;color:var(--cyan);letter-spacing:.04em;font-family:var(--mono)}
+.api-copy-btn{background:none;border:1px solid var(--bdr2);color:var(--dim);padding:3px 7px;
+  font-size:.62rem;cursor:pointer;transition:all .14s;border-radius:2px}
+.api-copy-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+
+/* ── LOCKED OVERLAY ── */
+.locked-overlay{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px;text-align:center;background:rgba(5,3,13,.85);border:1px solid var(--bdr2);
+  border-radius:3px;margin-top:10px}
+.lock-icon{font-size:2rem;margin-bottom:12px;opacity:.5}
+.lock-title{font-family:var(--display);font-size:.82rem;font-weight:600;color:var(--cream);margin-bottom:6px}
+.lock-sub{font-size:.62rem;color:var(--dim);line-height:1.7;margin-bottom:16px}
+.lock-price{font-family:var(--serif);font-size:1.6rem;color:var(--vio2);margin-bottom:4px}
+.lock-period{font-size:.58rem;color:var(--dim);margin-bottom:16px}
+.lock-features{font-size:.6rem;color:var(--txt);line-height:1.8;margin-bottom:18px}
+.lock-dev{margin-top:14px}
+.lock-dev-input{background:var(--ghost);border:1px solid var(--bdr2);color:var(--txt);
+  font-family:var(--mono);font-size:.66rem;padding:7px 12px;border-radius:2px;outline:none;
+  width:100%;margin-bottom:7px;letter-spacing:.04em}
+.lock-dev-input:focus{border-color:var(--violet)}
+.lock-dev-btn{background:transparent;border:1px solid var(--bdr3);color:var(--dim);
+  font-family:var(--mono);font-size:.58rem;padding:5px 12px;cursor:pointer;transition:all .14s;border-radius:2px;width:100%}
+.lock-dev-btn:hover{border-color:var(--vio2);color:var(--vio2)}
+
+/* ── MOBILE ── */
+@media(max-width:1100px){.dash-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:800px){
+  .dash-grid{grid-template-columns:1fr}.bot-section{grid-template-columns:1fr}
+  .mkt-grid{grid-template-columns:repeat(3,1fr)}.qa-stats,.qa-details{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:480px){.mkt-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<nav class="sg-nav">
+  <a class="sg-brand" href="/hub">
+    <div class="sg-glyph">◎</div>
+    <div>
+      <div class="sg-wordmark">SINGULARITY</div>
+      <div class="sg-tagline">Quantitative Platform</div>
+    </div>
+  </a>
+  <div class="sg-nav-right">
+    <div class="sg-session">
+      <div class="sg-session-dot" id="sg-dot"></div>
+      <span id="sg-sess">—</span>
+    </div>
+    <div class="sg-user-pill" id="sg-user">—</div>
+    <a class="sg-nav-link" href="/surveillance">Surveillance</a>
+    <a class="sg-nav-link" href="/bot">Trading Bot</a>
+    <button class="sg-btn-sm" onclick="signOut()">↪ Out</button>
+  </div>
+</nav>
+
+<!-- TICKER -->
+<div class="ticker-strip"><div class="ticker-track" id="tkr-track"></div></div>
+
+<div class="page">
+
+  <!-- MARKET SNAPSHOT -->
+  <div>
+    <div class="sh"><div class="sh-label">Live Market</div></div>
+    <div class="mkt-grid">
+      <div class="mkt-cell"><div class="mkt-sym">SPY</div><div class="mkt-price" id="p-spy">—</div><div class="mkt-chg" id="c-spy">—</div></div>
+      <div class="mkt-cell"><div class="mkt-sym">QQQ</div><div class="mkt-price" id="p-qqq">—</div><div class="mkt-chg" id="c-qqq">—</div></div>
+      <div class="mkt-cell"><div class="mkt-sym">VIX</div><div class="mkt-price" id="p-vix">—</div><div class="mkt-chg" id="c-vix">—</div></div>
+      <div class="mkt-cell"><div class="mkt-sym">10Y</div><div class="mkt-price" id="p-tsy">—</div><div class="mkt-chg" id="c-tsy">—</div></div>
+      <div class="mkt-cell"><div class="mkt-sym">Gold</div><div class="mkt-price" id="p-gld">—</div><div class="mkt-chg" id="c-gld">—</div></div>
+      <div class="mkt-cell"><div class="mkt-sym">BTC</div><div class="mkt-price" id="p-btc">—</div><div class="mkt-chg" id="c-btc">—</div></div>
+    </div>
+  </div>
+
+  <!-- QUICK ANALYSE -->
+  <div>
+    <div class="sh"><div class="sh-label">Quick Analyse</div></div>
+    <div class="qa-row">
+      <input class="qa-input" id="qa-ticker" placeholder="Enter ticker — e.g. AAPL  NVDA  TSLA" autocomplete="off" spellcheck="false"/>
+      <button class="qa-btn" onclick="runQA()">Analyse →</button>
+    </div>
+    <div id="qa-panel" style="display:none" class="qa-panel">
+      <div class="qa-stats" id="qa-stats"></div>
+      <div id="qa-details"></div>
+    </div>
+    <div id="qa-loading" class="qa-loading" style="display:none">
+      <div class="qa-spinner"></div><span id="qa-status">Fetching…</span>
+    </div>
+  </div>
+
+  <!-- ALL DASHBOARDS -->
+  <div>
+    <div class="sh"><div class="sh-label">Dashboards</div></div>
+    <div class="dash-grid">
+
+      <!-- Surveillance -->
+      <a class="dash-card" href="/surveillance">
+        <div class="dash-card-accent" style="background:linear-gradient(to right,#ef4444,#f97316)"></div>
+        <div class="dash-card-num">00</div>
+        <div class="dash-card-icon">🌐</div>
+        <div class="dash-card-name">Market Surveillance</div>
+        <div class="dash-card-desc">Global indices across NY / London / Asia · Dark pool &amp; whale detection · Quadrant analysis · Social signals · SEC Form 4 insider flow</div>
+        <div class="dash-card-tags"><span class="dash-tag">Live</span><span class="dash-tag">Dark Pool</span><span class="dash-tag">Whales</span><span class="dash-tag">SEC Form 4</span><span class="dash-tag">Quadrant</span></div>
+        <span class="dash-card-arrow">↗</span>
+      </a>
+
+      <!-- Monte Carlo -->
+      <a class="dash-card" href="/mc">
+        <div class="dash-card-accent" style="background:linear-gradient(to right,var(--cyan),#0ea5e9)"></div>
+        <div class="dash-card-num">01</div>
+        <div class="dash-card-icon">📊</div>
+        <div class="dash-card-name">Monte Carlo Suite</div>
+        <div class="dash-card-desc">100k simulation paths · GBM · Heston · Jump-Diffusion · SABR stochastic vol · VaR / CVaR · Options pricing</div>
+        <div class="dash-card-tags"><span class="dash-tag">Options</span><span class="dash-tag">VaR</span><span class="dash-tag">Greeks</span><span class="dash-tag">Convergence</span></div>
+        <span class="dash-card-arrow">↗</span>
+      </a>
+
+      <!-- IV Surface -->
+      <a class="dash-card" href="/iv">
+        <div class="dash-card-accent" style="background:linear-gradient(to right,#06b6d4,#38bdf8)"></div>
+        <div class="dash-card-num">02</div>
+        <div class="dash-card-icon">📐</div>
+        <div class="dash-card-name">IV Surface</div>
+        <div class="dash-card-desc">SABR Hagan calibration · Heston characteristic function · Live options chain · Vol smile &amp; term structure · 3D surface</div>
+        <div class="dash-card-tags"><span class="dash-tag">Vol Surface</span><span class="dash-tag">Smile</span><span class="dash-tag">Term Structure</span></div>
+        <span class="dash-card-arrow">↗</span>
+      </a>
+
+      <!-- Portfolio -->
+      <a class="dash-card" href="/portfolio">
+        <div class="dash-card-accent" style="background:linear-gradient(to right,#84cc16,#22c55e)"></div>
+        <div class="dash-card-num">03</div>
+        <div class="dash-card-icon">⚖️</div>
+        <div class="dash-card-name">Portfolio Optimizer</div>
+        <div class="dash-card-desc">Markowitz efficient frontier · Black-Litterman · Risk Parity · Min-CVaR · Rolling backtest · Factor decomposition</div>
+        <div class="dash-card-tags"><span class="dash-tag">Frontier</span><span class="dash-tag">Backtest</span><span class="dash-tag">Factors</span></div>
+        <span class="dash-card-arrow">↗</span>
+      </a>
+
+      <!-- Fixed Income -->
+      <a class="dash-card" href="/fi">
+        <div class="dash-card-accent" style="background:linear-gradient(to right,#f59e0b,#fbbf24)"></div>
+        <div class="dash-card-num">04</div>
+        <div class="dash-card-icon">📈</div>
+        <div class="dash-card-name">Fixed Income</div>
+        <div class="dash-card-desc">Live Treasury yield curve · Nelson-Siegel fitting · Bond pricing · Interest rate swaps · Duration · DV01 · Z-spread</div>
+        <div class="dash-card-tags"><span class="dash-tag">Yield Curve</span><span class="dash-tag">Duration</span><span class="dash-tag">Z-Spread</span></div>
+        <span class="dash-card-arrow">↗</span>
+      </a>
+
+      <!-- Pairs Trading -->
+      <a class="dash-card" href="/pairs">
+        <div class="dash-card-accent" style="background:linear-gradient(to right,#10b981,#34d399)"></div>
+        <div class="dash-card-num">05</div>
+        <div class="dash-card-icon">🔗</div>
+        <div class="dash-card-name">Pairs Trading</div>
+        <div class="dash-card-desc">Engle-Granger cointegration scanner · Ornstein-Uhlenbeck process · Z-score signals · Johansen test · Full backtest engine</div>
+        <div class="dash-card-tags"><span class="dash-tag">Stat Arb</span><span class="dash-tag">Cointegration</span><span class="dash-tag">Scanner</span></div>
+        <span class="dash-card-arrow">↗</span>
+      </a>
+
+      <!-- Vol & Regime -->
+      <a class="dash-card" href="/vol">
+        <div class="dash-card-accent" style="background:linear-gradient(to right,#e879f9,#c084fc)"></div>
+        <div class="dash-card-num">06</div>
+        <div class="dash-card-icon">🌊</div>
+        <div class="dash-card-name">Vol &amp; Regime</div>
+        <div class="dash-card-desc">GARCH(1,1) · GJR-GARCH · HAR-RV · Hidden Markov Model regime detection · Kalman filter · Realized vol forecasting</div>
+        <div class="dash-card-tags"><span class="dash-tag">GARCH</span><span class="dash-tag">HMM</span><span class="dash-tag">Forecast</span><span class="dash-tag">Regimes</span></div>
+        <span class="dash-card-arrow">↗</span>
+      </a>
+
+      <!-- Alpha -->
+      <a class="dash-card" href="/alpha">
+        <div class="dash-card-accent" style="background:linear-gradient(to right,#38bdf8,#818cf8)"></div>
+        <div class="dash-card-num">07</div>
+        <div class="dash-card-icon">⚡</div>
+        <div class="dash-card-name">Alpha &amp; Execution</div>
+        <div class="dash-card-desc">Fama-French 3-factor · Rolling factor regression · PCA factors · Alpha decay · Almgren-Chriss TWAP/VWAP execution</div>
+        <div class="dash-card-tags"><span class="dash-tag">FF3</span><span class="dash-tag">Alpha</span><span class="dash-tag">TWAP</span><span class="dash-tag">VWAP</span></div>
+        <span class="dash-card-arrow">↗</span>
+      </a>
+
+      <!-- Credit Risk -->
+      <a class="dash-card" href="/credit">
+        <div class="dash-card-accent" style="background:linear-gradient(to right,#f43f5e,#fb7185)"></div>
+        <div class="dash-card-num">08</div>
+        <div class="dash-card-icon">🛡</div>
+        <div class="dash-card-name">Credit Risk</div>
+        <div class="dash-card-desc">Merton structural model · CDS par spread pricing · CVA calculation · Gaussian copula portfolio credit loss</div>
+        <div class="dash-card-tags"><span class="dash-tag">Default Prob</span><span class="dash-tag">CDS</span><span class="dash-tag">CVA</span><span class="dash-tag">Copula</span></div>
+        <span class="dash-card-arrow">↗</span>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- BOT + API SECTION -->
+  <div>
+    <div class="sh"><div class="sh-label">Trading Bot &amp; API</div></div>
+    <div class="bot-section">
+
+      <!-- Bot Card -->
+      <div class="bot-card primary">
+        <div class="bot-card-hdr">
+          <div style="display:flex;align-items:flex-start;gap:12px">
+            <div class="bot-card-icon">🤖</div>
+            <div>
+              <div class="bot-card-title">Autonomous Trading Bot</div>
+              <div class="bot-card-sub">Shadow mode · Auto-training · NVDA focus · God Mode overnight · Paper trading · Strategy Lab</div>
+            </div>
+          </div>
+          <div class="bot-status">
+            <div class="bot-dot" id="bot-dot"></div>
+            <span id="bot-status-txt">Checking…</span>
+          </div>
+        </div>
+        <div class="bot-plan" id="bot-plan-note"></div>
+        <div id="bot-access-area"></div>
+      </div>
+
+      <!-- API Card -->
+      <div class="bot-card secondary">
+        <div class="bot-card-hdr">
+          <div style="display:flex;align-items:flex-start;gap:12px">
+            <div class="bot-card-icon">⬡</div>
+            <div>
+              <div class="bot-card-title">Quant Data API</div>
+              <div class="bot-card-sub">44 endpoints · Live market data · yfinance backend · All engines exposed via REST</div>
+            </div>
+          </div>
+        </div>
+        <div class="bot-plan" id="api-plan-note"></div>
+        <div class="api-key-row" id="api-key-row">
+          <code class="api-key-val" id="api-key-val">•••••••••••••••••••</code>
+          <button class="api-copy-btn" onclick="copyKey()">⧉ Copy</button>
+          <button class="api-copy-btn" onclick="revealKey()">👁 Reveal</button>
+        </div>
+        <div class="bot-actions" style="margin-top:12px">
+          <button class="btn-outline" onclick="window.open('https://docs.singularity.io/api','_blank')">View Docs →</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+'use strict';
+
+// ── AUTH ───────────────────────────────────────────────────────────────────
+(function(){
+  const t=localStorage.getItem('sg_auth')||localStorage.getItem('aeq_auth');
+  const v=localStorage.getItem('sg_verified')||localStorage.getItem('aeq_verified');
+  if(!t||!v){window.location.replace('/');return;}
+  try{
+    const p=JSON.parse(atob(t));
+    if(!p.email||!p.ts||(Date.now()-p.ts>30*24*60*60*1000)){localStorage.clear();window.location.replace('/');return;}
+    const name=localStorage.getItem('sg_name')||localStorage.getItem('aeq_name')||p.email.split('@')[0];
+    const plan=(localStorage.getItem('sg_plan')||localStorage.getItem('aeq_plan')||'free').toUpperCase();
+    document.addEventListener('DOMContentLoaded',()=>{
+      const u=document.getElementById('sg-user');
+      if(u)u.textContent=name+' · '+plan;
+    });
+  }catch(e){localStorage.clear();window.location.replace('/');}
+})();
+
+window.sgOut=function sgOut(){
+  ['sg_auth','sg_name','sg_plan','sg_verified','aeq_auth','aeq_name','aeq_plan','aeq_verified'].forEach(k=>localStorage.removeItem(k));
+  window.location.replace('/');
+}
+
+// ── SESSION DOT ────────────────────────────────────────────────────────────
+function updateSession(){
+  const et=new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));
+  const hm=et.getHours()*100+et.getMinutes(),wd=et.getDay();
+  const dot=document.getElementById('sg-dot'),lbl=document.getElementById('sg-sess');
+  if(!dot||!lbl)return;
+  dot.className='sg-session-dot';
+  if(wd===0||wd===6){lbl.textContent='WEEKEND';return;}
+  if(hm>=930&&hm<1600){dot.classList.add('open');lbl.textContent='MKT OPEN';}
+  else if(hm>=400&&hm<930){dot.classList.add('pre');lbl.textContent='PRE-MKT';}
+  else{lbl.textContent='CLOSED';}
+}
+updateSession();setInterval(updateSession,10000);
+
+// ── TICKER ─────────────────────────────────────────────────────────────────
+const TICKS=[
+  {s:'SPY',p:589},{s:'QQQ',p:512},{s:'NVDA',p:118},{s:'AAPL',p:213},
+  {s:'MSFT',p:425},{s:'TSLA',p:250},{s:'VIX',p:14.8},{s:'10Y',p:4.45},
+  {s:'BTC',p:68000},{s:'GLD',p:242},{s:'DXY',p:104},{s:'AMD',p:155},
+];
+function buildTicker(){
+  const t=document.getElementById('tkr-track');if(!t)return;
+  const items=[...TICKS,...TICKS].map(x=>{
+    const drift=(Math.random()-.5)*x.p*.003,px=x.p+drift,pct=drift/x.p*100,up=pct>=0;
+    const pxStr=px>10000?Math.round(px).toLocaleString():px<10?px.toFixed(3):px.toFixed(2);
+    return `<div class="ti"><span class="ts-sym">${x.s}</span><span class="ts-price">${pxStr}</span><span class="${up?'ts-up':'ts-dn'}">${up?'▲':'▼'}${Math.abs(pct).toFixed(2)}%</span></div>`;
+  });
+  t.innerHTML=items.join('');
+}
+buildTicker();setInterval(buildTicker,6000);
+
+// ── MARKET CARDS ───────────────────────────────────────────────────────────
+[{id:'spy',p:589,c:.38},{id:'qqq',p:512,c:.61},{id:'vix',p:14.8,c:-3.21},
+ {id:'tsy',p:4.452,c:.03},{id:'gld',p:242,c:.74},{id:'btc',p:68000,c:2.18}
+].forEach(({id,p,c})=>{
+  const drift=(Math.random()-.5)*p*.004,px=p+drift;
+  const pct=c+(Math.random()-.5)*.15;
+  const pe=document.getElementById('p-'+id),ce=document.getElementById('c-'+id);
+  if(pe)pe.textContent=px>10000?Math.round(px).toLocaleString():px<10?px.toFixed(3):px.toFixed(2);
+  if(ce){ce.textContent=(pct>=0?'▲':'▼')+Math.abs(pct).toFixed(2)+'%';ce.className='mkt-chg '+(pct>=0?'up':'dn');}
+});
+
+// ── QUICK ANALYSE ──────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  const inp=document.getElementById('qa-ticker');
+  if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter')runQA();});
+});
+
+async function runQA(){
+  const ticker=(document.getElementById('qa-ticker').value||'').trim().toUpperCase();
+  if(!ticker)return;
+  const btn=document.querySelector('.qa-btn'),panel=document.getElementById('qa-panel'),loading=document.getElementById('qa-loading');
+  btn.disabled=true;panel.style.display='none';loading.style.display='flex';
+  document.getElementById('qa-status').textContent='Fetching quote…';
+  try{
+    const q=await fetch(`/api/mc/mc_quote?ticker=${encodeURIComponent(ticker)}`).then(r=>r.json());
+    if(q.error)throw new Error(q.error);
+    document.getElementById('qa-status').textContent='Fetching credit risk…';
+    let cr={};
+    try{cr=await fetch('/api/credit/ticker_merton',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ticker,maturity:1.0})}).then(r=>r.json());}catch(e){}
+    const spot=q.spot||0,sigma=(q.ann_sigma||q.sigma||0)*100,mu=(q.ann_mu||q.mu||0)*100;
+    const beta=q.beta||1,hi=q.wk52_hi||q.hi52||spot,lo=q.wk52_lo||q.lo52||spot;
+    const div=(q.div_yield||q.q||0)*100,pct52=hi>lo?Math.round((spot-lo)/(hi-lo)*100):50;
+    const volCls=sigma<20?'bull':sigma<35?'neut':'bear',volLbl=sigma<20?'Low Vol':sigma<35?'Normal':'High Vol';
+    const momCls=mu>8?'bull':mu<-8?'bear':'neut',momLbl=mu>8?'Bullish':mu<-8?'Bearish':'Neutral';
+    const pd=cr.result?(cr.result.pd_risk_neutral||cr.result.pd_real_world||0):null;
+    const dd=cr.result?(cr.result.distance_to_default||0):null;
+    const crCls=pd===null?'neut':pd<.01?'bull':pd<.05?'neut':'bear';
+    const crLbl=pd===null?'N/A':pd<.01?'Strong':pd<.05?'Moderate':'Elevated';
+    document.getElementById('qa-stats').innerHTML=[
+      {l:'Price',v:`$${spot.toFixed(2)}`,s:`52w: $${lo.toFixed(0)}–$${hi.toFixed(0)} · ${pct52}th pct`,badge:momLbl,cls:momCls},
+      {l:'Implied Volatility',v:`${sigma.toFixed(1)}%`,s:`Ann. vol · β=${beta.toFixed(2)} · div=${div.toFixed(2)}%`,badge:volLbl,cls:volCls},
+      {l:'Expected Return',v:`${mu.toFixed(1)}%`,s:`Historical annual drift (log-returns)`,badge:mu>0?'Positive':'Negative',cls:mu>0?'bull':'bear'},
+      {l:'Credit Risk',v:pd!==null?`${(pd*100).toFixed(2)}% PD`:'N/A',s:dd!==null?`DD: ${dd.toFixed(2)}σ`:'Could not calibrate',badge:crLbl,cls:crCls},
+    ].map(c=>`<div class="qa-stat ${c.cls}"><div class="qa-stat-label">${c.l}</div><div class="qa-stat-val">${c.v}</div><div class="qa-stat-sub">${c.s}</div><span class="qa-badge">${c.badge}</span></div>`).join('');
+
+    const details=[
+      {t:'Price Action',rows:[['Spot',`$${spot.toFixed(2)}`],['52w High',`$${hi.toFixed(2)}`],['52w Low',`$${lo.toFixed(2)}`],['52w Position',`${pct52}th pct`],['Div Yield',`${div.toFixed(2)}%`]]},
+      {t:'Volatility',rows:[['Hist. Vol (1y)',`${sigma.toFixed(1)}%`],['Beta',beta.toFixed(2)],['Ann. Return',`${mu.toFixed(1)}%`],['Sharpe (est)',mu>0?(mu/Math.max(sigma,.1)).toFixed(2):'—'],['Regime',volLbl]]},
+      {t:'Credit (Merton)',rows:[['1y Default Prob',pd!==null?`${(pd*100).toFixed(3)}%`:'—'],['Dist-to-Default',dd!==null?`${dd.toFixed(2)}σ`:'—'],['Credit Spread',cr.result?.credit_spread_bps?`${cr.result.credit_spread_bps.toFixed(0)}bps`:'—'],['Total Debt',cr.total_debt?`$${(cr.total_debt/1e9).toFixed(1)}B`:'—'],['Equity Vol',cr.equity_vol?`${(cr.equity_vol*100).toFixed(1)}%`:'—']]},
+      {t:'Quick Links',rows:[['→ Full MC Suite','/mc'],['→ IV Surface','/iv'],['→ Credit Risk','/credit'],['→ Vol &amp; Regime','/vol'],['→ Alpha','/alpha']]},
+    ];
+    document.getElementById('qa-details').className='qa-details';
+    document.getElementById('qa-details').innerHTML=details.map(d=>`<div class="qa-detail">
+      <div class="qa-detail-title">${d.t}</div>
+      ${d.rows.map(r=>{
+        const isLink=r[1].startsWith('/');
+        return `<div class="qa-row-stat"><span class="qa-k">${r[0]}</span>${isLink?`<a href="${r[1]}" style="color:var(--vio2);font-size:.6rem;text-decoration:none">${r[0].replace('→ ','')}</a>`:`<span class="qa-v">${r[1]}</span>`}</div>`;
+      }).join('')}
+    </div>`).join('');
+
+    panel.style.display='block';loading.style.display='none';btn.disabled=false;
+  }catch(err){
+    loading.innerHTML=`<span style="color:var(--red)">Error: ${err.message}</span>`;
+    btn.disabled=false;
+  }
+}
+
+// ── BOT ACCESS GATE ────────────────────────────────────────────────────────
+const DEV_KEY='SINGULARITY_DEV_2025';
+
+function initBot(){
+  const plan=(localStorage.getItem('sg_plan')||localStorage.getItem('aeq_plan')||'free').toLowerCase();
+  const unlocked=localStorage.getItem('sg_bot_unlocked')==='1';
+  const isPro=['pro','institutional','team'].includes(plan);
+  const hasAccess=isPro||unlocked;
+
+  const dot=document.getElementById('bot-dot');
+  const statusTxt=document.getElementById('bot-status-txt');
+  const planNote=document.getElementById('bot-plan-note');
+  const accessArea=document.getElementById('bot-access-area');
+
+  if(hasAccess){
+    if(dot){dot.className='bot-dot active';}
+    if(statusTxt)statusTxt.textContent='Access granted';
+    if(planNote){
+      planNote.textContent=unlocked?'✓ Developer access active':'✓ Included in your plan';
+      planNote.className='bot-plan pro';
+    }
+    if(accessArea){
+      accessArea.innerHTML=`<div class="bot-actions">
+        <button class="btn-violet" onclick="window.location.href='/bot'">Open Trading Bot →</button>
+      </div>`;
+    }
+  }else{
+    if(dot)dot.className='bot-dot';
+    if(statusTxt)statusTxt.textContent='Pro plan required';
+    if(planNote){
+      planNote.textContent='Upgrade to unlock · or enter dev key';
+      planNote.className='bot-plan locked';
+    }
+    if(accessArea){
+      accessArea.innerHTML=`<div class="locked-overlay">
+        <div class="lock-icon">🔒</div>
+        <div class="lock-title">Trading Bot — Pro Feature</div>
+        <div class="lock-sub">The Singularity Trading Bot includes shadow mode, auto-training on NVDA, overnight God Mode across 22 instruments, Strategy Lab, and paper trading. No real money is ever used.</div>
+        <div class="lock-price">$29<span style="font-size:.9rem">/mo</span></div>
+        <div class="lock-period">or included in Institutional plan</div>
+        <div class="lock-features">✓ Auto-train · ✓ Shadow mode · ✓ Strategy Lab<br>✓ God Mode overnight · ✓ 22-instrument universe<br>✓ Paper trading dashboard</div>
+        <button class="btn-violet" style="width:100%;padding:10px" onclick="alert('Upgrade flow coming soon.')">Upgrade to Pro →</button>
+        <div class="lock-dev">
+          <input class="lock-dev-input" id="dev-key-input" placeholder="Developer key…" type="password"/>
+          <button class="lock-dev-btn" onclick="tryDevKey()">Unlock with developer key</button>
+        </div>
+      </div>`;
+      const di=document.getElementById('dev-key-input');
+      if(di)di.addEventListener('keydown',e=>{if(e.key==='Enter')tryDevKey();});
+    }
+  }
+
+  // API key
+  const email=localStorage.getItem('sg_email')||localStorage.getItem('aeq_email')||'user@singularity.io';
+  const seed=email.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  const hex=(seed*16777619>>>0).toString(16).padStart(8,'0');
+  const key=`sg_${isPro||unlocked?'pro':'free'}_${hex}${seed.toString(36).padStart(6,'0')}`;
+  const keyEl=document.getElementById('api-key-val');
+  if(keyEl)keyEl.dataset.key=key;
+  const apiNote=document.getElementById('api-plan-note');
+  if(apiNote){
+    apiNote.textContent=isPro||unlocked?'✓ 10,000 calls/mo included':'Free tier · 500 calls/mo';
+    apiNote.className='bot-plan '+(isPro||unlocked?'pro':'locked');
+  }
+}
+
+function tryDevKey(){
+  const inp=document.getElementById('dev-key-input');
+  if(!inp)return;
+  if(inp.value.trim()===DEV_KEY){
+    localStorage.setItem('sg_bot_unlocked','1');
+    initBot();
+  }else{
+    inp.style.borderColor='var(--red)';
+    setTimeout(()=>{if(inp)inp.style.borderColor='';},1200);
+  }
+}
+
+function copyKey(){
+  const el=document.getElementById('api-key-val');
+  const k=el?.dataset?.key;
+  if(!k){alert('Reveal your key first.');return;}
+  navigator.clipboard.writeText(k).then(()=>alert('API key copied!'));
+}
+function revealKey(){
+  const el=document.getElementById('api-key-val');
+  if(!el)return;
+  const k=el.dataset.key||'';
+  el.textContent=el.textContent.includes('•')?k:'•'.repeat(k.length);
+}
+
+document.addEventListener('DOMContentLoaded',initBot);
+window.sgOut=signOut;
+</script>
+</body>
+</html>

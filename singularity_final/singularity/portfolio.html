@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Portfolio Optimizer — SINGULARITY</title>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  /* ── SINGULARITY THEME OVERLAY ── */
+  --sg-violet:#7c3aed;--sg-vio2:#a78bfa;--sg-cyan:#06b6d4;
+  --sg-bg:#05030d;--sg-s0:#07050f;--sg-dim:#3d2d6a;
+  --sg-cream:#f5f0ff;--sg-ghost:#180f30;
+  --display:'Space Grotesk',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+
+  --bg:#04080c;--s0:#080e1a;--s1:#0c1428;--bdr:#162038;--bdr2:#1e2e48;
+  --accent:#a3e635;--accent2:#fbbf24;--txt:#c8d8ec;--dim:#3a5070;
+  --mono:'DM Mono',ui-monospace,monospace;--lw:272px;--rw:306px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#04080c;color:#c8d8ec;font-family:var(--mono);font-size:12.5px}
+.hdr{height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:#080e1a;border-bottom:1px solid #162038;position:fixed;top:0;left:0;right:0;z-index:300;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.bi{width:28px;height:28px;border-radius:3px;background:#a3e635;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:.7rem;font-weight:900;color:#04080c}
+.bt{font-family:'Syne',sans-serif;font-size:.78rem;font-weight:800;letter-spacing:.08em;color:#c8d8ec}
+.bs{font-size:.55rem;color:#3a5070;letter-spacing:.05em}
+.hst{font-family:var(--mono);font-size:.6rem;color:#a3e635;flex:1;text-align:center;padding:0 12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.links,.hdr-links,.hdr-right{display:flex;gap:4px;flex-shrink:0;align-items:center}
+.pill{font-family:var(--mono);font-size:.56rem;padding:3px 9px;border-radius:20px;border:1px solid #1e2e48;color:#3a5070;text-decoration:none;background:#0c1428;transition:all .12s;white-space:nowrap}
+.pill:hover{border-color:#a3e635;color:#a3e635}
+.app{display:grid;grid-template-columns:var(--lw) 4px 1fr 4px var(--rw);height:calc(100vh - 46px);margin-top:46px;overflow:hidden}
+.dh,.drag-handle{background:#162038;cursor:col-resize;user-select:none;transition:background .12s;z-index:50}
+.dh:hover,.drag-handle:hover,.drag-handle.dragging{background:#a3e635}
+.drag-handle::after{display:none!important}
+.L{background:#080e1a;display:flex;flex-direction:column;overflow:hidden;min-width:170px;max-width:520px}
+.Ls,.Lscroll{flex:1;overflow-y:auto;padding:10px 12px 24px}
+.Ls::-webkit-scrollbar,.Lscroll::-webkit-scrollbar{width:3px}
+.Ls::-webkit-scrollbar-thumb,.Lscroll::-webkit-scrollbar-thumb{background:#1e2e48}
+.sec,.ghdr{font-family:var(--mono);font-size:.54rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#a3e635;border-bottom:1px solid #162038;padding-bottom:3px;margin:10px 0 6px}
+.sec.s,.sec.c,.sec.r,.sec.v,.sec.g,.sec.b,.sec.e,.sec.a,.sec.p,.ghdr.p,.ghdr.r,.ghdr.g{color:#fbbf24}
+.prm{display:flex;align-items:center;gap:4px;margin-bottom:3px}
+.prm label{color:#3a5070;font-size:10px;white-space:nowrap;flex-shrink:0;width:86px}
+.prm input[type=range]{flex:1;accent-color:#a3e635;cursor:pointer;height:13px}
+.prm .v{color:#fbbf24;font-size:10px;text-align:right;min-width:38px;font-weight:500}
+.field{margin-bottom:4px}
+.field label{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.54rem;color:#3a5070;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.field label .fv{color:#fbbf24}
+.field input[type=range]{width:100%;accent-color:#a3e635;cursor:pointer;height:13px}
+.field input[type=number],.field input[type=text],.field select{width:100%;background:#0c1428;border:1px solid #1e2e48;color:#c8d8ec;font-family:var(--mono);font-size:.72rem;padding:4px 7px;border-radius:3px;outline:none}
+.field input[type=number]{color:#a3e635;font-weight:600}
+.field input:focus,.field select:focus{border-color:#a3e635}
+.chips{display:flex;flex-wrap:wrap;gap:3px;margin:4px 0 8px}
+.chip,.tc{background:#0c1428;border:1px solid #1e2e48;color:#3a5070;font-family:var(--mono);font-size:9px;padding:3px 7px;border-radius:2px;cursor:pointer;transition:all .12s}
+.chip:hover,.chip.A,.tc.on{border-color:#a3e635;color:#a3e635}
+.tc{font-size:.6rem;padding:2px 6px}
+.tc-wrap,.ticker-chips{display:flex;flex-wrap:wrap;gap:2px;margin-bottom:6px}
+.add-t,.add-ticker{display:flex;gap:3px;margin-bottom:5px}
+.add-t input,.add-ticker input{flex:1;background:#0c1428;border:1px solid #1e2e48;color:#a3e635;font-family:var(--mono);font-size:.72rem;padding:4px 7px;border-radius:3px;outline:none;font-weight:700}
+.add-t input:focus,.add-ticker input:focus{border-color:#a3e635}
+.mtogs{display:flex;gap:3px;margin-bottom:5px}
+.mt{background:#0c1428;border:1px solid #1e2e48;color:#3a5070;font-family:var(--mono);font-size:9px;padding:3px 6px;border-radius:2px;cursor:pointer;transition:all .12s;flex:1;text-align:center}
+.mt.on.g,.mt.on.h,.mt.on.j,.mt.on.s{border-color:#a3e635;color:#a3e635}
+.rrow{display:flex;gap:12px;padding:3px 0;font-size:10px}
+.rrow label{display:flex;align-items:center;gap:3px;cursor:pointer;color:#c8d8ec}
+.rrow input{accent-color:#a3e635}
+.tabs-sm{display:flex;gap:2px;margin:4px 0 8px}
+.tsm{background:#0c1428;border:1px solid #1e2e48;color:#3a5070;font-family:var(--mono);font-size:.6rem;padding:4px 8px;cursor:pointer;transition:all .12s;flex:1;text-align:center;border-radius:2px}
+.tsm:hover{color:#c8d8ec}.tsm.A{border-color:#a3e635;color:#a3e635}
+.param-block{display:none}.param-block.on{display:block}
+.btn{background:#0c1428;border:1px solid #1e2e48;color:#3a5070;font-family:var(--mono);font-size:.65rem;padding:4px 8px;cursor:pointer;border-radius:3px;transition:all .12s;white-space:nowrap}
+.btn:hover{border-color:#a3e635;color:#c8d8ec}.btn:disabled{opacity:.38;cursor:not-allowed}
+.btn.P,.btn.pri,.btn.run{background:#a3e635;border:none;color:#04080c;font-weight:800;font-size:.72rem;padding:9px;border-radius:3px;width:100%;margin-top:6px;letter-spacing:.07em;cursor:pointer;font-family:var(--mono)}
+.btn.P:hover:not(:disabled),.btn.pri:hover:not(:disabled),.btn.run:hover:not(:disabled){filter:brightness(1.12)}
+.btn.sec{background:#fbbf24;border:none;color:#04080c;font-weight:800;font-size:.7rem;padding:8px;border-radius:3px;width:100%;margin-top:4px;cursor:pointer;font-family:var(--mono)}
+.btn.ter{background:#1e2e48;border:none;color:#c8d8ec;font-weight:700;font-size:.68rem;padding:7px;border-radius:3px;width:100%;margin-top:4px;cursor:pointer}
+.btn.sm{padding:3px 7px;font-size:.6rem;width:auto;margin-top:0}
+.btn.act{border-color:#a3e635;color:#a3e635}
+.pbar{height:2px;background:#162038;border-radius:1px;margin:5px 0 2px}
+.pbf{height:100%;width:0%;background:linear-gradient(90deg,#a3e635,#fbbf24);transition:width .3s}
+.ptxt{font-family:var(--mono);font-size:.57rem;color:#3a5070;text-align:center;min-height:11px}
+.C{display:flex;flex-direction:column;overflow:hidden}
+.tnav{display:flex;overflow-x:auto;flex-shrink:0;background:#080e1a;border-bottom:1px solid #162038;scrollbar-width:none}
+.tnav::-webkit-scrollbar{display:none}
+.tb{background:transparent;border:none;color:#3a5070;font-family:var(--mono);font-size:.62rem;padding:8px 13px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .12s;letter-spacing:.04em}
+.tb:hover{color:#c8d8ec}.tb.A{color:#a3e635;border-bottom-color:#a3e635}
+.chart-tabs{display:flex;background:#080e1a;border-bottom:1px solid #162038;flex-shrink:0}
+.ct{background:transparent;border:none;color:#3a5070;font-family:var(--mono);font-size:.62rem;padding:8px 14px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .12s}
+.ct:hover{color:#c8d8ec}.ct.A{color:#a3e635;border-bottom-color:#a3e635}
+.chart-area{flex:1;overflow:hidden;position:relative}
+.cpanel{display:none;width:100%;height:100%}.cpanel.A{display:block}
+.tbody{flex:1;overflow-y:auto;background:#04080c}
+.tbody::-webkit-scrollbar{width:4px}.tbody::-webkit-scrollbar-thumb{background:#1e2e48}
+.tabbody{flex:1;overflow-y:auto;background:#04080c}
+.tp{display:none}.tp.A{display:block}
+.empty{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;min-height:240px;color:#3a5070;font-family:var(--mono);font-size:.68rem}
+.ei,.empty-icon{font-size:2rem;opacity:.14}
+.R{background:#080e1a;display:flex;flex-direction:column;overflow:hidden;min-width:170px;max-width:520px}
+.kgrid,.kpis{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#162038;flex-shrink:0}
+.kpi{background:#080e1a;padding:5px 8px}
+.kl{font-family:var(--mono);font-size:.5rem;color:#3a5070;text-transform:uppercase;letter-spacing:.07em;margin-bottom:1px}
+.kv{font-family:var(--mono);font-size:.9rem;font-weight:700;color:#a3e635}
+.kpi.F{animation:kf .35s ease}@keyframes kf{0%{background:rgba(127,127,127,.12)}100%{background:#080e1a}}
+.rtabs,.right-tabs,.tabnav{display:flex;flex-shrink:0;background:#0c1428;border-bottom:1px solid #162038;overflow-x:auto;scrollbar-width:none}
+.rtabs::-webkit-scrollbar,.right-tabs::-webkit-scrollbar,.tabnav::-webkit-scrollbar{display:none}
+.rt{background:transparent;border:none;color:#3a5070;font-family:var(--mono);font-size:.57rem;padding:6px 9px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .12s}
+.rt:hover{color:#c8d8ec}.rt.A{color:#a3e635;border-bottom-color:#a3e635}
+.rbody,.right-body{flex:1;overflow-y:auto;padding:0}
+.rbody::-webkit-scrollbar{width:3px}.rbody::-webkit-scrollbar-thumb{background:#1e2e48}
+.rp{display:none}.rp.A{display:block}
+.atable{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.62rem}
+.atable td{padding:3px 0;border-bottom:1px solid rgba(127,127,127,.12)}
+.atable td:first-child{color:#3a5070;padding-right:8px}
+.atable td:last-child{color:#a3e635;font-weight:600;text-align:right}
+.atable tr.sec td,.atable tr.section td{color:#fbbf24;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;padding:5px 0 2px;border-top:1px solid rgba(127,127,127,.1)}
+.ptbl,.ftbl,.cftbl,.fit-table,.chain-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.6rem}
+.ptbl th,.ftbl th,.cftbl th,.fit-table th,.chain-table th{padding:3px 6px;background:#0c1428;color:#3a5070;font-size:.5rem;text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid #1e2e48;position:sticky;top:0;z-index:2;cursor:pointer}
+.ptbl th:hover,.chain-table th:hover{color:#c8d8ec}
+.ptbl td,.ftbl td,.cftbl td,.fit-table td,.chain-table td{padding:2px 6px;border-bottom:1px solid rgba(127,127,127,.1)}
+.ptbl td:first-child,.chain-table td:first-child{color:#c8d8ec;font-weight:600}
+.ptbl tr:hover td,.chain-table tr:hover td{background:rgba(127,127,127,.04)}
+.ptbl td.pos,.cftbl td.pos,.fit-table td.ok{color:#22c55e}
+.ptbl td.neg,.cftbl td.neg,.fit-table td.err{color:#ef4444}
+.ptbl td.neu{color:#fbbf24}
+.ptbl td.iv,.chain-table td.iv,.fit-table td.iv-mkt{color:#a3e635;font-weight:500}
+.fit-table td.iv-mod{color:#fbbf24}
+.chain-table-wrap,.cs-wrap{overflow:auto;max-height:220px;margin-top:6px}
+.chain-info{font-family:var(--mono);font-size:.57rem;color:#3a5070;padding:3px 0}
+.wbar-wrap{padding:8px 10px}
+.wbar-row{margin-bottom:5px}
+.wbar-label{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;margin-bottom:2px}
+.wbar-label .tk{color:#c8d8ec}.wbar-label .wv{color:#a3e635}
+.wbar-bg{height:5px;background:#0c1428;border-radius:3px;overflow:hidden}
+.wbar-fill{height:100%;border-radius:3px;transition:width .4s ease}
+.yc-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin-bottom:6px}
+.yc-cell{display:flex;flex-direction:column;gap:1px}
+.yc-cell .ml{font-family:var(--mono);font-size:.5rem;color:#3a5070;text-align:center}
+.yc-cell input{background:#0c1428;border:1px solid #1e2e48;color:#a3e635;font-family:var(--mono);font-size:.7rem;padding:3px;text-align:center;border-radius:2px;outline:none;width:100%;font-weight:600}
+.yc-cell input:focus{border-color:#a3e635}
+.pair-input{display:flex;gap:3px;margin-bottom:4px}
+.pair-input input{flex:1;background:#0c1428;border:1px solid #1e2e48;color:#a3e635;font-family:var(--mono);font-size:.78rem;padding:4px 6px;border-radius:3px;outline:none;font-weight:700;text-align:center}
+.pair-input input:focus{border-color:#a3e635}
+.pair-input .sep{color:#3a5070;font-family:var(--mono);align-self:center;flex-shrink:0}
+.view-row{display:flex;gap:3px;align-items:center;margin-bottom:4px;flex-wrap:wrap}
+.view-row input[type=text]{flex:1;min-width:55px;background:#0c1428;border:1px solid #1e2e48;color:#a3e635;font-family:var(--mono);font-size:.65rem;padding:3px 5px;border-radius:3px;outline:none}
+.view-row input[type=text]:focus{border-color:#a3e635}
+.view-row .vv{width:55px;color:#fbbf24}
+.no-views{font-family:var(--mono);font-size:.6rem;color:#3a5070;font-style:italic;padding:3px 0}
+.calib-res{padding:10px 12px;font-family:var(--mono);font-size:.65rem}
+.calib-param{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(127,127,127,.1)}
+.calib-param .pk{color:#3a5070}.calib-param .pv{color:#fbbf24;font-weight:500}
+.calib-qual .good{color:#22c55e}.calib-qual .bad{color:#ef4444}
+.toast{position:fixed;bottom:14px;right:14px;background:rgba(60,0,0,.9);border:1px solid #ef4444;color:#ef4444;font-family:var(--mono);font-size:.68rem;padding:7px 11px;border-radius:3px;max-width:320px;z-index:9999;opacity:0;transform:translateY(4px);transition:all .2s;pointer-events:none}
+.toast.on{opacity:1;transform:translateY(0)}
+
+/* ── MOBILE RESPONSIVE ─────────────────────────────────────────────────── */
+@media(max-width:900px){
+  /* Layout: stack columns vertically */
+  .layout,.app{
+    grid-template-columns:1fr !important;
+    grid-template-rows:auto !important;
+    height:auto !important;
+  }
+  /* Nav: compact */
+  nav,.nav{
+    padding:0 12px !important;
+    height:44px !important;
+    flex-wrap:wrap;
+  }
+  .nav-links,.nav-right{gap:6px !important;}
+  .nav-link{display:none}
+  /* Panels: full width, no resize */
+  .panel,.pane,[class*="panel"]{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    height:auto !important;
+    resize:none !important;
+    border-right:none !important;
+    border-bottom:1px solid var(--bdr, #1a2a3a) !important;
+  }
+  /* Drag handles: hide on mobile */
+  .drag-handle,.dragger,.resizer{display:none !important}
+  /* Control panels: scrollable */
+  .controls,.ctrl-panel,.left-panel,.sidebar{
+    max-height:50vh !important;
+    overflow-y:auto !important;
+  }
+  /* Charts: ensure height */
+  .chart-area,.chart-wrap,[id^="plt"],[id^="plot"]{
+    min-height:280px !important;
+    height:280px !important;
+  }
+  /* Tables: horizontal scroll */
+  table,.table-wrap,.chain-table-wrap{
+    overflow-x:auto !important;
+    display:block !important;
+  }
+  /* KPI grid: 2-up on mobile */
+  .kpi-row,.metrics-row,[class*="kpi-grid"]{
+    grid-template-columns:repeat(2,1fr) !important;
+  }
+  /* Buttons: full width */
+  .btn.run,.run-btn,[id^="brun"],[id^="bfetch"]{
+    width:100% !important;
+    padding:12px !important;
+  }
+  /* Input sliders: touch-friendly */
+  input[type=range]{height:32px !important;}
+  input[type=text],input[type=number],select{
+    font-size:16px !important; /* prevent zoom on iOS */
+    padding:10px !important;
+  }
+  /* Tabs: scrollable row */
+  .tabs,.tab-bar{
+    overflow-x:auto !important;
+    white-space:nowrap !important;
+    -webkit-overflow-scrolling:touch !important;
+  }
+  /* Hide secondary info panels on small screens */
+  .status-bar,.status-strip{display:none !important}
+}
+@media(max-width:480px){
+  .kpi-row,.metrics-row,[class*="kpi-grid"]{
+    grid-template-columns:1fr 1fr !important;
+  }
+  .chart-area,.chart-wrap{min-height:220px !important;height:220px !important;}
+  /* Canvas charts */
+  canvas{max-width:100% !important;}
+}
+
+
+/* ── SINGULARITY SHARED NAV ── */
+.sg-nav{position:sticky;top:0;z-index:500;height:52px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 20px;
+  background:rgba(5,3,13,.97);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(36,21,64,.8);gap:16px;flex-shrink:0}
+.sg-brand{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+.sg-glyph{width:28px;height:28px;border-radius:50%;border:1.5px solid #7c3aed;
+  display:flex;align-items:center;justify-content:center;font-size:.85rem;color:#7c3aed;
+  flex-shrink:0;box-shadow:0 0 14px rgba(124,58,237,.35);animation:sg-gp 3s ease-in-out infinite}
+@keyframes sg-gp{0%,100%{box-shadow:0 0 14px rgba(124,58,237,.35)}50%{box-shadow:0 0 26px rgba(124,58,237,.58)}}
+.sg-wordmark{font-family:'Space Grotesk',sans-serif;font-size:.84rem;font-weight:700;color:#f5f0ff;letter-spacing:.14em}
+.sg-tagline{font-size:.4rem;color:#3d2d6a;letter-spacing:.18em;text-transform:uppercase;margin-top:1px}
+.sg-nav-center{flex:1;display:flex;justify-content:center}
+.sg-page-lbl{font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;color:#3d2d6a;
+  padding:3px 12px;border:1px solid rgba(36,21,64,.8);border-radius:20px}
+.sg-nav-right{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.sg-sess{display:flex;align-items:center;gap:4px;font-size:.52rem;color:#3d2d6a;
+  padding:3px 9px;border:1px solid rgba(26,16,48,.8);border-radius:20px}
+.sg-sess-dot{width:5px;height:5px;border-radius:50%;background:#3d2d6a}
+.sg-sess-dot.open{background:#10b981;box-shadow:0 0 5px rgba(16,185,129,.5);animation:sg-sd 2s ease-in-out infinite}
+.sg-sess-dot.pre{background:#f59e0b}
+@keyframes sg-sd{0%,100%{opacity:1}50%{opacity:.4}}
+.sg-user-d{font-size:.52rem;color:#3d2d6a;padding:3px 9px;background:#180f30;
+  border:1px solid rgba(26,16,48,.8);border-radius:20px;white-space:nowrap}
+.sg-nav-a{font-size:.52rem;color:#3d2d6a;text-decoration:none;padding:4px 8px;
+  border:1px solid transparent;border-radius:2px;transition:all .14s;letter-spacing:.06em}
+.sg-nav-a:hover{border-color:rgba(36,21,64,.8);color:#c8c0e0}
+.sg-nav-b{background:transparent;border:1px solid rgba(36,21,64,.8);color:#3d2d6a;
+  font-family:'JetBrains Mono',monospace;font-size:.52rem;padding:4px 9px;cursor:pointer;
+  letter-spacing:.06em;transition:all .14s;border-radius:2px}
+.sg-nav-b:hover{border-color:rgba(244,63,94,.4);color:#f43f5e}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="brand">
+    <div class="bi">PO</div>
+    <div><div class="bt">PORTFOLIO OPTIMIZER</div><div class="bs">MARKOWITZ · BLACK-LITTERMAN · RISK PARITY</div></div>
+  </div>
+  <div class="hst" id="hst">Ready</div>
+  <div class="links"><a class="pill" href="/mc" target="_blank">← MC</a>
+    <a class="pill" href="http://127.0.0.1" target="_blank">Hub</a>
+    <a class="pill" href="/iv" target="_blank">IVS</a>
+    <a class="pill" href="/fi" target="_blank">FI</a></div>
+</header>
+<!-- HEADER -->
+<header class="hdr">
+  <div class="brand">
+    <div class="brand-mark">PO</div>
+    <div>
+      <div class="brand-name">PORTFOLIO OPTIMIZER</div>
+      <div class="brand-sub">MARKOWITZ · BLACK-LITTERMAN · RISK PARITY · FACTOR MODEL</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="hdr-status" id="hst">Ready — add tickers and run</div>
+    <a class="pill" href="/mc" target="_blank">← MC Suite</a>
+    <a class="pill" href="/iv" target="_blank">IV Surface</a>
+  </div>
+</header>
+
+<div class="app">
+
+<!-- ══ LEFT ═══════════════════════════════════ -->
+<div class="L">
+<div class="Ls">
+
+  <div class="sec">Portfolio Universe</div>
+  <div class="add-ticker">
+    <input id="tick-in" placeholder="AAPL, TSLA…" autocomplete="off"
+           onkeydown="if(event.key==='Enter')addTicker()"/>
+    <button class="btn sm" onclick="addTicker()">+ Add</button>
+  </div>
+  <div class="ticker-chips" id="tick-chips"></div>
+  <div style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:6px">
+    <button class="btn sm" onclick="loadPreset('tech')">Tech</button>
+    <button class="btn sm" onclick="loadPreset('balanced')">Balanced</button>
+    <button class="btn sm" onclick="loadPreset('global')">Global</button>
+    <button class="btn sm" onclick="loadPreset('factor')">Factors</button>
+    <button class="btn sm" onclick="clearAll()">Clear</button>
+  </div>
+
+  <div class="sec">Parameters</div>
+  <div class="field">
+    <label>Risk-free Rate r (%)<span class="fv" id="vrf">5.0</span></label>
+    <input type="range" id="prf" min="0" max="10" step=".25" value="5" oninput="sv(this,'vrf')"/>
+  </div>
+  <div class="field">
+    <label>History Period</label>
+    <select id="pperiod">
+      <option value="1y">1 Year</option>
+      <option value="2y" selected>2 Years</option>
+      <option value="3y">3 Years</option>
+      <option value="5y">5 Years</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>Covariance Estimator</label>
+    <select id="pcov">
+      <option value="ledoit_wolf" selected>Ledoit-Wolf (shrinkage)</option>
+      <option value="sample">Sample</option>
+      <option value="ewma">EWMA (RiskMetrics)</option>
+    </select>
+  </div>
+  <div class="field" style="display:flex;align-items:center;gap:6px;margin-top:2px">
+    <input type="checkbox" id="pshort" style="accent-color:var(--lime)"/>
+    <label for="pshort" style="color:var(--dim);font-size:.65rem;cursor:pointer">Allow short selling</label>
+  </div>
+
+  <div class="sec s">Black-Litterman Views <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:.55rem">(optional)</span></div>
+  <div id="views-list"></div>
+  <div style="display:flex;gap:3px;margin-top:4px">
+    <button class="btn sm" onclick="addView()" style="flex:1">+ Add View</button>
+    <button class="btn sm" onclick="clearViews()">Clear</button>
+  </div>
+  <div style="font-family:var(--mono);font-size:.53rem;color:var(--dim);margin-top:4px;line-height:1.6">
+    Format: AAPL>MSFT by 5% · confidence 0.7
+  </div>
+
+  <div class="sec r" style="margin-top:8px">Backtest</div>
+  <div class="field">
+    <label>Method</label>
+    <select id="pbtmethod">
+      <option value="max_sharpe" selected>Max Sharpe</option>
+      <option value="min_variance">Min Variance</option>
+      <option value="risk_parity">Risk Parity</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>Lookback (days)<span class="fv" id="vlb">252</span></label>
+    <input type="range" id="plb" min="60" max="504" step="21" value="252" oninput="sv(this,'vlb')"/>
+  </div>
+  <div class="field">
+    <label>Rebalance (days)<span class="fv" id="vrb">21</span></label>
+    <input type="range" id="prb" min="5" max="63" step="5" value="21" oninput="sv(this,'vrb')"/>
+  </div>
+  <button class="btn sm" onclick="runBacktest()" id="bbt" style="width:100%;margin-top:2px">▷ Run Backtest</button>
+
+  <div class="pbar"><div class="pbf" id="pbf"></div></div>
+  <div class="ptxt" id="ptxt"></div>
+  <button class="btn run" id="brun" onclick="runOpt()">▶  OPTIMIZE PORTFOLIO</button>
+
+</div>
+</div>
+
+<!-- drag handle left -->
+<div class="dh" id="dh-l"></div>
+
+<!-- ══ CENTRE ══════════════════════════════════ -->
+<div class="C">
+  <nav class="tnav">
+    <button class="tb A" data-t="frontier">Efficient Frontier</button>
+    <button class="tb" data-t="perf">Performance</button>
+    <button class="tb" data-t="weights">Weights</button>
+    <button class="tb" data-t="corr">Correlation</button>
+    <button class="tb" data-t="factor">Factor Model</button>
+    <button class="tb" data-t="risk">Risk Attribution</button>
+    <button class="tb" data-t="backtest">Backtest</button>
+  </nav>
+  <div class="tbody">
+    <div id="tp-frontier"  class="tp A"><div class="empty"><div class="empty-icon">◎</div>Run optimization</div></div>
+    <div id="tp-perf"      class="tp"><div class="empty"><div class="empty-icon">◎</div>Run optimization</div></div>
+    <div id="tp-weights"   class="tp"><div class="empty"><div class="empty-icon">◎</div>Run optimization</div></div>
+    <div id="tp-corr"      class="tp"><div class="empty"><div class="empty-icon">◎</div>Run optimization</div></div>
+    <div id="tp-factor"    class="tp"><div class="empty"><div class="empty-icon">◎</div>Run optimization</div></div>
+    <div id="tp-risk"      class="tp"><div class="empty"><div class="empty-icon">◎</div>Run optimization</div></div>
+    <div id="tp-backtest"  class="tp"><div class="empty"><div class="empty-icon">◎</div>Run backtest</div></div>
+  </div>
+</div>
+
+<!-- drag handle right -->
+<div class="dh" id="dh-r"></div>
+
+<!-- ══ RIGHT ═══════════════════════════════════ -->
+<div class="R">
+  <div class="kgrid">
+    <div class="kpi" id="K-ret"> <div class="kl">Max Sharpe Ret</div><div class="kv">—</div></div>
+    <div class="kpi" id="K-vol"> <div class="kl">Max Sharpe Vol</div><div class="kv">—</div></div>
+    <div class="kpi" id="K-sh">  <div class="kl">Max Sharpe</div>   <div class="kv">—</div></div>
+    <div class="kpi" id="K-mv">  <div class="kl">Min Vol</div>      <div class="kv">—</div></div>
+    <div class="kpi" id="K-rp">  <div class="kl">Risk Parity Vol</div><div class="kv">—</div></div>
+    <div class="kpi" id="K-bl">  <div class="kl">BL Sharpe</div>   <div class="kv">—</div></div>
+    <div class="kpi" id="K-n">   <div class="kl">Assets</div>       <div class="kv">—</div></div>
+    <div class="kpi" id="K-obs"> <div class="kl">Obs</div>          <div class="kv">—</div></div>
+  </div>
+  <div class="rtabs">
+    <button class="rt A" data-r="ms"  onclick="showR(this)">Max Sharpe</button>
+    <button class="rt"   data-r="mv"  onclick="showR(this)">Min Var</button>
+    <button class="rt"   data-r="rp"  onclick="showR(this)">Risk Parity</button>
+    <button class="rt"   data-r="bl"  onclick="showR(this)">B-L</button>
+  </div>
+  <div class="rbody">
+    <div class="rp A wbar-wrap" id="rp-ms"></div>
+    <div class="rp wbar-wrap"   id="rp-mv"></div>
+    <div class="rp wbar-wrap"   id="rp-rp"></div>
+    <div class="rp wbar-wrap"   id="rp-bl"></div>
+  </div>
+</div>
+
+</div><!-- /app -->
+<div class="toast" id="toast"></div>
+<div class="toast" id="toast"></div>
+<script>
+
+'use strict';
+// ── tokens ───────────────────────────────────────────────────────
+const C={lime:'#a3e635',sky:'#38bdf8',rose:'#fb7185',violet:'#a78bfa',
+  amber:'#fbbf24',teal:'#2dd4bf',bg:'#04080f',s0:'#080f1c',s1:'#0b1526',
+  s2:'#0f1d36',bdr:'#152040',dim:'#3d5278',txt:'#cbd5e1'};
+const MN=`ui-monospace,'Cascadia Code',monospace`;
+const BL={paper_bgcolor:C.s0,plot_bgcolor:C.bg,
+  font:{color:C.txt,family:MN,size:9},margin:{l:48,r:10,t:32,b:34},
+  legend:{bgcolor:C.s1,bordercolor:C.bdr,borderwidth:1,font:{size:8.5}},
+  xaxis:{gridcolor:C.bdr,zerolinecolor:C.bdr,linecolor:C.bdr},
+  yaxis:{gridcolor:C.bdr,zerolinecolor:C.bdr,linecolor:C.bdr}};
+const CF={displayModeBar:false,responsive:true};
+const COLORS=[C.lime,C.sky,C.rose,C.violet,C.amber,C.teal,'#f472b6','#fb923c','#34d399','#60a5fa','#e879f9','#a78bfa'];
+
+const $=id=>document.getElementById(id);
+function sv(el,v){$(v).textContent=el.value}
+function BLx(o){return Object.assign({},BL,o)}
+function plot(id,tr,lay){Plotly.newPlot(id,tr,BLx(lay),CF)}
+function toast(m){const t=$('toast');t.textContent='⚠ '+m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),4500)}
+function hst(m,c){const e=$('hst');e.textContent=m;e.style.color=c||C.teal}
+function kset(id,v){const el=$(id);if(!el)return;el.querySelector('.kv').textContent=v;
+  el.classList.remove('F');void el.offsetWidth;el.classList.add('F')}
+
+// ── tabs ─────────────────────────────────────────────────────────
+document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tb').forEach(x=>x.classList.remove('A'));
+  document.querySelectorAll('.tp').forEach(x=>x.classList.remove('A'));
+  b.classList.add('A');$('tp-'+b.dataset.t).classList.add('A');
+  setTimeout(()=>document.querySelectorAll('.js-plotly-plot').forEach(el=>{try{Plotly.Plots.resize(el)}catch(e){}}),60);
+  if(window._D&&b.dataset.t!=='backtest')renderTab(b.dataset.t,window._D);
+  if(window._BT&&b.dataset.t==='backtest')renderBacktest(window._BT);
+}));
+
+function showR(b){
+  document.querySelectorAll('.rt').forEach(x=>x.classList.remove('A'));
+  document.querySelectorAll('.rp').forEach(x=>x.classList.remove('A'));
+  b.classList.add('A');$('rp-'+b.dataset.r).classList.add('A');
+}
+
+// ── column resize ────────────────────────────────────────────────
+(function(){
+  let lw=parseInt(localStorage.getItem('po_lw')||'270');
+  let rw=parseInt(localStorage.getItem('po_rw')||'300');
+  function apply(l,r){
+    lw=Math.min(520,Math.max(160,l));rw=Math.min(540,Math.max(160,r));
+    document.documentElement.style.setProperty('--lw',lw+'px');
+    document.documentElement.style.setProperty('--rw',rw+'px');
+    localStorage.setItem('po_lw',lw);localStorage.setItem('po_rw',rw);
+  }
+  apply(lw,rw);
+  function drag(handleId,which){
+    const h=$(handleId);if(!h)return;
+    h.addEventListener('mousedown',e=>{
+      e.preventDefault();const sx=e.clientX,sw=which==='l'?lw:rw;
+      h.style.background=C.lime;document.body.style.cursor='col-resize';document.body.style.userSelect='none';
+      const mv=e2=>{const dx=e2.clientX-sx;which==='l'?apply(sw+dx,rw):apply(lw,sw-dx);
+        document.querySelectorAll('.js-plotly-plot').forEach(el=>{try{Plotly.Plots.resize(el)}catch(_){}})};
+      const up=()=>{h.style.background='';document.body.style.cursor='';document.body.style.userSelect='';
+        document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);
+        document.querySelectorAll('.js-plotly-plot').forEach(el=>{try{Plotly.Plots.resize(el)}catch(_){}})};
+      document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
+    });
+    h.addEventListener('dblclick',()=>{apply(which==='l'?270:lw,which==='r'?300:rw)});
+  }
+  drag('dh-l','l');drag('dh-r','r');
+  window.addEventListener('resize',()=>setTimeout(()=>document.querySelectorAll('.js-plotly-plot').forEach(el=>{try{Plotly.Plots.resize(el)}catch(_){}}),150));
+})();
+
+// ── tickers ──────────────────────────────────────────────────────
+const PRESETS={
+  tech:    ['AAPL','MSFT','GOOGL','AMZN','META','NVDA','TSLA'],
+  balanced:['AAPL','MSFT','JPM','JNJ','XOM','GLD','TLT','SPY'],
+  global:  ['SPY','EFA','EEM','GLD','TLT','VNQ','DBC','BNDX'],
+  factor:  ['VTI','IWD','IWF','VBR','VUG','VTV','QUAL','MTUM'],
+};
+let _tickers=new Set(['AAPL','MSFT','GOOGL','AMZN','JPM','JNJ','XOM','GLD']);
+
+function renderChips(){
+  const wrap=$('tick-chips');
+  wrap.innerHTML=[..._tickers].map(t=>`
+    <span class="tc on">
+      ${t}<span class="x" onclick="removeTicker('${t}')">✕</span>
+    </span>`).join('');
+}
+function addTicker(){
+  const inp=$('tick-in'),tk=inp.value.trim().toUpperCase();
+  if(!tk)return;
+  tk.split(',').forEach(t=>{const s=t.trim();if(s)_tickers.add(s)});
+  inp.value='';renderChips();
+}
+function removeTicker(t){_tickers.delete(t);renderChips()}
+function loadPreset(k){_tickers=new Set(PRESETS[k]||[]);renderChips()}
+function clearAll(){_tickers.clear();renderChips()}
+$('tick-in').addEventListener('keydown',e=>{if(e.key==='Enter')addTicker()});
+renderChips();
+
+// ── views ────────────────────────────────────────────────────────
+let _views=[];
+function renderViews(){
+  const el=$('views-list');
+  if(!_views.length){el.innerHTML='<div class="no-views">No views — optimizer uses market equilibrium</div>';return}
+  el.innerHTML=_views.map((v,i)=>`
+    <div class="view-row">
+      <input type="text" placeholder="Long asset" value="${v.long||''}" oninput="_views[${i}].long=this.value.toUpperCase()" style="width:55px"/>
+      <span style="color:var(--dim);font-size:.65rem">&gt;</span>
+      <input type="text" placeholder="Short asset" value="${v.short||''}" oninput="_views[${i}].short=this.value.toUpperCase()" style="width:55px"/>
+      <input type="text" class="vv" placeholder="ret%" value="${v.ret||''}" oninput="_views[${i}].ret=this.value" style="width:42px"/>
+      <input type="text" placeholder="conf" value="${v.conf||'0.7'}" oninput="_views[${i}].conf=this.value" style="width:35px"/>
+      <button class="btn sm" onclick="_views.splice(${i},1);renderViews()" style="color:var(--rose)">✕</button>
+    </div>`).join('');
+}
+function addView(){_views.push({long:'',short:'',ret:'5',conf:'0.7'});renderViews()}
+function clearViews(){_views=[];renderViews()}
+renderViews();
+
+function buildBLViews(){
+  return _views.filter(v=>v.long&&v.ret).map(v=>({
+    assets:   v.short?[v.long,v.short]:[v.long],
+    weights:  v.short?[1,-1]:[1],
+    return:   parseFloat(v.ret)/100||0,
+    confidence:parseFloat(v.conf)||0.7,
+  }));
+}
+
+// ── optimize ─────────────────────────────────────────────────────
+let _poll=null;
+function stopPoll(){if(_poll){clearInterval(_poll);_poll=null}}
+
+async function runOpt(){
+  if(_tickers.size<2)return toast('Add at least 2 tickers');
+  stopPoll();
+  const btn=$('brun');btn.disabled=true;
+  $('pbf').style.cssText='width:3%;transition:none';
+  $('ptxt').textContent='';
+
+  const body={
+    tickers:     [..._tickers],
+    rf:          parseFloat($('prf').value)/100,
+    period:      $('pperiod').value,
+    cov_method:  $('pcov').value,
+    allow_short: $('pshort').checked,
+    views:       buildBLViews(),
+  };
+  hst('Submitting…',C.amber);
+  let jid;
+  try{
+    const res=await fetch('/api/portfolio/optimize',{method:'POST',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const od=await res.json(); jid=od.job_id;
+    if(od.status==='done'&&od.result){stopPoll();$('pbf').style.width='100%';window._D=od.result;onDone(od.result);btn.disabled=false;return;}
+  }catch(e){toast(e.message);btn.disabled=false;return}
+
+  const t0=Date.now();
+  $('pbf').style.transition='width .3s';
+  let pct=5;
+  _poll=setInterval(async()=>{
+    pct=Math.min(95,pct+7);$('pbf').style.width=pct+'%';
+    const s=await fetch('/api/portfolio/job/'+jid).then(r=>r.json());
+    $('ptxt').textContent=s.progress;
+    hst(s.progress,C.amber);
+    if(s.status==='done'){
+      stopPoll();$('pbf').style.width='100%';
+      window._D=s.result;
+      onOptDone(s.result);
+      btn.disabled=false;
+      setTimeout(()=>$('pbf').style.width='0%',1200);
+    }else if(s.status==='error'){
+      stopPoll();toast(s.error||'Optimization failed');
+      $('pbf').style.width='0%';btn.disabled=false;
+    }
+  },600);
+}
+
+function onOptDone(d){
+  const ms=d.efficient_frontier.max_sharpe;
+  const mv=d.efficient_frontier.min_var;
+  const rp=d.risk_parity;
+  const bl=d.bl_max_sharpe;
+  kset('K-ret', ms.exp_return.toFixed(2)+'%');
+  kset('K-vol', ms.volatility.toFixed(2)+'%');
+  kset('K-sh',  ms.sharpe.toFixed(3));
+  kset('K-mv',  mv.volatility.toFixed(2)+'%');
+  kset('K-rp',  rp.volatility.toFixed(2)+'%');
+  kset('K-bl',  bl.sharpe.toFixed(3));
+  kset('K-n',   d.n_assets);
+  kset('K-obs', d.n_obs);
+  hst('✔ '+d.tickers.join(', ')+' · '+d.elapsed_s+'s · Max Sharpe='+ms.sharpe.toFixed(3));
+
+  renderWeightBars('rp-ms', ms.weights, d.tickers);
+  renderWeightBars('rp-mv', mv.weights, d.tickers);
+  renderWeightBars('rp-rp', rp.weights, d.tickers);
+  renderWeightBars('rp-bl', bl.weights, d.tickers);
+
+  ['frontier','perf','weights','corr','factor','risk'].forEach(t=>{
+    try{renderTab(t,d)}catch(e){console.error(t,e)}
+  });
+}
+
+function renderWeightBars(panelId, weights, tickers){
+  const el=$(panelId);if(!el)return;
+  const sorted=Object.entries(weights).sort((a,b)=>b[1]-a[1]);
+  el.innerHTML=sorted.map(([tk,w],i)=>`
+    <div class="wbar-row">
+      <div class="wbar-label">
+        <span class="tk">${tk}</span>
+        <span class="wv">${(w*100).toFixed(1)}%</span>
+      </div>
+      <div class="wbar-bg">
+        <div class="wbar-fill" style="width:${Math.max(w*100,0).toFixed(1)}%;background:${COLORS[i%COLORS.length]}"></div>
+      </div>
+    </div>`).join('');
+}
+
+// ── chart renderers ───────────────────────────────────────────────
+function renderTab(tab,d){
+  const f={frontier:rFrontier,perf:rPerf,weights:rWeights,corr:rCorr,factor:rFactor,risk:rRisk};
+  try{if(f[tab])f[tab](d)}catch(e){$('tp-'+tab).innerHTML=`<div class="empty"><div class="empty-icon">⚠</div>${e.message}</div>`}
+}
+
+function rFrontier(d){
+  const tp=$('tp-frontier');
+  tp.innerHTML='<div id="pef" style="height:420px"></div><div id="pef2" style="height:220px"></div>';
+  const ef=d.efficient_frontier;
+  const ms=ef.max_sharpe, mv=ef.min_var, rp=d.risk_parity, bl=d.bl_max_sharpe;
+  // Asset scatter
+  const assetTrace={
+    x:d.tickers.map(t=>d.vol[t]*100),
+    y:d.tickers.map(t=>d.mu[t]*100),
+    mode:'markers+text',type:'scatter',
+    marker:{color:COLORS.slice(0,d.tickers.length),size:9,opacity:.9,
+      line:{color:C.bg,width:1}},
+    text:d.tickers,textposition:'top center',
+    textfont:{size:8,family:MN,color:C.txt},
+    name:'Assets',hovertemplate:'%{text}<br>Vol: %{x:.1f}%<br>Ret: %{y:.1f}%<extra></extra>',
+  };
+  // Capital market line
+  const rf=d.rf*100;const ms_ret=ms.exp_return,ms_vol=ms.volatility;
+  const cml_x=[0,Math.max(...ef.vols)*100*1.3];
+  const cml_slope=(ms_ret-rf)/ms_vol;
+  const cml_y=cml_x.map(v=>rf+cml_slope*v);
+
+  plot('pef',[
+    // frontier
+    {x:ef.vols.map(v=>v*100),y:ef.returns.map(r=>r*100),
+     mode:'lines',name:'Efficient Frontier',
+     line:{color:C.lime,width:2.2},
+     hovertemplate:'Vol: %{x:.2f}%<br>Ret: %{y:.2f}%<extra></extra>'},
+    // CML
+    {x:cml_x,y:cml_y,mode:'lines',name:'Capital Mkt Line',
+     line:{color:C.amber,width:1.2,dash:'dash'}},
+    assetTrace,
+    // special points
+    {x:[ms_vol*100],y:[ms_ret*100],mode:'markers',name:'Max Sharpe',
+     marker:{color:C.amber,size:14,symbol:'star',line:{color:C.bg,width:1.5}}},
+    {x:[mv.volatility*100],y:[mv.exp_return*100],mode:'markers',name:'Min Variance',
+     marker:{color:C.sky,size:11,symbol:'diamond',line:{color:C.bg,width:1.5}}},
+    {x:[rp.volatility*100],y:[rp.exp_return*100],mode:'markers',name:'Risk Parity',
+     marker:{color:C.violet,size:11,symbol:'square',line:{color:C.bg,width:1.5}}},
+    {x:[bl.volatility*100],y:[bl.exp_return*100],mode:'markers',name:'BL Max Sharpe',
+     marker:{color:C.rose,size:11,symbol:'triangle-up',line:{color:C.bg,width:1.5}}},
+  ],{height:420,
+    title:{text:'Efficient Frontier  ·  '+d.tickers.join(', '),font:{color:C.lime,size:10,family:MN}},
+    xaxis:{...BL.xaxis,title:{text:'Annualised Volatility (%)',font:{size:9}}},
+    yaxis:{...BL.yaxis,title:{text:'Annualised Return (%)',font:{size:9}}},
+    hovermode:'closest',
+  });
+  // Sharpe ratio along frontier
+  plot('pef2',[{
+    x:ef.vols.map(v=>v*100),y:ef.sharpes,mode:'lines',fill:'tozeroy',
+    line:{color:C.lime,width:1.8},fillcolor:'rgba(163,230,53,.06)',
+    name:'Sharpe Ratio',
+    hovertemplate:'Vol: %{x:.2f}%<br>Sharpe: %{y:.3f}<extra></extra>',
+  },{
+    x:[ms_vol*100],y:[ms.sharpe],mode:'markers',name:'Max Sharpe',
+    marker:{color:C.amber,size:10,symbol:'star'},
+  }],{height:220,
+    title:{text:'Sharpe Ratio along Frontier',font:{color:C.lime,size:10,family:MN}},
+    xaxis:{...BL.xaxis,title:{text:'Volatility (%)',font:{size:9}}},
+    yaxis:{...BL.yaxis,title:{text:'Sharpe',font:{size:9}}},
+  });
+}
+
+function rPerf(d){
+  const tp=$('tp-perf');
+  tp.innerHTML='<div id="pperf" style="height:380px"></div><div id="pperf2" style="height:240px"></div>';
+  const dates=d.dates;
+  const traces=[
+    {x:dates,y:d.ms_cum.map(v=>v*100),mode:'lines',name:'Max Sharpe',line:{color:C.amber,width:2.2}},
+    {x:dates,y:d.mv_cum.map(v=>v*100),mode:'lines',name:'Min Variance',line:{color:C.sky,width:1.8}},
+    {x:dates,y:d.rp_cum.map(v=>v*100),mode:'lines',name:'Risk Parity',line:{color:C.violet,width:1.8}},
+    {x:dates,y:d.eq_cum.map(v=>v*100),mode:'lines',name:'Equal Weight',line:{color:C.dim,width:1.3,dash:'dot'}},
+  ];
+  // Add individual assets
+  d.tickers.slice(0,5).forEach((t,i)=>traces.push({
+    x:dates,y:d.asset_cum[t].map(v=>v*100),mode:'lines',name:t,
+    line:{color:COLORS[i],width:.8},opacity:.5,visible:'legendonly',
+  }));
+  plot('pperf',traces,{height:380,
+    title:{text:'Cumulative Return (in-sample)',font:{color:C.lime,size:10,family:MN}},
+    xaxis:{...BL.xaxis,type:'date'},
+    yaxis:{...BL.yaxis,title:{text:'Cumulative Return (%)',font:{size:9}}},
+    shapes:[{type:'line',x0:0,x1:1,xref:'paper',y0:0,y1:0,line:{color:C.bdr,width:1}}],
+  });
+  // Annual return bar chart per asset
+  const mu_pct=d.tickers.map(t=>d.mu[t]*100);
+  const vol_pct=d.tickers.map(t=>d.vol[t]*100);
+  plot('pperf2',[
+    {x:d.tickers,y:mu_pct,type:'bar',name:'Ann Return (%)',
+     marker:{color:mu_pct.map(v=>v>=0?C.lime:C.rose),opacity:.85}},
+    {x:d.tickers,y:vol_pct,type:'bar',name:'Ann Vol (%)',
+     marker:{color:C.sky},opacity:.7},
+  ],{height:240,barmode:'group',
+    title:{text:'Asset Returns & Volatility',font:{color:C.lime,size:10,family:MN}},
+    yaxis:{...BL.yaxis,title:{text:'%',font:{size:9}}},
+    xaxis:{...BL.xaxis},
+  });
+}
+
+function rWeights(d){
+  const tp=$('tp-weights');
+  tp.innerHTML='<div id="pwts" style="height:360px"></div><div id="pwts2" style="height:240px"></div>';
+  const ef=d.efficient_frontier;
+  const portfolios=[
+    {label:'Max Sharpe',   w:ef.max_sharpe.weights, col:C.amber},
+    {label:'Min Variance', w:ef.min_var.weights,    col:C.sky},
+    {label:'Risk Parity',  w:d.risk_parity.weights, col:C.violet},
+    {label:'BL Max Sharpe',w:d.bl_max_sharpe.weights,col:C.rose},
+  ];
+  plot('pwts',portfolios.map(p=>({
+    type:'bar',name:p.label,
+    x:Object.keys(p.w),y:Object.values(p.w).map(v=>v*100),
+    marker:{color:p.col},opacity:.85,
+  })),{height:360,barmode:'group',
+    title:{text:'Portfolio Weights by Strategy',font:{color:C.lime,size:10,family:MN}},
+    xaxis:{...BL.xaxis},yaxis:{...BL.yaxis,title:{text:'Weight (%)',font:{size:9}}},
+  });
+  // Pie for max sharpe
+  const msW=ef.max_sharpe.weights;
+  const filtered=Object.entries(msW).filter(([_,v])=>v>0.001);
+  Plotly.newPlot('pwts2',[{
+    type:'pie',
+    labels:filtered.map(([t])=>t),
+    values:filtered.map(([_,v])=>+(v*100).toFixed(2)),
+    marker:{colors:COLORS.slice(0,filtered.length)},
+    textfont:{family:MN,size:9},hole:.4,
+    hovertemplate:'%{label}: %{value:.1f}%<extra></extra>',
+  }],BLx({height:240,
+    title:{text:'Max Sharpe Weights',font:{color:C.lime,size:10,family:MN}},
+    margin:{l:10,r:10,t:32,b:10},showlegend:true,
+  }),CF);
+}
+
+function rCorr(d){
+  const tp=$('tp-corr');
+  tp.innerHTML='<div id="pcorr" style="height:500px"></div>';
+  const tickers=d.tickers;
+  const z=tickers.map(t1=>tickers.map(t2=>{
+    const v=(d.corr[t1]||{})[t2];return v!=null?+v.toFixed(3):0;
+  }));
+  const text=z.map(row=>row.map(v=>v.toFixed(2)));
+  plot('pcorr',[{
+    type:'heatmap',x:tickers,y:tickers,z,text,
+    texttemplate:'%{text}',textfont:{size:9,family:MN},
+    colorscale:[
+      [0,C.rose],[.35,'#4a1942'],[.5,C.s1],[.65,'#1a3a1a'],[1,C.lime]],
+    zmid:0,zmin:-1,zmax:1,
+    colorbar:{thickness:12,len:.7,tickfont:{size:8,family:MN,color:C.txt},
+              bgcolor:C.s0,bordercolor:C.bdr},
+  }],{height:500,
+    title:{text:'Correlation Matrix  ('+d.n_obs+' daily obs)',font:{color:C.lime,size:10,family:MN}},
+    xaxis:{...BL.xaxis,side:'top'},yaxis:{...BL.yaxis,autorange:'reversed'},
+    margin:{l:60,r:20,t:80,b:20},
+  });
+}
+
+function rFactor(d){
+  const tp=$('tp-factor');
+  if(!d.factor||!d.factor.length){
+    tp.innerHTML='<div class="empty"><div class="empty-icon">◎</div>No factor data</div>';return;
+  }
+  tp.innerHTML='<div id="pfac" style="height:340px"></div><div style="overflow:auto;padding:6px 8px;max-height:280px"><table class="ftbl" id="ftbl"></table></div>';
+  const tks=d.factor.map(r=>r.ticker||r.index||'');
+  const alphas=d.factor.map(r=>+(r.alpha_annual*100).toFixed(3));
+  const betas=d.factor.map(r=>+r.beta.toFixed(4));
+  const r2s=d.factor.map(r=>+(r.r_squared*100).toFixed(2));
+  plot('pfac',[
+    {x:tks,y:alphas,type:'bar',name:'Alpha (ann %)',
+     marker:{color:alphas.map(v=>v>=0?C.lime:C.rose)},opacity:.85},
+    {x:tks,y:betas,type:'bar',name:'Beta',
+     marker:{color:C.sky},opacity:.7,yaxis:'y2'},
+  ],{height:340,barmode:'group',
+    title:{text:'Alpha & Beta vs Market (SPY)',font:{color:C.lime,size:10,family:MN}},
+    xaxis:{...BL.xaxis},
+    yaxis:{...BL.yaxis,title:{text:'Alpha (%)',font:{size:9}}},
+    yaxis2:{overlaying:'y',side:'right',showgrid:false,title:{text:'Beta',font:{size:9}},
+            tickfont:{size:8},color:C.sky},
+  });
+  // Table
+  const cols=['ticker','alpha_annual','beta','r_squared','tracking_error','info_ratio'];
+  const hdrs=['Ticker','α/yr%','β','R²','TE/yr%','IR'];
+  $('ftbl').innerHTML=`<thead><tr>${hdrs.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+    <tbody>${d.factor.map(r=>`<tr>
+      <td>${r.ticker||''}</td>
+      <td class="${r.alpha_annual>=0?'pos':'neg'}">${(r.alpha_annual*100).toFixed(3)}</td>
+      <td class="${Math.abs(r.beta-1)<.2?'neu':r.beta>1?'pos':'neg'}">${r.beta.toFixed(3)}</td>
+      <td class="neu">${(r.r_squared*100).toFixed(1)}%</td>
+      <td class="neu">${(r.tracking_error*100).toFixed(2)}%</td>
+      <td class="${r.info_ratio>=0?'pos':'neg'}">${r.info_ratio.toFixed(3)}</td>
+    </tr>`).join('')}</tbody>`;
+}
+
+function rRisk(d){
+  const tp=$('tp-risk');
+  tp.innerHTML='<div id="prisk" style="height:360px"></div><div id="prisk2" style="height:240px"></div>';
+  const ra_ms=d.risk_attr_ms||[];
+  const ra_rp=d.risk_attr_rp||[];
+  const tks=ra_ms.map(r=>r.ticker||r.index||'');
+  plot('prisk',[
+    {x:tks,y:ra_ms.map(r=>+r.pct_risk.toFixed(3)),type:'bar',name:'Max Sharpe % Risk',
+     marker:{color:C.amber},opacity:.85},
+    {x:tks,y:ra_rp.map(r=>+r.pct_risk.toFixed(3)),type:'bar',name:'Risk Parity % Risk',
+     marker:{color:C.violet},opacity:.85},
+  ],{height:360,barmode:'group',
+    title:{text:'Risk Attribution — % of Total Portfolio Variance',font:{color:C.lime,size:10,family:MN}},
+    xaxis:{...BL.xaxis},yaxis:{...BL.yaxis,title:{text:'% of Variance',font:{size:9}}},
+    shapes:[{type:'line',x0:0,x1:1,xref:'paper',
+      y0:100/Math.max(1,tks.length),y1:100/Math.max(1,tks.length),
+      line:{color:C.dim,width:1,dash:'dot'}}],
+    annotations:[{x:.01,y:100/Math.max(1,tks.length),xref:'paper',
+      text:'Equal RC',showarrow:false,font:{color:C.dim,size:8,family:MN},yshift:8}],
+  });
+  // Marginal risk contribution heatmap
+  if(ra_ms.length>0){
+    const mrc=ra_ms.map(r=>+(r.marginal_rc*100).toFixed(4));
+    plot('prisk2',[{
+      x:tks,y:mrc,type:'bar',
+      marker:{color:mrc.map((_,i)=>COLORS[i%COLORS.length])},opacity:.85,name:'Marginal RC',
+    }],{height:240,
+      title:{text:'Marginal Risk Contribution (Max Sharpe)',font:{color:C.lime,size:10,family:MN}},
+      xaxis:{...BL.xaxis},yaxis:{...BL.yaxis,title:{text:'Marginal RC',font:{size:9}}},
+    });
+  }
+}
+
+// ── backtest ─────────────────────────────────────────────────────
+let _btPoll=null;
+async function runBacktest(){
+  if(_tickers.size<2)return toast('Add at least 2 tickers');
+  if(_btPoll)clearInterval(_btPoll);
+  const btn=$('bbt');btn.disabled=true;
+  $('pbf').style.cssText='width:3%;transition:none';
+
+  const body={
+    tickers:[..._tickers],
+    period:$('pperiod').value==='1y'?'5y':$('pperiod').value,
+    method:$('pbtmethod').value,
+    lookback:parseInt($('plb').value),
+    rebalance_every:parseInt($('prb').value),
+    rf:parseFloat($('prf').value)/100,
+    cov_method:$('pcov').value,
+  };
+  hst('Starting backtest…',C.amber);
+  let jid;
+  try{
+    const res=await fetch('/api/portfolio/backtest',{method:'POST',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const btd=await res.json(); jid=btd.job_id;
+    if(btd.status==='done'&&btd.result){clearInterval(_btPoll);$('pbf').style.width='100%';onBTDone(btd.result);btn.disabled=false;return;}
+  }catch(e){toast(e.message);btn.disabled=false;return}
+
+  $('pbf').style.transition='width .3s';
+  let pct=5;
+  _btPoll=setInterval(async()=>{
+    pct=Math.min(95,pct+5);$('pbf').style.width=pct+'%';
+    const s=await fetch('/api/portfolio/backtest/'+jid).then(r=>r.json());
+    $('ptxt').textContent=s.progress;hst(s.progress,C.amber);
+    if(s.status==='done'){
+      clearInterval(_btPoll);$('pbf').style.width='100%';
+      window._BT=s.result;renderBacktest(s.result);
+      btn.disabled=false;
+      document.querySelector('.tb[data-t="backtest"]')?.click();
+      setTimeout(()=>$('pbf').style.width='0%',1200);
+    }else if(s.status==='error'){
+      clearInterval(_btPoll);toast(s.error||'Backtest failed');
+      $('pbf').style.width='0%';btn.disabled=false;
+    }
+  },800);
+}
+
+function renderBacktest(bt){
+  const tp=$('tp-backtest');
+  tp.innerHTML='<div id="pbt" style="height:380px"></div><div id="pbt2" style="height:240px"></div>';
+  const st=bt.stats;
+  plot('pbt',[
+    {x:bt.dates,y:bt.port_cum.map(v=>(v*100).toFixed(3)),
+     mode:'lines',name:bt.method.replace('_',' ').toUpperCase(),
+     line:{color:C.lime,width:2.2},fill:'tozeroy',fillcolor:'rgba(163,230,53,.05)'},
+    {x:bt.dates,y:bt.eq_cum.map(v=>(v*100).toFixed(3)),
+     mode:'lines',name:'Equal Weight',line:{color:C.dim,width:1.4,dash:'dot'}},
+  ],{height:380,
+    title:{text:`Walk-Forward Backtest  ·  ${bt.method.replace('_',' ')}  ·  Sharpe=${st.sharpe.toFixed(3)}  MaxDD=${(st.max_dd*100).toFixed(1)}%`,
+           font:{color:C.lime,size:10,family:MN}},
+    xaxis:{...BL.xaxis,type:'date'},
+    yaxis:{...BL.yaxis,title:{text:'Cumulative Return (%)',font:{size:9}}},
+    shapes:[{type:'line',x0:0,x1:1,xref:'paper',y0:0,y1:0,line:{color:C.bdr,width:1}}],
+  });
+  // Stats bar
+  const labels=['Ann Ret','Ann Vol','Sharpe','Sortino','Max DD','Calmar',
+                'EQ Ret','EQ Vol','EQ Sharpe'];
+  const vals=[st.ann_return*100,st.ann_vol*100,st.sharpe,st.sortino,
+              st.max_dd*100,st.calmar,st.eq_return*100,st.eq_vol*100,st.eq_sharpe];
+  plot('pbt2',[{
+    type:'bar',x:labels,y:vals.map(v=>+v.toFixed(3)),
+    marker:{color:vals.map((v,i)=>i<6?(v>=0?C.lime:C.rose):C.dim)},opacity:.85,
+    text:vals.map(v=>v.toFixed(3)),textposition:'outside',textfont:{size:8,family:MN},
+    showlegend:false,
+  }],{height:240,
+    title:{text:'Performance Statistics vs Equal Weight',font:{color:C.lime,size:10,family:MN}},
+    xaxis:{...BL.xaxis,tickangle:-28,tickfont:{size:8}},
+    yaxis:{...BL.yaxis},
+    shapes:[{type:'line',x0:0,x1:1,xref:'paper',y0:0,y1:0,line:{color:C.bdr,width:1}}],
+  });
+}
+
+</script>
+
+<script>
+(function(){
+  function sgInit(){
+    try{
+      const n=localStorage.getItem('sg_name')||localStorage.getItem('aeq_name')||'User';
+      const p=(localStorage.getItem('sg_plan')||localStorage.getItem('aeq_plan')||'free').toUpperCase();
+      const u=document.getElementById('sg-user');if(u)u.textContent=n+' · '+p;
+    }catch(e){}
+    function upSess(){
+      try{
+        const et=new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));
+        const hm=et.getHours()*100+et.getMinutes(),wd=et.getDay();
+        const d=document.getElementById('sg-dot'),l=document.getElementById('sg-sess');
+        if(!d||!l)return;
+        d.className='sg-sess-dot';
+        if(wd===0||wd===6){l.textContent='WEEKEND';return;}
+        if(hm>=930&&hm<1600){d.classList.add('open');l.textContent='MKT OPEN';}
+        else if(hm>=400&&hm<930){d.classList.add('pre');l.textContent='PRE-MKT';}
+        else l.textContent='CLOSED';
+      }catch(e){}
+    }
+    upSess();setInterval(upSess,15000);
+  }
+  window.sgOut=function(){
+    ['sg_auth','sg_name','sg_plan','sg_verified','aeq_auth','aeq_name','aeq_plan','aeq_verified']
+      .forEach(k=>localStorage.removeItem(k));
+    window.location.replace('/');
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',sgInit);
+  else sgInit();
+})();
+</script>
+
+</body>
+</html>

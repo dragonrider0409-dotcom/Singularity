@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Credit Risk — SINGULARITY</title>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  /* ── SINGULARITY THEME OVERLAY ── */
+  --sg-violet:#7c3aed;--sg-vio2:#a78bfa;--sg-cyan:#06b6d4;
+  --sg-bg:#05030d;--sg-s0:#07050f;--sg-dim:#3d2d6a;
+  --sg-cream:#f5f0ff;--sg-ghost:#180f30;
+  --display:'Space Grotesk',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+
+  --bg:#080404;--s0:#120606;--s1:#180808;--bdr:#300808;--bdr2:#3c1010;
+  --accent:#f43f5e;--accent2:#f59e0b;--txt:#e0c0c0;--dim:#604040;
+  --mono:'DM Mono',ui-monospace,monospace;--lw:272px;--rw:306px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#080404;color:#e0c0c0;font-family:var(--mono);font-size:12.5px}
+.hdr{height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:#120606;border-bottom:1px solid #300808;position:fixed;top:0;left:0;right:0;z-index:300;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.bi{width:28px;height:28px;border-radius:3px;background:#f43f5e;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:.7rem;font-weight:900;color:#080404}
+.bt{font-family:'Syne',sans-serif;font-size:.78rem;font-weight:800;letter-spacing:.08em;color:#e0c0c0}
+.bs{font-size:.55rem;color:#604040;letter-spacing:.05em}
+.hst{font-family:var(--mono);font-size:.6rem;color:#f43f5e;flex:1;text-align:center;padding:0 12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.links,.hdr-links,.hdr-right{display:flex;gap:4px;flex-shrink:0;align-items:center}
+.pill{font-family:var(--mono);font-size:.56rem;padding:3px 9px;border-radius:20px;border:1px solid #3c1010;color:#604040;text-decoration:none;background:#180808;transition:all .12s;white-space:nowrap}
+.pill:hover{border-color:#f43f5e;color:#f43f5e}
+.app{display:grid;grid-template-columns:var(--lw) 4px 1fr 4px var(--rw);height:calc(100vh - 46px);margin-top:46px;overflow:hidden}
+.dh,.drag-handle{background:#300808;cursor:col-resize;user-select:none;transition:background .12s;z-index:50}
+.dh:hover,.drag-handle:hover,.drag-handle.dragging{background:#f43f5e}
+.drag-handle::after{display:none!important}
+.L{background:#120606;display:flex;flex-direction:column;overflow:hidden;min-width:170px;max-width:520px}
+.Ls,.Lscroll{flex:1;overflow-y:auto;padding:10px 12px 24px}
+.Ls::-webkit-scrollbar,.Lscroll::-webkit-scrollbar{width:3px}
+.Ls::-webkit-scrollbar-thumb,.Lscroll::-webkit-scrollbar-thumb{background:#3c1010}
+.sec,.ghdr{font-family:var(--mono);font-size:.54rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#f43f5e;border-bottom:1px solid #300808;padding-bottom:3px;margin:10px 0 6px}
+.sec.s,.sec.c,.sec.r,.sec.v,.sec.g,.sec.b,.sec.e,.sec.a,.sec.p,.ghdr.p,.ghdr.r,.ghdr.g{color:#f59e0b}
+.prm{display:flex;align-items:center;gap:4px;margin-bottom:3px}
+.prm label{color:#604040;font-size:10px;white-space:nowrap;flex-shrink:0;width:86px}
+.prm input[type=range]{flex:1;accent-color:#f43f5e;cursor:pointer;height:13px}
+.prm .v{color:#f59e0b;font-size:10px;text-align:right;min-width:38px;font-weight:500}
+.field{margin-bottom:4px}
+.field label{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.54rem;color:#604040;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.field label .fv{color:#f59e0b}
+.field input[type=range]{width:100%;accent-color:#f43f5e;cursor:pointer;height:13px}
+.field input[type=number],.field input[type=text],.field select{width:100%;background:#180808;border:1px solid #3c1010;color:#e0c0c0;font-family:var(--mono);font-size:.72rem;padding:4px 7px;border-radius:3px;outline:none}
+.field input[type=number]{color:#f43f5e;font-weight:600}
+.field input:focus,.field select:focus{border-color:#f43f5e}
+.chips{display:flex;flex-wrap:wrap;gap:3px;margin:4px 0 8px}
+.chip,.tc{background:#180808;border:1px solid #3c1010;color:#604040;font-family:var(--mono);font-size:9px;padding:3px 7px;border-radius:2px;cursor:pointer;transition:all .12s}
+.chip:hover,.chip.A,.tc.on{border-color:#f43f5e;color:#f43f5e}
+.tc{font-size:.6rem;padding:2px 6px}
+.tc-wrap,.ticker-chips{display:flex;flex-wrap:wrap;gap:2px;margin-bottom:6px}
+.add-t,.add-ticker{display:flex;gap:3px;margin-bottom:5px}
+.add-t input,.add-ticker input{flex:1;background:#180808;border:1px solid #3c1010;color:#f43f5e;font-family:var(--mono);font-size:.72rem;padding:4px 7px;border-radius:3px;outline:none;font-weight:700}
+.add-t input:focus,.add-ticker input:focus{border-color:#f43f5e}
+.mtogs{display:flex;gap:3px;margin-bottom:5px}
+.mt{background:#180808;border:1px solid #3c1010;color:#604040;font-family:var(--mono);font-size:9px;padding:3px 6px;border-radius:2px;cursor:pointer;transition:all .12s;flex:1;text-align:center}
+.mt.on.g,.mt.on.h,.mt.on.j,.mt.on.s{border-color:#f43f5e;color:#f43f5e}
+.rrow{display:flex;gap:12px;padding:3px 0;font-size:10px}
+.rrow label{display:flex;align-items:center;gap:3px;cursor:pointer;color:#e0c0c0}
+.rrow input{accent-color:#f43f5e}
+.tabs-sm{display:flex;gap:2px;margin:4px 0 8px}
+.tsm{background:#180808;border:1px solid #3c1010;color:#604040;font-family:var(--mono);font-size:.6rem;padding:4px 8px;cursor:pointer;transition:all .12s;flex:1;text-align:center;border-radius:2px}
+.tsm:hover{color:#e0c0c0}.tsm.A{border-color:#f43f5e;color:#f43f5e}
+.param-block{display:none}.param-block.on{display:block}
+.btn{background:#180808;border:1px solid #3c1010;color:#604040;font-family:var(--mono);font-size:.65rem;padding:4px 8px;cursor:pointer;border-radius:3px;transition:all .12s;white-space:nowrap}
+.btn:hover{border-color:#f43f5e;color:#e0c0c0}.btn:disabled{opacity:.38;cursor:not-allowed}
+.btn.P,.btn.pri,.btn.run{background:#f43f5e;border:none;color:#080404;font-weight:800;font-size:.72rem;padding:9px;border-radius:3px;width:100%;margin-top:6px;letter-spacing:.07em;cursor:pointer;font-family:var(--mono)}
+.btn.P:hover:not(:disabled),.btn.pri:hover:not(:disabled),.btn.run:hover:not(:disabled){filter:brightness(1.12)}
+.btn.sec{background:#f59e0b;border:none;color:#080404;font-weight:800;font-size:.7rem;padding:8px;border-radius:3px;width:100%;margin-top:4px;cursor:pointer;font-family:var(--mono)}
+.btn.ter{background:#3c1010;border:none;color:#e0c0c0;font-weight:700;font-size:.68rem;padding:7px;border-radius:3px;width:100%;margin-top:4px;cursor:pointer}
+.btn.sm{padding:3px 7px;font-size:.6rem;width:auto;margin-top:0}
+.btn.act{border-color:#f43f5e;color:#f43f5e}
+.pbar{height:2px;background:#300808;border-radius:1px;margin:5px 0 2px}
+.pbf{height:100%;width:0%;background:linear-gradient(90deg,#f43f5e,#f59e0b);transition:width .3s}
+.ptxt{font-family:var(--mono);font-size:.57rem;color:#604040;text-align:center;min-height:11px}
+.C{display:flex;flex-direction:column;overflow:hidden}
+.tnav{display:flex;overflow-x:auto;flex-shrink:0;background:#120606;border-bottom:1px solid #300808;scrollbar-width:none}
+.tnav::-webkit-scrollbar{display:none}
+.tb{background:transparent;border:none;color:#604040;font-family:var(--mono);font-size:.62rem;padding:8px 13px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .12s;letter-spacing:.04em}
+.tb:hover{color:#e0c0c0}.tb.A{color:#f43f5e;border-bottom-color:#f43f5e}
+.chart-tabs{display:flex;background:#120606;border-bottom:1px solid #300808;flex-shrink:0}
+.ct{background:transparent;border:none;color:#604040;font-family:var(--mono);font-size:.62rem;padding:8px 14px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .12s}
+.ct:hover{color:#e0c0c0}.ct.A{color:#f43f5e;border-bottom-color:#f43f5e}
+.chart-area{flex:1;overflow:hidden;position:relative}
+.cpanel{display:none;width:100%;height:100%}.cpanel.A{display:block}
+.tbody{flex:1;overflow-y:auto;background:#080404}
+.tbody::-webkit-scrollbar{width:4px}.tbody::-webkit-scrollbar-thumb{background:#3c1010}
+.tabbody{flex:1;overflow-y:auto;background:#080404}
+.tp{display:none}.tp.A{display:block}
+.empty{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;min-height:240px;color:#604040;font-family:var(--mono);font-size:.68rem}
+.ei,.empty-icon{font-size:2rem;opacity:.14}
+.R{background:#120606;display:flex;flex-direction:column;overflow:hidden;min-width:170px;max-width:520px}
+.kgrid,.kpis{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#300808;flex-shrink:0}
+.kpi{background:#120606;padding:5px 8px}
+.kl{font-family:var(--mono);font-size:.5rem;color:#604040;text-transform:uppercase;letter-spacing:.07em;margin-bottom:1px}
+.kv{font-family:var(--mono);font-size:.9rem;font-weight:700;color:#f43f5e}
+.kpi.F{animation:kf .35s ease}@keyframes kf{0%{background:rgba(127,127,127,.12)}100%{background:#120606}}
+.rtabs,.right-tabs,.tabnav{display:flex;flex-shrink:0;background:#180808;border-bottom:1px solid #300808;overflow-x:auto;scrollbar-width:none}
+.rtabs::-webkit-scrollbar,.right-tabs::-webkit-scrollbar,.tabnav::-webkit-scrollbar{display:none}
+.rt{background:transparent;border:none;color:#604040;font-family:var(--mono);font-size:.57rem;padding:6px 9px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .12s}
+.rt:hover{color:#e0c0c0}.rt.A{color:#f43f5e;border-bottom-color:#f43f5e}
+.rbody,.right-body{flex:1;overflow-y:auto;padding:0}
+.rbody::-webkit-scrollbar{width:3px}.rbody::-webkit-scrollbar-thumb{background:#3c1010}
+.rp{display:none}.rp.A{display:block}
+.atable{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.62rem}
+.atable td{padding:3px 0;border-bottom:1px solid rgba(127,127,127,.12)}
+.atable td:first-child{color:#604040;padding-right:8px}
+.atable td:last-child{color:#f43f5e;font-weight:600;text-align:right}
+.atable tr.sec td,.atable tr.section td{color:#f59e0b;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;padding:5px 0 2px;border-top:1px solid rgba(127,127,127,.1)}
+.ptbl,.ftbl,.cftbl,.fit-table,.chain-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.6rem}
+.ptbl th,.ftbl th,.cftbl th,.fit-table th,.chain-table th{padding:3px 6px;background:#180808;color:#604040;font-size:.5rem;text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid #3c1010;position:sticky;top:0;z-index:2;cursor:pointer}
+.ptbl th:hover,.chain-table th:hover{color:#e0c0c0}
+.ptbl td,.ftbl td,.cftbl td,.fit-table td,.chain-table td{padding:2px 6px;border-bottom:1px solid rgba(127,127,127,.1)}
+.ptbl td:first-child,.chain-table td:first-child{color:#e0c0c0;font-weight:600}
+.ptbl tr:hover td,.chain-table tr:hover td{background:rgba(127,127,127,.04)}
+.ptbl td.pos,.cftbl td.pos,.fit-table td.ok{color:#22c55e}
+.ptbl td.neg,.cftbl td.neg,.fit-table td.err{color:#ef4444}
+.ptbl td.neu{color:#f59e0b}
+.ptbl td.iv,.chain-table td.iv,.fit-table td.iv-mkt{color:#f43f5e;font-weight:500}
+.fit-table td.iv-mod{color:#f59e0b}
+.chain-table-wrap,.cs-wrap{overflow:auto;max-height:220px;margin-top:6px}
+.chain-info{font-family:var(--mono);font-size:.57rem;color:#604040;padding:3px 0}
+.wbar-wrap{padding:8px 10px}
+.wbar-row{margin-bottom:5px}
+.wbar-label{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;margin-bottom:2px}
+.wbar-label .tk{color:#e0c0c0}.wbar-label .wv{color:#f43f5e}
+.wbar-bg{height:5px;background:#180808;border-radius:3px;overflow:hidden}
+.wbar-fill{height:100%;border-radius:3px;transition:width .4s ease}
+.yc-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin-bottom:6px}
+.yc-cell{display:flex;flex-direction:column;gap:1px}
+.yc-cell .ml{font-family:var(--mono);font-size:.5rem;color:#604040;text-align:center}
+.yc-cell input{background:#180808;border:1px solid #3c1010;color:#f43f5e;font-family:var(--mono);font-size:.7rem;padding:3px;text-align:center;border-radius:2px;outline:none;width:100%;font-weight:600}
+.yc-cell input:focus{border-color:#f43f5e}
+.pair-input{display:flex;gap:3px;margin-bottom:4px}
+.pair-input input{flex:1;background:#180808;border:1px solid #3c1010;color:#f43f5e;font-family:var(--mono);font-size:.78rem;padding:4px 6px;border-radius:3px;outline:none;font-weight:700;text-align:center}
+.pair-input input:focus{border-color:#f43f5e}
+.pair-input .sep{color:#604040;font-family:var(--mono);align-self:center;flex-shrink:0}
+.view-row{display:flex;gap:3px;align-items:center;margin-bottom:4px;flex-wrap:wrap}
+.view-row input[type=text]{flex:1;min-width:55px;background:#180808;border:1px solid #3c1010;color:#f43f5e;font-family:var(--mono);font-size:.65rem;padding:3px 5px;border-radius:3px;outline:none}
+.view-row input[type=text]:focus{border-color:#f43f5e}
+.view-row .vv{width:55px;color:#f59e0b}
+.no-views{font-family:var(--mono);font-size:.6rem;color:#604040;font-style:italic;padding:3px 0}
+.calib-res{padding:10px 12px;font-family:var(--mono);font-size:.65rem}
+.calib-param{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(127,127,127,.1)}
+.calib-param .pk{color:#604040}.calib-param .pv{color:#f59e0b;font-weight:500}
+.calib-qual .good{color:#22c55e}.calib-qual .bad{color:#ef4444}
+.toast{position:fixed;bottom:14px;right:14px;background:rgba(60,0,0,.9);border:1px solid #ef4444;color:#ef4444;font-family:var(--mono);font-size:.68rem;padding:7px 11px;border-radius:3px;max-width:320px;z-index:9999;opacity:0;transform:translateY(4px);transition:all .2s;pointer-events:none}
+.toast.on{opacity:1;transform:translateY(0)}
+
+/* ── FIXES: --violet, --teal ── */
+:root {
+  --violet: #a78bfa;
+  --teal:   #2dd4bf;
+}
+.btn.ter {
+  background: var(--violet);
+  border: none;
+  color: #fff;
+  font-weight: 800;
+  font-size: .68rem;
+  padding: 7px;
+  border-radius: 3px;
+  width: 100%;
+  margin-top: 4px;
+  cursor: pointer;
+  font-family: var(--mono);
+}
+
+/* ── MOBILE RESPONSIVE ─────────────────────────────────────────────────── */
+@media(max-width:900px){
+  /* Layout: stack columns vertically */
+  .layout,.app{
+    grid-template-columns:1fr !important;
+    grid-template-rows:auto !important;
+    height:auto !important;
+  }
+  /* Nav: compact */
+  nav,.nav{
+    padding:0 12px !important;
+    height:44px !important;
+    flex-wrap:wrap;
+  }
+  .nav-links,.nav-right{gap:6px !important;}
+  .nav-link{display:none}
+  /* Panels: full width, no resize */
+  .panel,.pane,[class*="panel"]{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    height:auto !important;
+    resize:none !important;
+    border-right:none !important;
+    border-bottom:1px solid var(--bdr, #1a2a3a) !important;
+  }
+  /* Drag handles: hide on mobile */
+  .drag-handle,.dragger,.resizer{display:none !important}
+  /* Control panels: scrollable */
+  .controls,.ctrl-panel,.left-panel,.sidebar{
+    max-height:50vh !important;
+    overflow-y:auto !important;
+  }
+  /* Charts: ensure height */
+  .chart-area,.chart-wrap,[id^="plt"],[id^="plot"]{
+    min-height:280px !important;
+    height:280px !important;
+  }
+  /* Tables: horizontal scroll */
+  table,.table-wrap,.chain-table-wrap{
+    overflow-x:auto !important;
+    display:block !important;
+  }
+  /* KPI grid: 2-up on mobile */
+  .kpi-row,.metrics-row,[class*="kpi-grid"]{
+    grid-template-columns:repeat(2,1fr) !important;
+  }
+  /* Buttons: full width */
+  .btn.run,.run-btn,[id^="brun"],[id^="bfetch"]{
+    width:100% !important;
+    padding:12px !important;
+  }
+  /* Input sliders: touch-friendly */
+  input[type=range]{height:32px !important;}
+  input[type=text],input[type=number],select{
+    font-size:16px !important; /* prevent zoom on iOS */
+    padding:10px !important;
+  }
+  /* Tabs: scrollable row */
+  .tabs,.tab-bar{
+    overflow-x:auto !important;
+    white-space:nowrap !important;
+    -webkit-overflow-scrolling:touch !important;
+  }
+  /* Hide secondary info panels on small screens */
+  .status-bar,.status-strip{display:none !important}
+}
+@media(max-width:480px){
+  .kpi-row,.metrics-row,[class*="kpi-grid"]{
+    grid-template-columns:1fr 1fr !important;
+  }
+  .chart-area,.chart-wrap{min-height:220px !important;height:220px !important;}
+  /* Canvas charts */
+  canvas{max-width:100% !important;}
+}
+
+
+/* ── SINGULARITY SHARED NAV ── */
+.sg-nav{position:sticky;top:0;z-index:500;height:52px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 20px;
+  background:rgba(5,3,13,.97);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(36,21,64,.8);gap:16px;flex-shrink:0}
+.sg-brand{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+.sg-glyph{width:28px;height:28px;border-radius:50%;border:1.5px solid #7c3aed;
+  display:flex;align-items:center;justify-content:center;font-size:.85rem;color:#7c3aed;
+  flex-shrink:0;box-shadow:0 0 14px rgba(124,58,237,.35);animation:sg-gp 3s ease-in-out infinite}
+@keyframes sg-gp{0%,100%{box-shadow:0 0 14px rgba(124,58,237,.35)}50%{box-shadow:0 0 26px rgba(124,58,237,.58)}}
+.sg-wordmark{font-family:'Space Grotesk',sans-serif;font-size:.84rem;font-weight:700;color:#f5f0ff;letter-spacing:.14em}
+.sg-tagline{font-size:.4rem;color:#3d2d6a;letter-spacing:.18em;text-transform:uppercase;margin-top:1px}
+.sg-nav-center{flex:1;display:flex;justify-content:center}
+.sg-page-lbl{font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;color:#3d2d6a;
+  padding:3px 12px;border:1px solid rgba(36,21,64,.8);border-radius:20px}
+.sg-nav-right{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.sg-sess{display:flex;align-items:center;gap:4px;font-size:.52rem;color:#3d2d6a;
+  padding:3px 9px;border:1px solid rgba(26,16,48,.8);border-radius:20px}
+.sg-sess-dot{width:5px;height:5px;border-radius:50%;background:#3d2d6a}
+.sg-sess-dot.open{background:#10b981;box-shadow:0 0 5px rgba(16,185,129,.5);animation:sg-sd 2s ease-in-out infinite}
+.sg-sess-dot.pre{background:#f59e0b}
+@keyframes sg-sd{0%,100%{opacity:1}50%{opacity:.4}}
+.sg-user-d{font-size:.52rem;color:#3d2d6a;padding:3px 9px;background:#180f30;
+  border:1px solid rgba(26,16,48,.8);border-radius:20px;white-space:nowrap}
+.sg-nav-a{font-size:.52rem;color:#3d2d6a;text-decoration:none;padding:4px 8px;
+  border:1px solid transparent;border-radius:2px;transition:all .14s;letter-spacing:.06em}
+.sg-nav-a:hover{border-color:rgba(36,21,64,.8);color:#c8c0e0}
+.sg-nav-b{background:transparent;border:1px solid rgba(36,21,64,.8);color:#3d2d6a;
+  font-family:'JetBrains Mono',monospace;font-size:.52rem;padding:4px 9px;cursor:pointer;
+  letter-spacing:.06em;transition:all .14s;border-radius:2px}
+.sg-nav-b:hover{border-color:rgba(244,63,94,.4);color:#f43f5e}
+</style>
+</head>
+<body>
+<nav class="sg-nav">
+  <a class="sg-brand" href="/hub">
+    <div class="sg-glyph">◎</div>
+    <div><div class="sg-wordmark">SINGULARITY</div><div class="sg-tagline">Quantitative Platform</div></div>
+  </a>
+  <div class="sg-nav-center"><span class="sg-page-lbl">Credit Risk</span></div>
+  <div class="sg-nav-right">
+    <div class="sg-sess"><div class="sg-sess-dot" id="sg-dot"></div><span id="sg-sess">—</span></div>
+    <div class="sg-user-d" id="sg-user">—</div>
+    <a class="sg-nav-a" href="/hub">Hub</a>
+    <a class="sg-nav-a" href="/surveillance">Surveillance</a>
+    <button class="sg-nav-b" onclick="sgOut()">&#x21AA; Out</button>
+  </div>
+</nav>
+
+<header class="hdr">
+  <div class="brand">
+    <div class="bi">CR</div>
+    <div><div class="bt">CREDIT RISK</div><div class="bs">MERTON · CDS · CVA · PORTFOLIO CREDIT</div></div>
+  </div>
+  <div class="hst" id="hst">Ready</div>
+  <div class="links"><a class="pill" href="/mc" target="_blank">← MC</a>
+    <a class="pill" href="http://127.0.0.1" target="_blank">Hub</a>
+    <a class="pill" href="/iv" target="_blank">IVS</a>
+    <a class="pill" href="/portfolio" target="_blank">PO</a></div>
+</header>
+<div class="app">
+<div class="L"><div class="Ls">
+
+  <div class="sec">Merton Model</div>
+  <div class="field"><label>Asset Value V</label>
+    <input type="number" id="mV" value="100" step="1"/></div>
+  <div class="field"><label>Asset Vol σ_V (%)<span class="fv" id="vmV">25</span></label>
+    <input type="range" id="pmV" min="5" max="80" step="1" value="25" oninput="sv(this,'vmV')"/></div>
+  <div class="field"><label>Debt Face D</label>
+    <input type="number" id="mD" value="80" step="5"/></div>
+  <div class="field"><label>Risk-free r (%)<span class="fv" id="vmr">5</span></label>
+    <input type="range" id="pmr" min="0" max="15" step=".25" value="5" oninput="sv(this,'vmr')"/></div>
+  <div class="field"><label>Maturity T (yr)<span class="fv" id="vmT">1</span></label>
+    <input type="range" id="pmT" min=".25" max="5" step=".25" value="1" oninput="sv(this,'vmT')"/></div>
+  <button class="btn pri" id="bmerton" onclick="runMerton()">▶ RUN MERTON</button>
+
+  <div class="sec c">CDS &amp; Credit Curve</div>
+  <div style="font-size:.55rem;color:var(--dim);margin-bottom:4px">Par spreads (bps) at 1,2,3,5,7yr:</div>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin-bottom:5px">
+    <input type="number" id="cs0" value="50"  step="5" style="background:var(--s1);border:1px solid var(--bdr2);color:var(--teal);font-size:.7rem;padding:3px;text-align:center;border-radius:2px;outline:none"/>
+    <input type="number" id="cs1" value="80"  step="5" style="background:var(--s1);border:1px solid var(--bdr2);color:var(--teal);font-size:.7rem;padding:3px;text-align:center;border-radius:2px;outline:none"/>
+    <input type="number" id="cs2" value="110" step="5" style="background:var(--s1);border:1px solid var(--bdr2);color:var(--teal);font-size:.7rem;padding:3px;text-align:center;border-radius:2px;outline:none"/>
+    <input type="number" id="cs3" value="140" step="5" style="background:var(--s1);border:1px solid var(--bdr2);color:var(--teal);font-size:.7rem;padding:3px;text-align:center;border-radius:2px;outline:none"/>
+    <input type="number" id="cs4" value="160" step="5" style="background:var(--s1);border:1px solid var(--bdr2);color:var(--teal);font-size:.7rem;padding:3px;text-align:center;border-radius:2px;outline:none"/>
+  </div>
+  <div class="field"><label>Recovery Rate (%)<span class="fv" id="vrr">40</span></label>
+    <input type="range" id="prr" min="0" max="80" step="5" value="40" oninput="sv(this,'vrr')"/></div>
+  <div class="field"><label>Notional ($)</label>
+    <input type="number" id="pnot" value="1000000" step="100000"/></div>
+  <button class="btn sec" id="bcds" onclick="runCDS()">▶ RUN CDS</button>
+
+  <div class="sec p">CVA &amp; Portfolio</div>
+  <div class="field"><label>Hazard Rate (%)<span class="fv" id="vhaz">2</span></label>
+    <input type="range" id="phaz" min=".1" max="20" step=".1" value="2" oninput="sv(this,'vhaz')"/></div>
+  <div class="field"><label>Swap Maturity (yr)<span class="fv" id="vcvaT">5</span></label>
+    <input type="range" id="pcvaT" min="1" max="10" step=".5" value="5" oninput="sv(this,'vcvaT')"/></div>
+  <div class="field"><label>Exposure Profile</label>
+    <select id="pprof">
+      <option value="declining" selected>Declining (swap)</option>
+      <option value="flat">Flat (bond)</option>
+      <option value="hump">Hump (FX fwd)</option>
+    </select></div>
+  <button class="btn ter" id="bcva" onclick="runCVA()">▶ RUN CVA</button>
+
+  <div class="field" style="margin-top:8px"><label>Portfolio Names<span class="fv" id="vnn">10</span></label>
+    <input type="range" id="pnn" min="2" max="50" step="1" value="10" oninput="sv(this,'vnn')"/></div>
+  <div class="field"><label>Avg PD (%)<span class="fv" id="vpd">2</span></label>
+    <input type="range" id="ppd" min=".1" max="20" step=".1" value="2" oninput="sv(this,'vpd')"/></div>
+  <div class="field"><label>Default Correlation ρ<span class="fv" id="vcorr">.20</span></label>
+    <input type="range" id="pcorr" min="0" max=".9" step=".05" value=".20" oninput="sv(this,'vcorr')"/></div>
+  <button class="btn pri" id="bport" onclick="runPortfolio()" style="background:#a78bfa;color:#fff">▶ PORTFOLIO CREDIT</button>
+
+  <div class="pbar"><div class="pbf" id="pbf"></div></div>
+  <div class="ptxt" id="ptxt"></div>
+
+</div></div>
+<div class="dh" id="dhl"></div>
+<div class="C">
+  <nav class="tnav">
+    <button class="tb A" data-t="merton">Merton Model</button>
+    <button class="tb" data-t="termstruct">Credit Spread Term</button>
+    <button class="tb" data-t="cds">CDS Curve</button>
+    <button class="tb" data-t="cva">CVA</button>
+    <button class="tb" data-t="portfolio">Portfolio Credit</button>
+  </nav>
+  <div class="tbody">
+    <div id="tp-merton"     class="tp A"><div class="empty"><div class="ei">◈</div>Run Merton model</div></div>
+    <div id="tp-termstruct" class="tp"><div class="empty"><div class="ei">◈</div>Run Merton model</div></div>
+    <div id="tp-cds"        class="tp"><div class="empty"><div class="ei">◈</div>Run CDS model</div></div>
+    <div id="tp-cva"        class="tp"><div class="empty"><div class="ei">◈</div>Run CVA model</div></div>
+    <div id="tp-portfolio"  class="tp"><div class="empty"><div class="ei">◈</div>Run portfolio credit</div></div>
+  </div>
+</div>
+<div class="dh" id="dhr"></div>
+<div class="R">
+  <div class="kgrid">
+    <div class="kpi" id="K-pd">  <div class="kl">PD (risk-neutral)</div><div class="kv">—</div></div>
+    <div class="kpi" id="K-dd">  <div class="kl">Distance to Default</div><div class="kv">—</div></div>
+    <div class="kpi" id="K-cs">  <div class="kl">Credit Spread bps</div><div class="kv">—</div></div>
+    <div class="kpi" id="K-eq">  <div class="kl">Equity Value</div><div class="kv">—</div></div>
+    <div class="kpi" id="K-cva"> <div class="kl">Total CVA</div><div class="kv">—</div></div>
+    <div class="kpi" id="K-el">  <div class="kl">Portfolio EL</div><div class="kv">—</div></div>
+    <div class="kpi" id="K-v99"> <div class="kl">VaR 99%</div><div class="kv">—</div></div>
+    <div class="kpi" id="K-cv99"><div class="kl">CVaR 99%</div><div class="kv">—</div></div>
+  </div>
+  <div class="rtabs">
+    <button class="rt A" data-r="merton" onclick="showR(this)">Merton</button>
+    <button class="rt" data-r="cds" onclick="showR(this)">CDS</button>
+    <button class="rt" data-r="cva" onclick="showR(this)">CVA</button>
+    <button class="rt" data-r="port" onclick="showR(this)">Portfolio</button>
+  </div>
+  <div class="rbody">
+    <div class="rp A" id="rp-merton"><div style="color:var(--dim);font-size:.6rem;padding:6px 0">Run Merton model</div></div>
+    <div class="rp" id="rp-cds"><div style="color:var(--dim);font-size:.6rem;padding:6px 0">Run CDS model</div></div>
+    <div class="rp" id="rp-cva"><div style="color:var(--dim);font-size:.6rem;padding:6px 0">Run CVA</div></div>
+    <div class="rp" id="rp-port"><div style="color:var(--dim);font-size:.6rem;padding:6px 0">Run portfolio credit</div></div>
+  </div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="toast" id="toast"></div>
+<script>
+
+'use strict';
+const C={red:'#f43f5e',amber:'#f59e0b',blue:'#3b82f6',grn:'#22c55e',
+  violet:'#a78bfa',teal:'#2dd4bf',orange:'#fb923c',
+  bg:'#060810',s0:'#0a0e1c',s1:'#0e1428',bdr:'#1a2440',dim:'#3a4e6e',txt:'#ccd8f0'};
+const MN=`ui-monospace,'Cascadia Code',monospace`;
+const BL={paper_bgcolor:C.s0,plot_bgcolor:C.bg,font:{color:C.txt,family:MN,size:9},
+  margin:{l:52,r:10,t:30,b:34},
+  legend:{bgcolor:C.s1,bordercolor:C.bdr,borderwidth:1,font:{size:8.5}},
+  xaxis:{gridcolor:C.bdr,zerolinecolor:C.bdr,linecolor:C.bdr},
+  yaxis:{gridcolor:C.bdr,zerolinecolor:C.bdr,linecolor:C.bdr}};
+const CF={displayModeBar:false,responsive:true};
+const $=id=>document.getElementById(id);
+function sv(el,v){$(v).textContent=el.value}
+function BLx(o){return Object.assign({},BL,o)}
+function plot(id,tr,lay){Plotly.newPlot(id,tr,BLx(lay),CF)}
+function toast(m){const t=$('toast');t.textContent='⚠ '+m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),4500)}
+function hst(m,c){const e=$('hst');e.textContent=m;e.style.color=c||C.teal}
+function kset(id,v){const el=$(id);if(!el)return;el.querySelector('.kv').textContent=v;el.classList.remove('F');void el.offsetWidth;el.classList.add('F')}
+function pb(p,t){$('pbf').style.width=p+'%';$('ptxt').textContent=t||''}
+
+document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tb').forEach(x=>x.classList.remove('A'));
+  document.querySelectorAll('.tp').forEach(x=>x.classList.remove('A'));
+  b.classList.add('A');$('tp-'+b.dataset.t).classList.add('A');
+  setTimeout(()=>document.querySelectorAll('.js-plotly-plot').forEach(el=>{try{Plotly.Plots.resize(el)}catch(_){}}),60);
+}));
+function showR(b){
+  document.querySelectorAll('.rt').forEach(x=>x.classList.remove('A'));
+  document.querySelectorAll('.rp').forEach(x=>x.classList.remove('A'));
+  b.classList.add('A');$('rp-'+b.dataset.r).classList.add('A');
+}
+(function(){
+  let lw=+localStorage.getItem('cr_lw')||272,rw=+localStorage.getItem('cr_rw')||300;
+  function ap(l,r){lw=Math.min(520,Math.max(160,l));rw=Math.min(520,Math.max(160,r));
+    document.documentElement.style.setProperty('--lw',lw+'px');
+    document.documentElement.style.setProperty('--rw',rw+'px');
+    localStorage.setItem('cr_lw',lw);localStorage.setItem('cr_rw',rw)}
+  ap(lw,rw);
+  ['dhl','dhr'].forEach((id,wi)=>{const h=$(id);if(!h)return;
+    h.addEventListener('mousedown',e=>{e.preventDefault();const sx=e.clientX,sw=wi===0?lw:rw;
+      h.style.background=C.red;document.body.style.cursor='col-resize';document.body.style.userSelect='none';
+      const mv=e2=>{wi===0?ap(sw+(e2.clientX-sx),rw):ap(lw,sw-(e2.clientX-sx));
+        document.querySelectorAll('.js-plotly-plot').forEach(el=>{try{Plotly.Plots.resize(el)}catch(_){}})};
+      const up=()=>{h.style.background='';document.body.style.cursor='';document.body.style.userSelect='';
+        document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up)};
+      document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up)});
+    h.addEventListener('dblclick',()=>ap(wi===0?272:lw,wi===1?300:rw))});
+  window.addEventListener('resize',()=>setTimeout(()=>document.querySelectorAll('.js-plotly-plot').forEach(el=>{try{Plotly.Plots.resize(el)}catch(_){}}),150));
+})();
+
+// ── Merton ───────────────────────────────────────────────────────
+async function runMerton(){
+  $('bmerton').disabled=true;pb(30,'Computing Merton model…');hst('Running Merton…',C.amber);
+  try{
+    const d=await fetch('/api/credit/merton',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({asset_value:parseFloat($('mV').value),asset_vol:parseFloat($('pmV').value)/100,
+        debt:parseFloat($('mD').value),risk_free:parseFloat($('pmr').value)/100,
+        maturity:parseFloat($('pmT').value)})
+    }).then(r=>r.json());
+    if(d.error)throw new Error(d.error);
+    pb(100,'');onMertonDone(d);$('bmerton').disabled=false;setTimeout(()=>pb(0,''),1200);
+    document.querySelector('.tb[data-t="merton"]')?.click();
+  }catch(e){toast(e.message);pb(0,'');$('bmerton').disabled=false;hst('Error: '+e.message,C.red)}
+}
+
+function onMertonDone(d){
+  const r=d.result;
+  kset('K-pd', (r.pd_risk_neutral*100).toFixed(3)+'%');
+  kset('K-dd', r.distance_to_default.toFixed(3));
+  kset('K-cs', r.credit_spread_bps.toFixed(1)+'bps');
+  kset('K-eq', '$'+r.equity_value.toFixed(2));
+  hst('✔ Merton: PD='+( r.pd_risk_neutral*100).toFixed(2)+'% DD='+r.distance_to_default.toFixed(3)+' CS='+r.credit_spread_bps.toFixed(0)+'bps');
+
+  // Right panel
+  $('rp-merton').innerHTML='<table class="atable">'+[
+    ['sec','Merton Output'],
+    ['Equity E','$'+r.equity_value.toFixed(4)],
+    ['Debt PV','$'+r.debt_value.toFixed(4)],
+    ['Equity Vol σ_E',(r.equity_vol*100).toFixed(3)+'%'],
+    ['sec','Credit'],
+    ['d1',r.d1.toFixed(4)],['d2 (DD)',r.d2.toFixed(4)],
+    ['PD (risk-neutral)',(r.pd_risk_neutral*100).toFixed(4)+'%'],
+    ['PD (real-world)',(r.pd_real_world*100).toFixed(4)+'%'],
+    ['Credit Spread',r.credit_spread_bps.toFixed(2)+'bps'],
+    ['sec','Capital Structure'],
+    ['Leverage',r.leverage.toFixed(4)],
+    ['LTV',r.ltv.toFixed(4)],
+  ].map(([k,v])=>k==='sec'?`<tr class="sec"><td colspan=2>${v}</td></tr>`:
+    `<tr><td>${k}</td><td>${v}</td></tr>`).join('')+'</table>';
+
+  renderMerton(d);
+  renderTermStruct(d);
+}
+
+function renderMerton(d){
+  const el=$('tp-merton');
+  el.innerHTML='<div id="pm1" style="height:320px"></div><div id="pm2" style="height:260px"></div>';
+  const sens=d.sensitivity;
+  plot('pm1',[
+    {x:sens.asset_values,y:sens.equity,mode:'lines',name:'Equity Value E(V)',
+     line:{color:C.grn,width:2.2},fill:'tozeroy',fillcolor:C.grn+'0a'},
+    {x:sens.asset_values,y:sens.asset_values.map(v=>Math.max(v-parseFloat($('mD').value),0)),
+     mode:'lines',name:'Intrinsic (V−D)⁺',line:{color:C.bdr,width:1,dash:'dot'}},
+  ],{height:320,title:{text:'Merton: Equity Value vs Asset Value',font:{color:C.red,size:11,family:MN}},
+    xaxis:{...BL.xaxis,title:{text:'Asset Value V',font:{size:9}}},
+    yaxis:{...BL.yaxis,title:{text:'Equity ($)',font:{size:9}}},
+    shapes:[{type:'line',x0:parseFloat($('mD').value),x1:parseFloat($('mD').value),
+      y0:0,y1:1,yref:'paper',line:{color:C.amber,width:1,dash:'dot'}}],
+    annotations:[{x:parseFloat($('mD').value),y:.95,yref:'paper',text:'D',
+      showarrow:false,font:{color:C.amber,size:9,family:MN}}]});
+  plot('pm2',[
+    {x:sens.asset_values,y:sens.pd_rn.map(v=>v*100),mode:'lines',name:'PD % (risk-neutral)',
+     line:{color:C.red,width:2.2},fill:'tozeroy',fillcolor:C.red+'0a'},
+    {x:sens.asset_values,y:sens.spread_bps,mode:'lines',name:'Credit Spread bps',
+     line:{color:C.amber,width:1.6,dash:'dash'},yaxis:'y2'},
+  ],{height:260,title:{text:'PD & Credit Spread vs Asset Value',font:{color:C.red,size:10,family:MN}},
+    xaxis:{...BL.xaxis,title:{text:'Asset Value V',font:{size:9}}},
+    yaxis:{...BL.yaxis,title:{text:'PD %',font:{size:9}}},
+    yaxis2:{overlaying:'y',side:'right',showgrid:false,title:{text:'Spread bps',font:{size:9}},
+            tickfont:{size:8},color:C.amber}});
+}
+
+function renderTermStruct(d){
+  const el=$('tp-termstruct');
+  el.innerHTML='<div id="pts1" style="height:300px"></div><div id="pts2" style="height:280px"></div>';
+  const ts=d.term_structure;
+  plot('pts1',[
+    {x:ts.maturities,y:ts.spreads_bps,mode:'lines+markers',name:'Credit Spread bps',
+     line:{color:C.red,width:2.2},marker:{size:6}},
+  ],{height:300,title:{text:'Merton Credit Spread Term Structure',font:{color:C.red,size:11,family:MN}},
+    xaxis:{...BL.xaxis,title:{text:'Maturity (yr)',font:{size:9}}},
+    yaxis:{...BL.yaxis,title:{text:'Spread (bps)',font:{size:9}}}});
+  plot('pts2',[
+    {x:ts.maturities,y:ts.pd_rn.map(v=>v*100),mode:'lines+markers',name:'PD % (RN)',
+     line:{color:C.violet,width:2},marker:{size:6},fill:'tozeroy',fillcolor:C.violet+'0a'},
+    {x:ts.maturities,y:ts.distance_to_default,mode:'lines+markers',name:'Distance to Default',
+     line:{color:C.amber,width:1.6,dash:'dash'},marker:{size:5},yaxis:'y2'},
+  ],{height:280,title:{text:'PD & Distance-to-Default Term Structure',font:{color:C.red,size:10,family:MN}},
+    xaxis:{...BL.xaxis,title:{text:'Maturity (yr)',font:{size:9}}},
+    yaxis:{...BL.yaxis,title:{text:'PD %',font:{size:9}}},
+    yaxis2:{overlaying:'y',side:'right',showgrid:false,title:{text:'DD',font:{size:9}},
+            tickfont:{size:8},color:C.amber}});
+}
+
+// ── CDS ──────────────────────────────────────────────────────────
+async function runCDS(){
+  $('bcds').disabled=true;pb(30,'Bootstrapping credit curve…');hst('Running CDS…',C.amber);
+  try{
+    const spreads=['cs0','cs1','cs2','cs3','cs4'].map(id=>parseFloat($(id).value));
+    const d=await fetch('/api/credit/cds',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({spreads,maturities:[1,2,3,5,7],
+        recovery:parseFloat($('prr').value)/100,notional:parseFloat($('pnot').value)})
+    }).then(r=>r.json());
+    if(d.error)throw new Error(d.error);
+    pb(100,'');onCDSDone(d);$('bcds').disabled=false;setTimeout(()=>pb(0,''),1200);
+    document.querySelector('.tb[data-t="cds"]')?.click();
+  }catch(e){toast(e.message);pb(0,'');$('bcds').disabled=false;hst('Error: '+e.message,C.red)}
+}
+
+function onCDSDone(d){
+  const cc=d.credit_curve;
+  hst('✔ Credit curve bootstrapped: hazards '+cc.hazard_rates.map(h=>h.toFixed(2)).join('/')+'%');
+  $('rp-cds').innerHTML='<table class="atable">'+[
+    ['sec','CDS Curve'],
+    ...cc.hazard_rates.map((h,i)=>['h('+cc.maturities[i]+'yr)',h.toFixed(4)+'%']),
+    ['sec','MTM'],
+    ['Base MTM','$'+d.mtm_base.toFixed(0)],
+    ['Wide +50% MTM','$'+d.mtm_wide50.toFixed(0)],
+  ].map(([k,v])=>k==='sec'?`<tr class="sec"><td colspan=2>${v}</td></tr>`:
+    `<tr><td>${k}</td><td>${v}</td></tr>`).join('')+'</table>';
+
+  const el=$('tp-cds');
+  el.innerHTML='<div id="pcds1" style="height:300px"></div><div id="pcds2" style="height:290px"></div>';
+  plot('pcds1',[
+    {x:cc.fine_mats,y:cc.survival_probs.map(v=>v*100),mode:'lines',name:'Survival Prob Q(t)',
+     line:{color:C.teal,width:2.2},fill:'tozeroy',fillcolor:C.teal+'0a'},
+  ],{height:300,title:{text:'Credit Curve — Survival Probability',font:{color:C.teal,size:11,family:MN}},
+    xaxis:{...BL.xaxis,title:{text:'Maturity (yr)',font:{size:9}}},
+    yaxis:{...BL.yaxis,title:{text:'Survival Prob %',font:{size:9}}}});
+  plot('pcds2',[
+    {x:cc.maturities,y:cc.hazard_rates,mode:'lines+markers',name:'Hazard Rate h(t) %',
+     line:{color:C.red,width:2},marker:{size:6},fill:'tozeroy',fillcolor:C.red+'0a'},
+    {x:cc.maturities,y:d.par_spreads,mode:'lines+markers',name:'Implied Par Spread bps',
+     line:{color:C.amber,width:1.6,dash:'dash'},marker:{size:5},yaxis:'y2'},
+  ],{height:290,title:{text:'Hazard Rates & Par Spreads',font:{color:C.teal,size:10,family:MN}},
+    xaxis:{...BL.xaxis,title:{text:'Maturity (yr)',font:{size:9}}},
+    yaxis:{...BL.yaxis,title:{text:'Hazard Rate %',font:{size:9}}},
+    yaxis2:{overlaying:'y',side:'right',showgrid:false,title:{text:'Spread bps',font:{size:9}},
+            tickfont:{size:8},color:C.amber}});
+}
+
+// ── CVA ───────────────────────────────────────────────────────────
+async function runCVA(){
+  $('bcva').disabled=true;pb(30,'Computing CVA…');hst('Running CVA…',C.amber);
+  try{
+    const d=await fetch('/api/credit/cva',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({hazard:parseFloat($('phaz').value)/100,
+        maturity:parseFloat($('pcvaT').value),notional:parseFloat($('pnot').value),
+        recovery:parseFloat($('prr').value)/100,profile:$('pprof').value})
+    }).then(r=>r.json());
+    if(d.error)throw new Error(d.error);
+    pb(100,'');onCVADone(d);$('bcva').disabled=false;setTimeout(()=>pb(0,''),1200);
+    document.querySelector('.tb[data-t="cva"]')?.click();
+  }catch(e){toast(e.message);pb(0,'');$('bcva').disabled=false;hst('Error: '+e.message,C.red)}
+}
+
+function onCVADone(d){
+  kset('K-cva','$'+d.total_cva.toLocaleString());
+  hst('✔ CVA = $'+d.total_cva.toLocaleString()+' (LGD='+(d.lgd*100).toFixed(0)+'% h='+(d.hazard*100).toFixed(2)+'%)');
+  $('rp-cva').innerHTML='<table class="atable">'+[
+    ['sec','CVA Summary'],
+    ['Total CVA','$'+d.total_cva.toFixed(2)],
+    ['LGD',(d.lgd*100).toFixed(1)+'%'],
+    ['Hazard Rate',(d.hazard*100).toFixed(4)+'%'],
+    ['Max Exposure','$'+Math.max(...d.exposure).toFixed(0)],
+    ['N payments',d.times.length],
+  ].map(([k,v])=>k==='sec'?`<tr class="sec"><td colspan=2>${v}</td></tr>`:
+    `<tr><td>${k}</td><td>${v}</td></tr>`).join('')+'</table>';
+
+  const el=$('tp-cva');
+  el.innerHTML='<div id="pcva1" style="height:300px"></div><div id="pcva2" style="height:270px"></div>';
+  plot('pcva1',[
+    {x:d.times,y:d.exposure,mode:'lines',name:'Expected Exposure',
+     line:{color:C.amber,width:2},fill:'tozeroy',fillcolor:C.amber+'0a'},
+    {x:d.times,y:d.survival_probs.map(v=>v*parseFloat($('pnot').value||1e6)),mode:'lines',
+     name:'Survival-weighted Exposure',line:{color:C.teal,width:1.5,dash:'dash'}},
+  ],{height:300,title:{text:'Expected Exposure Profile',font:{color:C.violet,size:11,family:MN}},
+    xaxis:{...BL.xaxis,title:{text:'Time (yr)',font:{size:9}}},
+    yaxis:{...BL.yaxis,title:{text:'Exposure ($)',font:{size:9}}}});
+  plot('pcva2',[{
+    x:d.times,y:d.cva_components,type:'bar',name:'CVA by Period',
+    marker:{color:d.cva_components.map(v=>v>0?C.red:'#333')},opacity:.8,
+  }],{height:270,title:{text:'CVA Attribution by Time Period',font:{color:C.violet,size:10,family:MN}},
+    xaxis:{...BL.xaxis,title:{text:'Time (yr)',font:{size:9}}},
+    yaxis:{...BL.yaxis,title:{text:'CVA ($)',font:{size:9}}}});
+}
+
+// ── Portfolio Credit ───────────────────────────────────────────────
+async function runPortfolio(){
+  $('bport').disabled=true;pb(30,'Running MC simulation…');hst('Simulating portfolio defaults…',C.amber);
+  try{
+    const d=await fetch('/api/credit/portfolio_credit',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({n_names:parseInt($('pnn').value),pd:parseFloat($('ppd').value)/100,
+        lgd:1-parseFloat($('prr').value)/100,correlation:parseFloat($('pcorr').value),
+        notional:parseFloat($('pnot').value)})
+    }).then(r=>r.json());
+    if(d.error)throw new Error(d.error);
+    pb(100,'');onPortDone(d);$('bport').disabled=false;setTimeout(()=>pb(0,''),1200);
+    document.querySelector('.tb[data-t="portfolio"]')?.click();
+  }catch(e){toast(e.message);pb(0,'');$('bport').disabled=false;hst('Error: '+e.message,C.red)}
+}
+
+function onPortDone(d){
+  kset('K-el',  '$'+d.expected_loss.toLocaleString());
+  kset('K-v99', '$'+d.var_99.toLocaleString());
+  kset('K-cv99','$'+d.cvar_99.toLocaleString());
+  hst('✔ Portfolio EL=$'+d.expected_loss.toLocaleString()+' VaR99=$'+d.var_99.toLocaleString()+' CVaR99=$'+d.cvar_99.toLocaleString());
+  $('rp-port').innerHTML='<table class="atable">'+[
+    ['sec','Portfolio Credit Risk'],
+    ['Names',d.n_names],
+    ['Correlation ρ',d.correlation],
+    ['Expected Loss','$'+d.expected_loss.toLocaleString()],
+    ['Unexpected Loss','$'+d.unexpected_loss.toLocaleString()],
+    ['VaR 95%','$'+d.var_95.toLocaleString()],
+    ['VaR 99%','$'+d.var_99.toLocaleString()],
+    ['CVaR 99%','$'+d.cvar_99.toLocaleString()],
+  ].map(([k,v])=>k==='sec'?`<tr class="sec"><td colspan=2>${v}</td></tr>`:
+    `<tr><td>${k}</td><td>${v}</td></tr>`).join('')+'</table>';
+
+  const el=$('tp-portfolio');
+  el.innerHTML='<div id="pp1" style="height:340px"></div><div id="pp2" style="height:240px"></div>';
+  const hist=d.loss_hist;
+  const midpoints=hist.e.slice(0,-1).map((v,i)=>(v+hist.e[i+1])/2);
+  plot('pp1',[{
+    x:midpoints,y:hist.c,type:'bar',name:'Loss Distribution',
+    marker:{color:midpoints.map(v=>v>=d.var_99?C.red:v>=d.var_95?C.amber:C.teal),opacity:.8},
+  }],{height:340,title:{text:'Portfolio Credit Loss Distribution (Gaussian Copula, ρ='+d.correlation+')',
+    font:{color:C.red,size:11,family:MN}},
+    xaxis:{...BL.xaxis,title:{text:'Portfolio Loss ($)',font:{size:9}}},
+    yaxis:{...BL.yaxis,title:{text:'Frequency',font:{size:9}}},
+    shapes:[
+      {type:'line',x0:d.expected_loss,x1:d.expected_loss,y0:0,y1:1,yref:'paper',line:{color:C.grn,width:1.5}},
+      {type:'line',x0:d.var_95,x1:d.var_95,y0:0,y1:1,yref:'paper',line:{color:C.amber,width:1.5,dash:'dash'}},
+      {type:'line',x0:d.var_99,x1:d.var_99,y0:0,y1:1,yref:'paper',line:{color:C.red,width:2}},
+    ]});
+  // PD distribution across names
+  plot('pp2',[{
+    x:d.pds.map((_,i)=>'Name '+(i+1)),y:d.pds.map(v=>v*100),type:'bar',
+    marker:{color:d.pds.map(v=>v>0.05?C.red:v>0.02?C.amber:C.teal),opacity:.85},
+    name:'PD %',
+  }],{height:240,title:{text:'Individual PD Distribution (log-normal dispersion)',
+    font:{color:C.red,size:10,family:MN}},
+    xaxis:{...BL.xaxis,tickangle:-45,tickfont:{size:8}},
+    yaxis:{...BL.yaxis,title:{text:'PD %',font:{size:9}}}});
+}
+
+</script>
+
+<script>
+(function(){
+  function sgInit(){
+    try{
+      const n=localStorage.getItem('sg_name')||localStorage.getItem('aeq_name')||'User';
+      const p=(localStorage.getItem('sg_plan')||localStorage.getItem('aeq_plan')||'free').toUpperCase();
+      const u=document.getElementById('sg-user');if(u)u.textContent=n+' · '+p;
+    }catch(e){}
+    function upSess(){
+      try{
+        const et=new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));
+        const hm=et.getHours()*100+et.getMinutes(),wd=et.getDay();
+        const d=document.getElementById('sg-dot'),l=document.getElementById('sg-sess');
+        if(!d||!l)return;
+        d.className='sg-sess-dot';
+        if(wd===0||wd===6){l.textContent='WEEKEND';return;}
+        if(hm>=930&&hm<1600){d.classList.add('open');l.textContent='MKT OPEN';}
+        else if(hm>=400&&hm<930){d.classList.add('pre');l.textContent='PRE-MKT';}
+        else l.textContent='CLOSED';
+      }catch(e){}
+    }
+    upSess();setInterval(upSess,15000);
+  }
+  window.sgOut=function(){
+    ['sg_auth','sg_name','sg_plan','sg_verified','aeq_auth','aeq_name','aeq_plan','aeq_verified']
+      .forEach(k=>localStorage.removeItem(k));
+    window.location.replace('/');
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',sgInit);
+  else sgInit();
+})();
+</script>
+
+</body>
+</html>
