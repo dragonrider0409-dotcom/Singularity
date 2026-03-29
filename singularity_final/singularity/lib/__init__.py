@@ -1,1 +1,0 @@
-# AEQUITAS engine library
