@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Monte Carlo Suite — SINGULARITY</title>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════════════════════
+   SINGULARITY DESIGN SYSTEM — shared across all pages
+   ═══════════════════════════════════════════════════════════ */
+:root{
+  --sg-bg:#05030d;--sg-s0:#07050f;--sg-s1:#0a0714;--sg-s2:#0d0a1a;
+  --sg-bdr:#1a1030;--sg-bdr2:#241540;--sg-bdr3:#2e1a50;
+  --sg-violet:#7c3aed;--sg-vio2:#a78bfa;--sg-vio3:#c4b5fd;
+  --sg-cyan:#06b6d4;--sg-cyn2:#22d3ee;
+  --sg-grn:#10b981;--sg-red:#f43f5e;--sg-amb:#f59e0b;
+  --sg-txt:#c8c0e0;--sg-dim:#3d2d6a;--sg-ghost:#180f30;--sg-cream:#f5f0ff;
+}
+/* Force body background to Singularity void */
+html,body{background:var(--sg-bg)!important}
+
+/* ── SINGULARITY NAV ── */
+.sg-nav{
+  position:sticky;top:0;z-index:900;height:48px;
+  display:flex;align-items:center;justify-content:space-between;padding:0 20px;
+  background:rgba(5,3,13,.97);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--sg-bdr2);gap:16px;flex-shrink:0;
+  font-family:'JetBrains Mono',monospace;
+}
+.sg-brand{display:flex;align-items:center;gap:9px;text-decoration:none;flex-shrink:0}
+.sg-glyph{
+  width:26px;height:26px;border-radius:50%;border:1.5px solid var(--sg-violet);
+  display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--sg-violet);
+  flex-shrink:0;box-shadow:0 0 12px rgba(124,58,237,.3);animation:sg-gp 3s ease-in-out infinite;
+}
+@keyframes sg-gp{0%,100%{box-shadow:0 0 12px rgba(124,58,237,.3)}50%{box-shadow:0 0 22px rgba(124,58,237,.55)}}
+.sg-wordmark{font-family:'Space Grotesk',sans-serif;font-size:.8rem;font-weight:700;color:#f5f0ff;letter-spacing:.14em}
+.sg-tagline{font-size:.38rem;color:var(--sg-dim);letter-spacing:.16em;text-transform:uppercase;margin-top:1px}
+.sg-nav-center{flex:1;display:flex;justify-content:center}
+.sg-page-lbl{
+  font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;color:var(--sg-dim);
+  padding:3px 11px;border:1px solid var(--sg-bdr2);border-radius:20px;
+  font-family:'JetBrains Mono',monospace;
+}
+.sg-nav-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.sg-sess{
+  display:flex;align-items:center;gap:4px;font-size:.5rem;color:var(--sg-dim);
+  padding:3px 9px;border:1px solid var(--sg-bdr);border-radius:20px;
+}
+.sg-sess-dot{width:5px;height:5px;border-radius:50%;background:var(--sg-bdr2)}
+.sg-sess-dot.open{background:var(--sg-grn);box-shadow:0 0 5px rgba(16,185,129,.5);animation:sg-sd 2s ease-in-out infinite}
+.sg-sess-dot.pre{background:var(--sg-amb)}
+@keyframes sg-sd{0%,100%{opacity:1}50%{opacity:.4}}
+.sg-user-d{
+  font-size:.5rem;color:var(--sg-dim);padding:3px 9px;background:var(--sg-ghost);
+  border:1px solid var(--sg-bdr);border-radius:20px;white-space:nowrap;
+  font-family:'JetBrains Mono',monospace;
+}
+.sg-nav-a{
+  font-size:.5rem;color:var(--sg-dim);text-decoration:none;padding:3px 8px;
+  border:1px solid transparent;border-radius:2px;transition:all .14s;letter-spacing:.06em;
+  font-family:'JetBrains Mono',monospace;
+}
+.sg-nav-a:hover{border-color:var(--sg-bdr2);color:var(--sg-txt)}
+.sg-nav-b{
+  background:transparent;border:1px solid var(--sg-bdr2);color:var(--sg-dim);
+  font-family:'JetBrains Mono',monospace;font-size:.5rem;padding:3px 9px;cursor:pointer;
+  letter-spacing:.06em;transition:all .14s;border-radius:2px;
+}
+.sg-nav-b:hover{border-color:rgba(244,63,94,.4);color:#f43f5e}
+
+:root{
+  /* ── SINGULARITY THEME OVERLAY ── */
+  --sg-violet:#7c3aed;--sg-vio2:#a78bfa;--sg-cyan:#06b6d4;
+  --sg-bg:#05030d;--sg-s0:#07050f;--sg-dim:#3d2d6a;
+  --sg-cream:#f5f0ff;--sg-ghost:#180f30;
+  --display:'Space Grotesk',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+
+  --bg:#020509;
+  --s0:#040810;
+  --s1:#060d18;
+  --s2:#091220;
+  --bdr:#0d2030;
+  --bdr2:#143050;
+  --teal:#00e5c8;
+  --teal-dim:#007a6a;
+  --purp:#9d5cf5;
+  --purp-dim:#4a2478;
+  --red:#f04060;
+  --red-dim:#601828;
+  --grn:#00c878;
+  --grn-dim:#006040;
+  --gold:#f0c040;
+  --gold-dim:#604810;
+  --blu:#4ab0f5;
+  --org:#f08830;
+  --pink:#e060c0;
+  --txt:#b0cce0;
+  --dim:#2a4060;
+  --sf:#040810;
+  --card:#060d18;
+  --mono:'DM Mono',ui-monospace,monospace;
+  --lw:256px;
+  --rw:332px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
+  font-family:var(--mono);font-size:12px;line-height:1.4}
+
+/* Scanline overlay */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);
+}
+
+/* ── LAYOUT ─────────────────────────────── */
+.app{
+  display:grid;
+  grid-template-columns:var(--lw) 4px 1fr 4px var(--rw);
+  height:100vh;overflow:hidden;
+}
+
+/* Drag handles */
+.drag-handle{
+  background:var(--bdr);cursor:col-resize;position:relative;z-index:50;
+  transition:background .12s;user-select:none;
+}
+.drag-handle:hover,.drag-handle.dragging{background:var(--teal)}
+.drag-handle::after{
+  content:'';position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:1px;height:32px;
+  background:rgba(0,229,200,.15);pointer-events:none;
+}
+.drag-handle:hover::after{background:rgba(0,229,200,.4)}
+
+/* ── LEFT ───────────────────────────────── */
+.L{
+  display:flex;flex-direction:column;overflow:hidden;
+  border-right:1px solid var(--bdr);
+  min-width:160px;max-width:600px;
+}
+.Ltop{
+  padding:10px 11px 8px;
+  border-bottom:1px solid var(--bdr);flex-shrink:0;
+  background:var(--s0);
+}
+.logo{
+  font-family:'Syne',sans-serif;font-size:.78rem;font-weight:800;
+  letter-spacing:.08em;color:var(--teal);margin-bottom:8px;
+  text-transform:uppercase;
+}
+.logo span{color:var(--dim);font-size:.6rem;font-weight:700;margin-left:6px;font-family:var(--mono)}
+.trow{display:flex;gap:4px}
+.trow input{
+  flex:1;background:var(--s1);border:1px solid var(--bdr2);
+  color:var(--teal);font-family:var(--mono);font-size:12px;
+  padding:6px 8px;border-radius:2px;outline:none;font-weight:500;
+  letter-spacing:.06em;transition:border-color .12s;
+}
+.trow input:focus{border-color:var(--teal);box-shadow:0 0 0 1px rgba(0,229,200,.1)}
+.trow input::placeholder{color:var(--dim)}
+
+/* Quote strip */
+.qstrip{
+  display:grid;grid-template-columns:1fr 1fr;gap:1px 5px;
+  padding:6px 0 2px;font-size:10px;display:none;
+}
+.qstrip.show{display:grid}
+.qs .ql{color:var(--dim)}.qs .qv{color:var(--teal);font-weight:500}
+
+/* Left scroll */
+.Lscroll{flex:1;overflow-y:auto;padding:8px 11px 20px;background:var(--s0)}
+.Lscroll::-webkit-scrollbar{width:3px}
+.Lscroll::-webkit-scrollbar-thumb{background:var(--bdr2)}
+
+/* Section headers */
+.ghdr{
+  font-size:9px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--teal);border-bottom:1px solid var(--bdr);
+  padding-bottom:3px;margin:10px 0 6px;
+}
+.ghdr.p{color:var(--purp)}.ghdr.r{color:var(--red)}.ghdr.g{color:var(--grn)}
+
+/* Param rows */
+.prm{display:flex;align-items:center;gap:4px;margin-bottom:3px}
+.prm label{color:var(--dim);font-size:10px;white-space:nowrap;flex-shrink:0;width:86px}
+.prm input[type=range]{
+  flex:1;accent-color:var(--teal);cursor:pointer;height:12px;
+}
+.prm .v{color:var(--gold);font-size:10px;text-align:right;min-width:38px;font-weight:500}
+
+/* Preset chips */
+.chips{display:flex;flex-wrap:wrap;gap:3px;margin:4px 0 8px}
+.chip{
+  background:var(--s1);border:1px solid var(--bdr2);color:var(--dim);
+  font-family:var(--mono);font-size:9px;padding:3px 7px;border-radius:2px;
+  cursor:pointer;transition:all .12s;letter-spacing:.04em;
+}
+.chip:hover,.chip.A{border-color:var(--teal);color:var(--teal);background:rgba(0,229,200,.04)}
+
+/* Model toggles */
+.mtogs{display:flex;gap:3px;margin-bottom:5px}
+.mt{
+  background:var(--s1);border:1px solid var(--bdr2);color:var(--dim);
+  font-family:var(--mono);font-size:9px;padding:3px 6px;border-radius:2px;
+  cursor:pointer;transition:all .12s;flex:1;text-align:center;letter-spacing:.04em;
+}
+.mt.on.g{border-color:var(--teal);color:var(--teal);background:rgba(0,229,200,.04)}
+.mt.on.h{border-color:var(--purp);color:var(--purp);background:rgba(157,92,245,.04)}
+.mt.on.j{border-color:var(--red);color:var(--red);background:rgba(240,64,96,.04)}
+.mt.on.s{border-color:var(--grn);color:var(--grn);background:rgba(0,200,120,.04)}
+
+/* Radio rows */
+.rrow{display:flex;gap:12px;padding:3px 0;font-size:10px}
+.rrow label{display:flex;align-items:center;gap:3px;cursor:pointer;color:var(--txt)}
+.rrow input{accent-color:var(--teal)}
+
+/* Buttons */
+.btn{
+  background:var(--s1);border:1px solid var(--bdr2);color:var(--dim);
+  font-family:var(--mono);font-size:10px;padding:5px 8px;
+  cursor:pointer;border-radius:2px;transition:all .12s;letter-spacing:.04em;
+}
+.btn:hover{border-color:var(--teal);color:var(--txt)}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.btn.P{
+  background:var(--teal);color:#020509;border-color:var(--teal);
+  font-weight:700;letter-spacing:.06em;
+}
+.btn.P:hover:not(:disabled){background:#30f0d8;box-shadow:0 0 12px rgba(0,229,200,.3)}
+.btn.run{width:100%;padding:9px;font-size:12px}
+
+/* Progress */
+.pbar{height:1px;background:var(--bdr);margin:6px 0 3px}
+.pbfill{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,var(--teal),var(--purp));
+  transition:width .28s;
+  box-shadow:0 0 8px rgba(0,229,200,.4);
+}
+.ptxt{font-size:9px;color:var(--dim);text-align:center;min-height:11px;margin-bottom:4px}
+
+/* ── CENTRE ─────────────────────────────── */
+.C{display:flex;flex-direction:column;overflow:hidden;min-width:200px}
+
+.cvhdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:6px 10px;border-bottom:1px solid var(--bdr);flex-shrink:0;
+  background:var(--s0);
+}
+.cvtitle{
+  font-family:'Syne',sans-serif;font-size:.7rem;font-weight:800;
+  letter-spacing:.1em;color:var(--teal);text-transform:uppercase;
+}
+.cvmeta{font-size:9px;color:var(--dim);letter-spacing:.04em}
+.cvbtns{display:flex;gap:4px}
+
+/* 2×2 canvas grid */
+.canvases{
+  display:grid;grid-template-columns:1fr 1fr;
+  grid-template-rows:1fr 1fr;
+  flex:1;overflow:hidden;background:var(--bdr);gap:1px;
+}
+.cvcel{
+  position:relative;background:var(--bg);overflow:hidden;
+  cursor:pointer;
+}
+.cvcel canvas{position:absolute;inset:0;width:100%;height:100%}
+.cvlbl{
+  position:absolute;top:6px;left:8px;
+  font-family:'Syne',sans-serif;font-size:.62rem;font-weight:800;
+  letter-spacing:.12em;opacity:.7;pointer-events:none;text-transform:uppercase;
+}
+.cvstat{
+  position:absolute;bottom:5px;right:7px;
+  font-size:9px;color:var(--dim);pointer-events:none;letter-spacing:.04em;
+}
+/* Hover glow on canvas cells */
+.cvcel:hover::after{
+  content:'';position:absolute;inset:0;
+  border:1px solid rgba(0,229,200,.15);pointer-events:none;
+}
+
+/* ── RIGHT ──────────────────────────────── */
+.R{
+  display:flex;flex-direction:column;overflow:hidden;
+  border-left:1px solid var(--bdr);min-width:180px;max-width:600px;
+}
+
+/* KPI grid */
+.kpis{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:1px;background:var(--bdr);flex-shrink:0;
+}
+.kpi{
+  background:var(--s0);padding:5px 8px;
+  transition:background .3s;
+}
+.kpi.F{
+  animation:kpi-flash .35s ease;
+}
+@keyframes kpi-flash{
+  0%{background:rgba(0,229,200,.08)}
+  100%{background:var(--s0)}
+}
+.kl{font-size:9px;color:var(--dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:1px}
+.kv{font-size:15px;font-weight:500;color:var(--teal);letter-spacing:.02em}
+
+/* Tab nav */
+.tabnav{
+  display:flex;flex-wrap:nowrap;overflow-x:auto;flex-shrink:0;
+  background:var(--s0);border-bottom:1px solid var(--bdr);
+  scrollbar-width:none;
+}
+.tabnav::-webkit-scrollbar{display:none}
+.tb{
+  background:transparent;border:none;color:var(--dim);
+  font-family:var(--mono);font-size:10px;padding:7px 11px;
+  cursor:pointer;border-bottom:2px solid transparent;
+  white-space:nowrap;transition:all .12s;letter-spacing:.04em;
+  flex-shrink:0;
+}
+.tb:hover{color:var(--txt)}
+.tb.A{color:var(--teal);border-bottom-color:var(--teal)}
+
+/* Tab body */
+.tabbody{flex:1;overflow-y:auto;background:var(--bg)}
+.tabbody::-webkit-scrollbar{width:3px}
+.tabbody::-webkit-scrollbar-thumb{background:var(--bdr2)}
+.tp{display:none}.tp.A{display:block}
+.empty{
+  display:flex;align-items:center;justify-content:center;
+  min-height:180px;color:var(--dim);font-size:10px;letter-spacing:.06em;
+  flex-direction:column;gap:6px;
+}
+
+/* Status bar */
+.sbar{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--s0);border-top:1px solid var(--bdr);
+  padding:4px 12px;font-size:9px;color:var(--dim);letter-spacing:.06em;
+  z-index:100;
+}
+.sbar em{font-style:normal}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:30px;right:14px;
+  background:var(--red-dim);border:1px solid var(--red);
+  color:var(--red);font-family:var(--mono);font-size:10px;
+  padding:7px 12px;border-radius:2px;max-width:300px;
+  z-index:9999;opacity:0;transform:translateY(4px);
+  transition:all .18s;pointer-events:none;letter-spacing:.04em;
+}
+.toast.on{opacity:1;transform:translateY(0)}
+
+/* Expand overlay */
+.expand-overlay{
+  position:fixed;inset:0;z-index:9000;
+  background:rgba(2,5,9,.95);
+  display:flex;flex-direction:column;
+  backdrop-filter:blur(6px);
+  opacity:0;pointer-events:none;transition:opacity .18s;
+}
+.expand-overlay.on{opacity:1;pointer-events:all}
+.expand-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 18px;border-bottom:1px solid var(--bdr);
+  flex-shrink:0;background:var(--s0);
+}
+.expand-title{
+  font-family:'Syne',sans-serif;font-size:.72rem;font-weight:800;
+  letter-spacing:.1em;color:var(--teal);text-transform:uppercase;
+}
+.expand-hint{font-family:var(--mono);font-size:.58rem;color:var(--dim);letter-spacing:.06em}
+.expand-close{
+  background:var(--s1);border:1px solid var(--bdr2);color:var(--dim);
+  font-family:var(--mono);font-size:.7rem;padding:4px 12px;cursor:pointer;
+  border-radius:2px;transition:all .12s;
+}
+.expand-close:hover{border-color:var(--teal);color:var(--teal)}
+.expand-body{flex:1;min-height:0;padding:12px;position:relative}
+#expand-chart{width:100%;height:100%}
+
+/* ── MOBILE RESPONSIVE ─────────────────────────────────────────────────── */
+@media(max-width:900px){
+  /* Layout: stack columns vertically */
+  .layout,.app{
+    grid-template-columns:1fr !important;
+    grid-template-rows:auto !important;
+    height:auto !important;
+  }
+  /* Nav: compact */
+  nav,.nav{
+    padding:0 12px !important;
+    height:44px !important;
+    flex-wrap:wrap;
+  }
+  .nav-links,.nav-right{gap:6px !important;}
+  .nav-link{display:none}
+  /* Panels: full width, no resize */
+  .panel,.pane,[class*="panel"]{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    height:auto !important;
+    resize:none !important;
+    border-right:none !important;
+    border-bottom:1px solid var(--bdr, #1a2a3a) !important;
+  }
+  /* Drag handles: hide on mobile */
+  .drag-handle,.dragger,.resizer{display:none !important}
+  /* Control panels: scrollable */
+  .controls,.ctrl-panel,.left-panel,.sidebar{
+    max-height:50vh !important;
+    overflow-y:auto !important;
+  }
+  /* Charts: ensure height */
+  .chart-area,.chart-wrap,[id^="plt"],[id^="plot"]{
+    min-height:280px !important;
+    height:280px !important;
+  }
+  /* Tables: horizontal scroll */
+  table,.table-wrap,.chain-table-wrap{
+    overflow-x:auto !important;
+    display:block !important;
+  }
+  /* KPI grid: 2-up on mobile */
+  .kpi-row,.metrics-row,[class*="kpi-grid"]{
+    grid-template-columns:repeat(2,1fr) !important;
+  }
+  /* Buttons: full width */
+  .btn.run,.run-btn,[id^="brun"],[id^="bfetch"]{
+    width:100% !important;
+    padding:12px !important;
+  }
+  /* Input sliders: touch-friendly */
+  input[type=range]{height:32px !important;}
+  input[type=text],input[type=number],select{
+    font-size:16px !important; /* prevent zoom on iOS */
+    padding:10px !important;
+  }
+  /* Tabs: scrollable row */
+  .tabs,.tab-bar{
+    overflow-x:auto !important;
+    white-space:nowrap !important;
+    -webkit-overflow-scrolling:touch !important;
+  }
+  /* Hide secondary info panels on small screens */
+  .status-bar,.status-strip{display:none !important}
+}
+@media(max-width:480px){
+  .kpi-row,.metrics-row,[class*="kpi-grid"]{
+    grid-template-columns:1fr 1fr !important;
+  }
+  .chart-area,.chart-wrap{min-height:220px !important;height:220px !important;}
+  /* Canvas charts */
+  canvas{max-width:100% !important;}
+}
+
+
+
+
+</style>
+</head>
+<body>
+<nav class="sg-nav">
+  <a class="sg-brand" href="/hub">
+    <div class="sg-glyph">◎</div>
+    <div><div class="sg-wordmark">SINGULARITY</div><div class="sg-tagline">Quant Platform</div></div>
+  </a>
+  <div class="sg-nav-center"><span class="sg-page-lbl">Monte Carlo Suite</span></div>
+  <div class="sg-nav-right">
+    <div class="sg-sess"><div class="sg-sess-dot" id="sg-dot"></div><span id="sg-sess">—</span></div>
+    <div class="sg-user-d" id="sg-user">—</div>
+    <a class="sg-nav-a" href="/hub">Hub</a>
+    <a class="sg-nav-a" href="/surveillance">Surveillance</a>
+    <button class="sg-nav-b" onclick="sgOut()">Out</button>
+  </div>
+</nav>
+
+
+
+<div class="app">
+
+<!-- ══ LEFT ══════════════════════════════════════════════════════ -->
+<div class="L">
+ <div class="Ltop">
+  <div class="logo">Monte Carlo<span>AEQUITAS QUANT SUITE</span></div>
+  <div class="trow">
+   <input id=pt value="AAPL" autocomplete=off placeholder="Ticker…" onkeydown="if(event.key==='Enter')fq()"/>
+   <button class=btn onclick=fq() id=bfetch>Fetch</button>
+  </div>
+  <div class=qstrip id=qs>
+   <div class=qs><span class=ql>Spot </span><span class=qv id=qs-s>—</span></div>
+   <div class=qs><span class=ql>σ(ann) </span><span class=qv id=qs-v>—</span></div>
+   <div class=qs><span class=ql>μ(ann) </span><span class=qv id=qs-m>—</span></div>
+   <div class=qs><span class=ql>Beta </span><span class=qv id=qs-b>—</span></div>
+   <div class=qs><span class=ql>52W Lo </span><span class=qv id=qs-lo>—</span></div>
+   <div class=qs><span class=ql>52W Hi </span><span class=qv id=qs-hi>—</span></div>
+  </div>
+ </div>
+ <div class=Lscroll>
+  <div class=ghdr>Presets</div>
+  <div class=chips id=cps>
+   <button class=chip data-p=predict onclick="ps('predict')">Price Path</button>
+   <button class=chip data-p=options onclick="ps('options')">Options</button>
+   <button class=chip data-p=risk    onclick="ps('risk')">VaR</button>
+   <button class=chip data-p=stress  onclick="ps('stress')">Stress</button>
+   <button class=chip data-p=vol     onclick="ps('vol')">Vol</button>
+   <button class=chip data-p=full    onclick="ps('full')">Full Suite</button>
+  </div>
+  <div class=ghdr>Parameters</div>
+  <div class=prm><label>Spot S₀ ($)</label><input type=range id=ps0 min=1 max=1500 step=.5 value=175 oninput="sv(this,'vs0')"/><span class=v id=vs0>175</span></div>
+  <div class=prm><label>Drift μ (%)</label><input type=range id=pmu min=-40 max=80 step=.5 value=12 oninput="sv(this,'vmu')"/><span class=v id=vmu>12</span></div>
+  <div class=prm><label>Vol σ (%)</label><input type=range id=psig min=1 max=150 step=.5 value=25 oninput="sv(this,'vsig')"/><span class=v id=vsig>25</span></div>
+  <div class=prm><label>Rate r (%)</label><input type=range id=pr min=0 max=20 step=.25 value=5 oninput="sv(this,'vr')"/><span class=v id=vr>5</span></div>
+  <div class=prm><label>Div q (%)</label><input type=range id=pq min=0 max=12 step=.1 value=0 oninput="sv(this,'vq')"/><span class=v id=vq>0</span></div>
+  <div class=prm><label>Horizon T (yr)</label><input type=range id=pT min=.08 max=5 step=.08 value=1 oninput="sv(this,'vT')"/><span class=v id=vT>1</span></div>
+  <div class=prm><label>Paths (×1k)</label><input type=range id=pn min=1 max=100 step=1 value=50 oninput="sv(this,'vn')"/><span class=v id=vn>50</span></div>
+  <div class=prm><label>Investment $</label><input type=range id=pinv min=100 max=500000 step=100 value=10000 oninput="sv(this,'vinv')"/><span class=v id=vinv>10000</span></div>
+  <div class=ghdr>Option Contract</div>
+  <div class=prm><label>Strike K ($)</label><input type=range id=pK min=1 max=1500 step=.5 value=180 oninput="sv(this,'vK')"/><span class=v id=vK>180</span></div>
+  <div class=prm><label>Barrier ($)</label><input type=range id=pb min=1 max=1200 step=1 value=140 oninput="sv(this,'vb')"/><span class=v id=vb>140</span></div>
+  <div class=rrow>
+   <label><input type=radio name=ot value=call checked> Call</label>
+   <label><input type=radio name=ot value=put> Put</label>
+  </div>
+  <div class=ghdr>Models</div>
+  <div class=mtogs>
+   <button class="mt on g" data-m=gbm    onclick="tm(this)">GBM</button>
+   <button class="mt on h" data-m=heston onclick="tm(this)">Heston</button>
+   <button class="mt on j" data-m=jd     onclick="tm(this)">Jump-D</button>
+   <button class="mt on s" data-m=sabr   onclick="tm(this)">SABR</button>
+  </div>
+  <div class="ghdr p">Heston Parameters</div>
+  <div class=prm><label>κ mean-rev</label><input type=range id=pkap min=.1 max=15 step=.1 value=2 oninput="sv(this,'vkap')"/><span class=v id=vkap>2</span></div>
+  <div class=prm><label>ξ vol-of-vol</label><input type=range id=pxi min=.01 max=2 step=.01 value=.3 oninput="sv(this,'vxi')"/><span class=v id=vxi>0.3</span></div>
+  <div class=prm><label>ρ S–v corr</label><input type=range id=prho min=-.99 max=.99 step=.01 value=-.7 oninput="sv(this,'vrho')"/><span class=v id=vrho>-0.7</span></div>
+  <div class="ghdr r">Jump-Diffusion</div>
+  <div class=prm><label>λ intensity</label><input type=range id=plam min=0 max=8 step=.05 value=.75 oninput="sv(this,'vlam')"/><span class=v id=vlam>0.75</span></div>
+  <div class=prm><label>μⱼ jump %</label><input type=range id=pmuj min=-40 max=20 step=.5 value=-5 oninput="sv(this,'vmuj')"/><span class=v id=vmuj>-5</span></div>
+  <div class=prm><label>σⱼ jump %</label><input type=range id=psij min=.5 max=60 step=.5 value=10 oninput="sv(this,'vsij')"/><span class=v id=vsij>10</span></div>
+  <div class="ghdr g">SABR Parameters</div>
+  <div class=prm><label>α init vol</label><input type=range id=palp min=.01 max=2 step=.01 value=.25 oninput="sv(this,'valp')"/><span class=v id=valp>0.25</span></div>
+  <div class=prm><label>β CEV exp</label><input type=range id=pbet min=0 max=1 step=.01 value=.5 oninput="sv(this,'vbet')"/><span class=v id=vbet>0.5</span></div>
+  <div class=prm><label>ν vol-of-vol</label><input type=range id=pnu min=.01 max=2 step=.01 value=.4 oninput="sv(this,'vnu')"/><span class=v id=vnu>0.4</span></div>
+  <div class=pbar><div class=pbfill id=pbf></div></div>
+  <div class=ptxt id=ptxt></div>
+  <button class="btn P run" id=brun onclick=run()>▶  RUN SIMULATION</button>
+ </div>
+</div>
+
+<!-- drag handle left -->
+<div class="drag-handle" id="dh-left"></div>
+
+<!-- ══ CENTRE ════════════════════════════════════════════════════ -->
+<div class=C>
+ <div class=cvhdr>
+  <div class=cvtitle id=cvt>LIVE PATHS  ·  WAITING</div>
+  <div class=cvmeta id=cvm></div>
+  <div class=cvbtns>
+   <button class=btn id=btr onclick=togT()>Trails</button>
+   <button class=btn id=bfn onclick=togF()>Fan</button>
+   <button class=btn id=bps onclick=togP()>⏸</button>
+  </div>
+ </div>
+ <div class=canvases>
+  <div class=cvcel id=cell-gbm>   <canvas id=cvg></canvas><div class=cvlbl style="color:var(--teal)">GBM</div>   <div class=cvstat id=sg></div></div>
+  <div class=cvcel id=cell-heston><canvas id=cvh></canvas><div class=cvlbl style="color:var(--purp)">HESTON</div><div class=cvstat id=sh></div></div>
+  <div class=cvcel id=cell-jd>    <canvas id=cvj></canvas><div class=cvlbl style="color:var(--red)">JUMP-D</div>  <div class=cvstat id=sj></div></div>
+  <div class=cvcel id=cell-sabr>  <canvas id=cvs></canvas><div class=cvlbl style="color:var(--grn)">SABR</div>   <div class=cvstat id=ss></div></div>
+ </div>
+</div>
+
+<!-- drag handle right -->
+<div class="drag-handle" id="dh-right"></div>
+
+<!-- ══ RIGHT ═════════════════════════════════════════════════════ -->
+<div class=R>
+ <div class=kpis>
+  <div class=kpi id=kb>  <div class=kl>B-S Price</div><div class=kv>—</div></div>
+  <div class=kpi id=km>  <div class=kl>MC Price</div> <div class=kv>—</div></div>
+  <div class=kpi id=kd>  <div class=kl>Delta Δ</div>  <div class=kv>—</div></div>
+  <div class=kpi id=kg>  <div class=kl>Gamma Γ</div>  <div class=kv>—</div></div>
+  <div class=kpi id=kv>  <div class=kl>Vega ν</div>   <div class=kv>—</div></div>
+  <div class=kpi id=kv95><div class=kl>VaR 95%</div>  <div class=kv>—</div></div>
+  <div class=kpi id=kc99><div class=kl>CVaR 99%</div> <div class=kv>—</div></div>
+  <div class=kpi id=ksh> <div class=kl>Sharpe</div>   <div class=kv>—</div></div>
+  <div class=kpi id=kso> <div class=kl>Sortino</div>  <div class=kv>—</div></div>
+  <div class=kpi id=kom> <div class=kl>Omega</div>    <div class=kv>—</div></div>
+  <div class=kpi id=kpl> <div class=kl>P(loss)</div>  <div class=kv>—</div></div>
+  <div class=kpi id=kel> <div class=kl>Time (s)</div> <div class=kv>—</div></div>
+ </div>
+ 
+ <div class=tabbody>
+  <div id=tp-paths     class="tp A"><div class=empty>Run simulation</div></div>
+  <div id=tp-dist      class=tp><div class=empty>Run simulation</div></div>
+  <div id=tp-risk      class=tp><div class=empty>Run simulation</div></div>
+  <div id=tp-options   class=tp><div class=empty>Run simulation</div></div>
+  <div id=tp-greeks    class=tp><div class=empty>Run simulation</div></div>
+  <div id=tp-portfolio class=tp><div class=empty>Run simulation</div></div>
+  <div id=tp-stress    class=tp><div class=empty>Run simulation</div></div>
+  <div id=tp-conv      class=tp><div class=empty>Run simulation</div></div>
+  <div id=tp-stats      class=tp><div class=empty>Run simulation</div></div>
+  <div id=tp-summary class=tp>
+    <div class=empty style="flex-direction:column;gap:6px">
+      <div style="font-size:1.5rem;opacity:.3">✦</div>
+      Run simulation first
+    </div>
+  </div>
+  <div id=tp-ivsurf     class=tp><div class=empty style="flex-direction:column;gap:8px"><div style="font-size:1.5rem;opacity:.3">◈</div>Run simulation to generate IV surface</div></div>
+  <div id=tp-calibrator class=tp><div class=empty style="flex-direction:column;gap:8px"><div style="font-size:1.5rem;opacity:.3">◈</div>Run simulation to calibrate models</div></div>
+ </div>
+</div>
+
+</div><!-- /app -->
+
+<div class=toast id=toast></div>
+<div class=sbar><em id=sb>Ready — fetch a ticker then ▶ RUN</em></div>
+
+<!-- EXPAND OVERLAY -->
+<div class="expand-overlay" id="expand-overlay" onclick="closeExpand(event)">
+ <div class="expand-hdr">
+  <div class="expand-title" id="expand-title">Chart</div>
+  <div class="expand-hint">Dbl-click · Esc to close</div>
+  <button class="expand-close" onclick="closeExpand()">✕ Close</button>
+ </div>
+ <div class="expand-body"><div id="expand-chart"></div></div>
+</div>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════════════
+//  COLUMN RESIZE  —  drag handles between Left | Centre | Right
+// ═══════════════════════════════════════════════════════════════════
+(function(){
+  // Minimum and maximum column widths (px)
+  const MIN_L=160, MAX_L=600, MIN_R=180, MAX_R=700, MIN_C=200;
+
+  // Persist widths so they survive page focus-loss
+  let lw = parseInt(localStorage.getItem('mc_lw') || '256');
+  let rw = parseInt(localStorage.getItem('mc_rw') || '332');
+
+  function applyWidths(l, r) {
+    lw = Math.min(MAX_L, Math.max(MIN_L, l));
+    rw = Math.min(MAX_R, Math.max(MIN_R, r));
+    document.documentElement.style.setProperty('--lw', lw + 'px');
+    document.documentElement.style.setProperty('--rw', rw + 'px');
+    // Also update status bar left position
+    const sbar = document.querySelector('.sbar');
+    if (sbar) sbar.style.left = '0';
+    localStorage.setItem('mc_lw', lw);
+    localStorage.setItem('mc_rw', rw);
+  }
+
+  // Apply on load
+  applyWidths(lw, rw);
+
+  function makeDraggable(handleId, which) {
+    const handle = document.getElementById(handleId);
+    if (!handle) return;
+    let startX, startW;
+
+    handle.addEventListener('mousedown', e => {
+      e.preventDefault();
+      startX = e.clientX;
+      startW = which === 'left' ? lw : rw;
+      handle.classList.add('dragging');
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+
+      function onMove(e) {
+        const dx = e.clientX - startX;
+        if (which === 'left') {
+          // Left handle: dragging right makes left panel wider
+          applyWidths(startW + dx, rw);
+        } else {
+          // Right handle: dragging left makes right panel wider
+          applyWidths(lw, startW - dx);
+        }
+        // Trigger Plotly relayout on any visible charts so they fill new space
+        if (window._resizeTick) clearTimeout(window._resizeTick);
+        window._resizeTick = setTimeout(relayoutCharts, 80);
+      }
+
+      function onUp() {
+        handle.classList.remove('dragging');
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        relayoutCharts();
+      }
+
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+
+    // Double-click to reset to default
+    handle.addEventListener('dblclick', () => {
+      applyWidths(which === 'left' ? 256 : 332, which === 'left' ? rw : 332);
+      setTimeout(relayoutCharts, 100);
+    });
+  }
+
+  makeDraggable('dh-left',  'left');
+  makeDraggable('dh-right', 'right');
+
+  // Call the global relayoutCharts (defined after this IIFE so drawF is in scope)
+  function relayoutCharts() {
+    if (typeof window._relayoutCharts === 'function') window._relayoutCharts();
+  }
+
+  // Also handle window resize (browser zoom, window resize)
+  window.addEventListener('resize', () => {
+    if (window._winResizeTick) clearTimeout(window._winResizeTick);
+    window._winResizeTick = setTimeout(relayoutCharts, 150);
+  });
+
+})();
+// ═══════════════════════════════════════════════════════════════════
+
+// Global resize handler — defined here so drawF is in scope when called
+window._relayoutCharts = function() {
+  // 1. Resize all Plotly charts to their container
+  document.querySelectorAll('.js-plotly-plot').forEach(el => {
+    try { Plotly.Plots.resize(el); } catch(e) {}
+  });
+  // 2. Resize + redraw each canvas
+  // Resizing a <canvas> element clears it — we must redraw after every resize.
+  const CVMAP = {cvg:'gbm', cvh:'heston', cvj:'jd', cvs:'sabr'};
+  Object.entries(CVMAP).forEach(([cvid, mk]) => {
+    const cv = document.getElementById(cvid);
+    if (!cv) return;
+    const cell = cv.parentElement;
+    const dpr  = window.devicePixelRatio || 1;
+    const w    = cell.clientWidth  || 400;
+    const h    = cell.clientHeight || 240;
+    if (w < 10 || h < 10) return;
+    // Setting width/height clears the canvas — intentional, we redraw below
+    cv.width  = w * dpr;
+    cv.height = h * dpr;
+    cv.style.width  = w + 'px';
+    cv.style.height = h + 'px';
+    const ctx = cv.getContext('2d');
+    ctx.scale(dpr, dpr);
+    // Fill background first
+    ctx.fillStyle = '#080c12';
+    ctx.fillRect(0, 0, w, h);
+    // If we have live state for this canvas, update dims and redraw
+    if (window._CS && window._CS[mk]) {
+      const st = window._CS[mk];
+      st.ctx = ctx;
+      st.w   = w;
+      st.h   = h;
+      // drawF is defined later in this script — call it if available
+      if (typeof drawF === 'function' && st.paths && st.paths.length > 0) {
+        drawF(st);
+      }
+    }
+  });
+};
+
+const C={teal:'#00d4b0',purp:'#9d70e8',red:'#e05555',grn:'#38c878',
+  gold:'#f0c040',blu:'#4a9ef5',org:'#e88840',pink:'#e070b0',
+  bg:'#080c12',sf:'#0e1520',bdr:'#1a2840',dim:'#506070',txt:'#ccd8e8'};
+const MN=`ui-monospace,'Cascadia Code','JetBrains Mono',monospace`;
+const BL={paper_bgcolor:C.sf,plot_bgcolor:C.bg,
+  font:{color:C.txt,family:MN,size:9},margin:{l:42,r:6,t:26,b:28},
+  legend:{bgcolor:C.sf,bordercolor:C.bdr,borderwidth:1,font:{size:8}},
+  xaxis:{gridcolor:C.bdr,zerolinecolor:C.bdr,linecolor:C.bdr},
+  yaxis:{gridcolor:C.bdr,zerolinecolor:C.bdr,linecolor:C.bdr}};
+const CF={displayModeBar:false,responsive:true};
+const $=id=>document.getElementById(id);
+function sv(el,v){$(v).textContent=el.value}
+function ss(id,val,vid){const e=$(id);if(!e)return;const f=parseFloat(val);
+  if(!isNaN(f))e.value=Math.min(Math.max(f,+e.min||0),+e.max||9e9);if(vid)$(vid).textContent=$(id).value}
+function toast(m){const t=$('toast');t.textContent='⚠ '+m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),4500)}
+function sb(m,c){const e=$('sb');e.textContent=m;e.style.color=c||C.teal}
+function kpi(id,v){const el=$(id);if(!el)return;el.querySelector('.kv').textContent=v;
+  el.classList.remove('F');void el.offsetWidth;el.classList.add('F')}
+function BLx(x){return Object.assign({},BL,x)}
+function plot(id,tr,lay){Plotly.newPlot(id,tr,BLx(lay),CF)}
+
+// tabs
+document.querySelectorAll('.tb').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.tb').forEach(x=>x.classList.remove('A'));
+    document.querySelectorAll('.tp').forEach(x=>x.classList.remove('A'));
+    b.classList.add('A');$('tp-'+b.dataset.t).classList.add('A');
+    if(window._D)try{rTab(b.dataset.t,window._D)}catch(e){console.error(b.dataset.t,e)}
+  });
+});
+// model toggles
+const M={gbm:true,heston:true,jd:true,sabr:true};
+function tm(b){const m=b.dataset.m;M[m]=!M[m];b.classList.toggle('on',M[m])}
+// presets
+const PR={
+  predict:{n:75,T:1,Kp:1.05,Bp:.85,ot:'call',mu:12,sig:25,r:5,q:0,kap:2,xi:.3,rho:-.7,lam:.5,muj:-3,sij:8,alp:.25,bet:.5,nu:.4,M:{gbm:1,heston:1,jd:1,sabr:0},tab:'paths'},
+  options:{n:50,T:.5,Kp:1,Bp:.8,ot:'call',mu:10,sig:25,r:5,q:0,kap:3,xi:.4,rho:-.65,lam:.5,muj:-4,sij:10,alp:.25,bet:.5,nu:.35,M:{gbm:1,heston:1,jd:1,sabr:1},tab:'options'},
+  risk:{n:100,T:1,Kp:1.05,Bp:.8,ot:'call',mu:10,sig:25,r:5,q:0,kap:2,xi:.35,rho:-.7,lam:1,muj:-5,sij:12,alp:.25,bet:.5,nu:.4,M:{gbm:1,heston:1,jd:1,sabr:0},tab:'risk'},
+  stress:{n:50,T:1,Kp:1,Bp:.7,ot:'put',mu:8,sig:35,r:4,q:0,kap:1.5,xi:.6,rho:-.8,lam:2,muj:-8,sij:15,alp:.35,bet:.5,nu:.5,M:{gbm:1,heston:1,jd:1,sabr:0},tab:'stress'},
+  vol:{n:30,T:1,Kp:1,Bp:.8,ot:'call',mu:12,sig:20,r:5,q:0,kap:4,xi:.5,rho:-.6,lam:.3,muj:-2,sij:6,alp:.2,bet:.5,nu:.6,M:{gbm:0,heston:1,jd:0,sabr:1},tab:'greeks'},
+  full:{n:50,T:1,Kp:1.05,Bp:.8,ot:'call',mu:12,sig:25,r:5,q:0,kap:2,xi:.3,rho:-.7,lam:.75,muj:-5,sij:10,alp:.25,bet:.5,nu:.4,M:{gbm:1,heston:1,jd:1,sabr:1},tab:'paths'},
+};
+function ps(k){
+  const p=PR[k];if(!p)return;
+  document.querySelectorAll('.chip').forEach(b=>b.classList.toggle('A',b.dataset.p===k));
+  const s0=parseFloat($('ps0').value)||175;
+  ss('pn',p.n,'vn');ss('pT',p.T,'vT');ss('pK',(s0*p.Kp).toFixed(1),'vK');ss('pb',(s0*p.Bp).toFixed(1),'vb');
+  ss('pmu',p.mu,'vmu');ss('psig',p.sig,'vsig');ss('pr',p.r,'vr');ss('pq',p.q,'vq');
+  ss('pkap',p.kap,'vkap');ss('pxi',p.xi,'vxi');ss('prho',p.rho,'vrho');
+  ss('plam',p.lam,'vlam');ss('pmuj',p.muj,'vmuj');ss('psij',p.sij,'vsij');
+  ss('palp',p.alp,'valp');ss('pbet',p.bet,'vbet');ss('pnu',p.nu,'vnu');
+  document.querySelector(`input[name=ot][value=${p.ot}]`).checked=true;
+  Object.entries(p.M).forEach(([m,on])=>{M[m]=!!on;document.querySelector(`.mt[data-m=${m}]`).classList.toggle('on',!!on)});
+  document.querySelector(`.tb[data-t=${p.tab}]`)?.click();
+}
+// fetch quote
+async function fq(){
+  const tk=$('pt').value.trim().toUpperCase();if(!tk)return toast('Enter ticker');
+  sb('Fetching '+tk+'…',C.gold);$('bfetch').disabled=true;$('bfetch').textContent='…';
+  try{
+    const r=await fetch('/api/mc/mc_quote?ticker='+encodeURIComponent(tk));
+    const d=await r.json();if(d.error)throw new Error(d.error);
+    $('qs-s').textContent='$'+d.spot.toFixed(2);$('qs-v').textContent=(d.ann_sigma*100).toFixed(1)+'%';
+    $('qs-m').textContent=(d.ann_mu*100).toFixed(1)+'%';$('qs-b').textContent=d.beta.toFixed(2);
+    $('qs-lo').textContent='$'+d.wk52_lo.toFixed(2);$('qs-hi').textContent='$'+d.wk52_hi.toFixed(2);
+    $('qs').style.display='grid';
+    const s0=d.spot;
+    ss('ps0',s0.toFixed(1),'vs0');ss('pmu',(d.ann_mu*100).toFixed(1),'vmu');
+    ss('psig',(d.ann_sigma*100).toFixed(1),'vsig');ss('pq',(d.div_yield*100).toFixed(2),'vq');
+    ss('pK',(s0*1.05).toFixed(1),'vK');ss('pb',(s0*.8).toFixed(1),'vb');
+    sb('✔ '+d.name+'  ·  $'+d.spot.toFixed(2)+'  σ='+(d.ann_sigma*100).toFixed(1)+'%');
+  }catch(e){toast(e.message);sb('Error: '+e.message,C.red)}
+  finally{$('bfetch').disabled=false;$('bfetch').textContent='Fetch'}
+}
+$('pt').addEventListener('keydown',e=>{if(e.key==='Enter')fq()});
+
+// ── CANVAS ANIMATION ───────────────────────────────────────────────
+let _sse=null,_paused=false,_trails=true,_fan=false;
+const _CS={};
+const MKEY={GBM:'gbm',Heston:'heston','JUMP-DIFFUSION':'jd','JUMP-D':'jd',JD:'jd',SABR:'sabr'};
+const MCOL={gbm:C.teal,heston:C.purp,jd:C.red,sabr:C.grn};
+
+function togT(){_trails=!_trails;$('btr').style.opacity=_trails?1:.45}
+function togF(){_fan=!_fan;$('bfn').style.opacity=_fan?1:.45}
+function togP(){_paused=!_paused;$('bps').textContent=_paused?'▶':'⏸'}
+function stopSSE(){if(_sse){_sse.close();_sse=null}}
+
+function initCV(id){
+  const cv=$(id),cell=cv.parentElement;
+  const dpr=window.devicePixelRatio||1,w=cell.clientWidth||400,h=cell.clientHeight||240;
+  cv.width=w*dpr;cv.height=h*dpr;cv.style.width=w+'px';cv.style.height=h+'px';
+  const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);return{ctx,w,h};
+}
+function mkSt(id,col,S0,K){
+  const{ctx,w,h}=initCV(id);
+  return{ctx,w,h,col,S0,K,paths:[],step:0,tot:252,lo:S0*.55,hi:S0*1.55,last:null,jumps:0};
+}
+const sy=(p,st)=>st.h-(p-st.lo)/(st.hi-st.lo)*st.h;
+const sx=(i,tot,w)=>i/tot*w;
+
+function drawF(st){
+  if(!st||!st.ctx||_paused)return;
+  const{ctx,w,h,col,S0,K}=st;
+  if(!_trails){ctx.fillStyle=C.bg;ctx.fillRect(0,0,w,h)}
+  ctx.strokeStyle=C.bdr;ctx.lineWidth=.35;
+  [.25,.5,.75].forEach(f=>{ctx.beginPath();ctx.moveTo(0,f*h);ctx.lineTo(w,f*h);ctx.stroke()});
+  if(K>st.lo&&K<st.hi){
+    ctx.strokeStyle='rgba(224,85,85,.4)';ctx.lineWidth=.8;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(0,sy(K,st));ctx.lineTo(w,sy(K,st));ctx.stroke();ctx.setLineDash([]);
+  }
+  ctx.strokeStyle='rgba(240,192,64,.22)';ctx.lineWidth=.55;ctx.setLineDash([2,4]);
+  ctx.beginPath();ctx.moveTo(0,sy(S0,st));ctx.lineTo(w,sy(S0,st));ctx.stroke();ctx.setLineDash([]);
+  if(st.paths.length>0){
+    const al=Math.min(.4,Math.max(.05,1.1/Math.sqrt(st.paths.length)));
+    st.paths.forEach(p=>{
+      if(!p||p.length<2)return;
+      ctx.strokeStyle=col;ctx.lineWidth=.5;ctx.globalAlpha=al;ctx.beginPath();
+      p.forEach((v,i)=>{const x=sx(i*(st.tot/(p.length-1||1)),st.tot,w),y=sy(v,st);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)});
+      ctx.stroke();
+    });ctx.globalAlpha=1;
+  }
+  if(_fan&&st.paths.length>=5){
+    const ns=st.paths[0].length,p5=[],p50=[],p95=[];
+    for(let i=0;i<ns;i++){const v=st.paths.map(p=>p[i]||S0).sort((a,b)=>a-b);
+      p5.push(v[Math.floor(.05*v.length)]);p50.push(v[Math.floor(.5*v.length)]);p95.push(v[Math.floor(.95*v.length)])}
+    const xv=(_,i)=>sx(i*(st.tot/(ns-1||1)),st.tot,w);
+    ctx.globalAlpha=.09;ctx.fillStyle=col;ctx.beginPath();
+    p95.forEach((v,i)=>{i===0?ctx.moveTo(xv(null,i),sy(v,st)):ctx.lineTo(xv(null,i),sy(v,st))});
+    [...p5].reverse().forEach((v,i)=>{const ri=p5.length-1-i;ctx.lineTo(xv(null,ri),sy(v,st))});
+    ctx.closePath();ctx.fill();
+    ctx.globalAlpha=.85;ctx.strokeStyle=col;ctx.lineWidth=1.4;ctx.beginPath();
+    p50.forEach((v,i)=>{i===0?ctx.moveTo(xv(null,i),sy(v,st)):ctx.lineTo(xv(null,i),sy(v,st))});
+    ctx.stroke();ctx.globalAlpha=1;
+  }
+  if(st.tot>0){ctx.fillStyle=C.bdr;ctx.fillRect(0,h-2,w,2);ctx.fillStyle=col;ctx.fillRect(0,h-2,w*st.step/st.tot,2)}
+}
+
+function startAnim(p){
+  stopSSE();
+  const{S0,K,T,mu,sigma,r,kappa,xi,rho,lam,mu_j,sig_j}=p;
+  [['cvg','gbm',C.teal],['cvh','heston',C.purp],['cvj','jd',C.red],['cvs','sabr',C.grn]]
+    .forEach(([cvid,mk,col])=>{_CS[mk]=mkSt(cvid,col,S0,K);_CS[mk].ctx.fillStyle=C.bg;_CS[mk].ctx.fillRect(0,0,_CS[mk].w,_CS[mk].h)});
+  $('cvt').textContent='LIVE PATHS  ·  STREAMING…';
+  const q=new URLSearchParams({S0,mu,sigma,T,K,r,kappa,xi,rho,lam,mu_j,sig_j,seed:42});
+  // SSE stream not available on Vercel - paths animated from result
+  _sse=null;
+  let cur='gbm';
+  _sse.onmessage=e=>{
+    if(_paused)return;let d;try{d=JSON.parse(e.data)}catch{return}
+    if(d.event==='model_start'){
+      const raw=d.model.toUpperCase().replace(/[\s-]/g,'').replace('MERTON','JD');
+      cur=MKEY[d.model]||MKEY[raw]||'gbm';
+      $('cvt').textContent='LIVE PATHS  ·  '+d.model+' ('+d.n_paths+' paths)';return;
+    }
+    if(d.event==='model_done'){
+      const st=_CS[cur];if(st&&st.last){
+        const m=st.last.slice().sort((a,b)=>a-b);const med=m[Math.floor(m.length/2)];
+        const pu=st.last.filter(x=>x>st.S0).length/st.last.length*100;
+        const sid={'gbm':'sg','heston':'sh','jd':'sj','sabr':'ss'}[cur];
+        if(sid)$(sid).textContent=`$${med.toFixed(2)}\nP(↑)${pu.toFixed(0)}%${st.jumps>0?'\nJ:'+st.jumps:''}`;
+      }return;
+    }
+    if(d.event==='all_done'){$('cvt').textContent='LIVE PATHS  ·  COMPLETE';stopSSE();return}
+    if(d.event==='error'){toast('SSE: '+d.message);stopSSE();return}
+    const mraw=(d.model||'GBM').toUpperCase().replace(/[\s-]/g,'').replace('MERTON','JD');
+    const mk=MKEY[d.model]||MKEY[mraw]||cur;
+    const st=_CS[mk]||_CS[cur];if(!st)return;
+    const prices=d.prices;if(!prices||!prices.length)return;
+    st.step=d.step||0;st.tot=d.total_steps||252;st.last=prices;
+    if(d.jumps)st.jumps+=d.jumps;
+    const lo=Math.min(...prices)*.97,hi=Math.max(...prices)*1.03;
+    if(lo<st.lo)st.lo=lo;if(hi>st.hi)st.hi=hi;
+    const NP=Math.min(prices.length,200);
+    if(st.paths.length===0)for(let i=0;i<NP;i++)st.paths.push([st.S0]);
+    const n=Math.min(NP,st.paths.length,prices.length);
+    for(let i=0;i<n;i++)if(st.paths[i])st.paths[i].push(prices[i]);
+    if(!_trails){st.ctx.fillStyle=C.bg;st.ctx.fillRect(0,0,st.w,st.h)}
+    drawF(st);
+    const sidM={'gbm':'sg','heston':'sh','jd':'sj','sabr':'ss'};
+    const stat=$(sidM[mk]||sidM[cur]);
+    if(stat){const m2=prices.slice().sort((a,b)=>a-b)[Math.floor(prices.length/2)];
+      stat.textContent=`$${m2.toFixed(2)}  ${Math.round(st.step/st.tot*100)}%`}
+  };
+  _sse.onerror=()=>{if(_sse&&_sse.readyState===EventSource.CLOSED)$('cvt').textContent='LIVE PATHS  ·  DONE'};
+}
+window.addEventListener('resize',()=>setTimeout(()=>
+  Object.entries(_CS).forEach(([k,st])=>{if(!st)return;
+    const cvid={gbm:'cvg',heston:'cvh',jd:'cvj',sabr:'cvs'}[k];if(!cvid)return;
+    const{ctx,w,h}=initCV(cvid);st.ctx=ctx;st.w=w;st.h=h;
+    st.ctx.fillStyle=C.bg;st.ctx.fillRect(0,0,w,h);drawF(st);
+  }),200));
+
+// ── RUN SIMULATION ─────────────────────────────────────────────────
+let _poll=null;
+function stopPoll(){if(_poll){clearInterval(_poll);_poll=null}}
+async function run(){
+  stopPoll();stopSSE();
+  const btn=$('brun');btn.disabled=true;
+  const pbf=$('pbf'),ptxt=$('ptxt');
+  pbf.style.width='1%';pbf.style.transition='none';
+  const sigma=parseFloat($('psig').value)/100,s0=parseFloat($('ps0').value),
+    T=parseFloat($('pT').value),K=parseFloat($('pK').value),
+    mu=parseFloat($('pmu').value)/100,r=parseFloat($('pr').value)/100,
+    kappa=parseFloat($('pkap').value),xi=parseFloat($('pxi').value),
+    rho=parseFloat($('prho').value),lam=parseFloat($('plam').value),
+    mu_j=parseFloat($('pmuj').value)/100,sig_j=parseFloat($('psij').value)/100;
+  const body={
+    ticker:$('pt').value.trim().toUpperCase()||'AAPL',
+    S0:s0,mu,sigma,r,q:parseFloat($('pq').value)/100,K,T,
+    barrier:parseFloat($('pb').value),
+    option_type:document.querySelector('input[name=ot]:checked')?.value||'call',
+    n_sims:parseInt($('pn').value)*1000,
+    investment:parseFloat($('pinv').value),
+    v0:sigma*sigma,theta:sigma*sigma,kappa,xi,rho,lam,mu_j,sig_j,
+    alpha:parseFloat($('palp').value),beta:parseFloat($('pbet').value),
+    nu:parseFloat($('pnu').value),rho_s:-.3,
+  };
+  startAnim({S0:s0,K,T,mu,sigma,r,kappa,xi,rho,lam,mu_j,sig_j});
+  sb('Submitting…',C.gold);
+  let jid;
+  try{
+    const res=await fetch('/api/mc/simulate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!res.ok){const e=await res.json().catch(()=>({error:'HTTP '+res.status}));throw new Error(e.error||'HTTP '+res.status)}
+    const j=await res.json();if(j.error)throw new Error(j.error);jid=j.job_id;
+    if(j.status==='done'&&j.result){pbf.style.width='100%';ptxt.textContent='\u2714 done';onDone(j.result);btn.disabled=false;return;}
+  }catch(e){toast(e.message);sb('Error: '+e.message,C.red);btn.disabled=false;return}
+  const PCT={'GBM paths (1/9)…':12,'Heston (2/9)…':26,'Jump-Diffusion (3/9)…':38,
+    'SABR (4/9)…':48,'Portfolio (5/9)…':58,'Options pricing (6/9)…':68,
+    'Risk metrics (7/9)…':78,'Stress testing (8/9)…':88,'Convergence (9/9)…':95,'Packaging…':98};
+  let lastP='';const t0=Date.now();pbf.style.transition='width .28s';
+  _poll=setInterval(async()=>{
+    try{
+      const res=await fetch('/api/mc/status/'+jid);const s=await res.json();
+      const el=((Date.now()-t0)/1000).toFixed(1);
+      if(s.progress&&s.progress!==lastP){
+        lastP=s.progress;pbf.style.width=(PCT[s.progress]||parseInt(pbf.style.width)||5)+'%';
+        ptxt.textContent=el+'s — '+s.progress;sb(s.progress+' ('+el+'s)',C.gold);
+      }
+      if(s.status==='done'){stopPoll();pbf.style.width='100%';ptxt.textContent='✔ '+el+'s';onDone(s.result);btn.disabled=false}
+      else if(s.status==='error'){stopPoll();pbf.style.width='0%';ptxt.textContent='✗';toast(s.error||'Error');sb('Error',C.red);btn.disabled=false}
+    }catch(pe){stopPoll();btn.disabled=false;toast('Poll: '+pe.message)}
+  },500);
+}
+
+// ── ANIMATE PATHS FROM RESULT (Vercel-compatible) ──────────────────
+function _animatePaths(result){
+  if(!result||!result.paths)return;
+  const models=[['gbm',C.teal],['heston',C.purp],['jd',C.red],['sabr',C.grn]];
+  models.forEach(([mk,col])=>{
+    const paths=result.paths[mk];
+    if(!paths||!paths.length)return;
+    const st=_CS[mk];if(!st)return;
+    // Draw 20 paths with animation
+    let i=0;
+    const draw=()=>{
+      if(i>=paths.length)return;
+      const p=paths[i];
+      if(p&&p.length){
+        const lo=Math.min(...p)*.97,hi=Math.max(...p)*1.03;
+        if(lo<st.yMin)st.yMin=lo;if(hi>st.yMax)st.yMax=hi;
+        drawPath(st,p,i/paths.length);
+      }
+      i++;
+      if(i<Math.min(paths.length,40))setTimeout(draw,8);
+    };
+    draw();
+  });
+  $('cvt').textContent='PATHS  ·  '+result.n_sims.toLocaleString()+' simulated';
+}
+function onDone(d){
+  _animatePaths(d);
+  window._D=d;const o=d.options,rg=d.risk.gbm,gbs=d.greeks_bs;
+  kpi('kb','$'+o.bs.toFixed(3));kpi('km','$'+o.eur_gbm.toFixed(3));
+  kpi('kd',gbs.delta.toFixed(4));kpi('kg',gbs.gamma.toFixed(6));kpi('kv',gbs.vega.toFixed(4));
+  kpi('kv95','$'+Math.round(rg.VaR_95).toLocaleString());kpi('kc99','$'+Math.round(rg.CVaR_99).toLocaleString());
+  kpi('ksh',rg.sharpe.toFixed(3));kpi('kso',rg.sortino.toFixed(3));kpi('kom',rg.omega.toFixed(3));
+  kpi('kpl',rg.prob_loss.toFixed(1)+'%');kpi('kel',(d.elapsed_s||'—')+'s');
+  try{rAll(d)}catch(e){console.error(e);toast('Render: '+e.message)}
+  sb('✔ '+d.n_sims.toLocaleString()+' paths · B-S=$'+o.bs.toFixed(4)+' · VaR95=$'+Math.round(rg.VaR_95).toLocaleString()+' · Sharpe='+rg.sharpe.toFixed(3));
+}
+
+// ── CHARTS ─────────────────────────────────────────────────────────
+function hT(h,col,nm){
+  const{c,e}=h,mid=e.slice(0,-1).map((v,i)=>(v+e[i+1])/2),w=e[1]-e[0];
+  const tot=c.reduce((a,b)=>a+b,0)*(w||1);
+  return{x:mid,y:c.map(v=>v/tot),type:'bar',name:nm,marker:{color:col,opacity:.65},width:Array(mid.length).fill(w)};
+}
+function fanT(t,pc,col,nm){
+  const[p5,p25,p50,p75,p95]=[pc['5'],pc['25'],pc['50'],pc['75'],pc['95']];
+  const tR=[...t].reverse();
+  return[
+    {x:[...t,...tR],y:[...p95,...[...p5].reverse()],fill:'toself',fillcolor:col+'12',line:{width:0},showlegend:false,hoverinfo:'skip',type:'scatter'},
+    {x:[...t,...tR],y:[...p75,...[...p25].reverse()],fill:'toself',fillcolor:col+'20',line:{width:0},showlegend:false,hoverinfo:'skip',type:'scatter'},
+    {x:t,y:p50,mode:'lines',line:{color:col,width:1.7},name:nm,type:'scatter'},
+  ];
+}
+function samT(paths,t,col,n=65){
+  return Array.from({length:Math.min(n,paths[0]?.length||0)},(_,i)=>({
+    x:t,y:paths.map(r=>r[i]),type:'scatter',mode:'lines',
+    line:{width:.35,color:col},opacity:.18,showlegend:false,hoverinfo:'skip'}));
+}
+
+function renderSummary(d){
+  const el = $('tp-summary');
+  if(!el) return;
+
+  // Plain-english interpretation
+  const bs = parseFloat($('ps0').value);
+  const K  = parseFloat($('pK').value);
+  const T  = parseFloat($('pT').value);
+  const n  = parseFloat($('pn').value) * 1000;
+  const inv= parseFloat($('pinv').value);
+
+  const bsPrice = parseFloat(d.bs_price || 0);
+  const mcPrice = parseFloat(d.mc_mean  || 0);
+  const var95   = parseFloat(d.var_95   || 0);
+  const cvar99  = parseFloat(d.cvar_99  || 0);
+  const sharpe  = parseFloat(d.sharpe   || 0);
+  const pLoss   = parseFloat(d.p_loss   || 0);
+
+  // Determine if call or put
+  const isCall  = document.querySelector('input[name=ot]:checked')?.value === 'call';
+  const optType = isCall ? 'call' : 'put';
+  const itm     = isCall ? bs > K : bs < K;
+  const moneyness = itm ? 'in-the-money' : (Math.abs(bs-K)/bs < 0.05 ? 'at-the-money' : 'out-of-the-money');
+
+  // Build summary
+  const ticker = ($('pt').value || 'the asset').toUpperCase();
+  const invFmt = inv.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+  const lossAmt= (Math.abs(var95) * inv / bs).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+  const cvarAmt= (Math.abs(cvar99)* inv / bs).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+
+  const priceColor = mcPrice > bsPrice ? '#22c55e' : '#f59e0b';
+
+  el.innerHTML = `
+<div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+
+  <div style="background:rgba(0,229,200,.04);border:1px solid rgba(0,229,200,.2);border-radius:3px;padding:14px 16px">
+    <div style="font-family:'Syne',sans-serif;font-size:.8rem;font-weight:800;color:#00e5c8;letter-spacing:.08em;margin-bottom:6px">SIMULATION OVERVIEW</div>
+    <div style="font-family:var(--mono);font-size:.7rem;color:#b0cce0;line-height:1.9">
+      Ran <strong style="color:#f0c040">${n.toLocaleString()}</strong> simulated price paths for
+      <strong style="color:#f0c040">${ticker}</strong> over
+      <strong style="color:#f0c040">${T} year${T!==1?'s':''}</strong>.
+      The current price is <strong style="color:#f0c040">$${bs}</strong> and the
+      ${optType} option has a strike of <strong style="color:#f0c040">$${K}</strong>
+      — it is currently <strong style="color:#f0c040">${moneyness}</strong>.
+    </div>
+  </div>
+
+  <div style="background:rgba(240,192,64,.04);border:1px solid rgba(240,192,64,.2);border-radius:3px;padding:14px 16px">
+    <div style="font-family:'Syne',sans-serif;font-size:.8rem;font-weight:800;color:#f0c040;letter-spacing:.08em;margin-bottom:6px">OPTION PRICE</div>
+    <div style="font-family:var(--mono);font-size:.7rem;color:#b0cce0;line-height:1.9">
+      The Black-Scholes theoretical price is <strong style="color:#f0c040">$${bsPrice.toFixed(3)}</strong>.
+      The Monte Carlo price across all models is
+      <strong style="color:${priceColor}">$${mcPrice.toFixed(3)}</strong>
+      — ${Math.abs(mcPrice-bsPrice) < 0.05 ? 'very close to theoretical, suggesting efficient pricing' : mcPrice > bsPrice ? 'higher than BS, indicating the path-dependence or jump risk adds value' : 'lower than BS, suggesting some models price this cheaper due to their vol dynamics'}.
+    </div>
+  </div>
+
+  <div style="background:rgba(240,64,96,.04);border:1px solid rgba(240,64,96,.2);border-radius:3px;padding:14px 16px">
+    <div style="font-family:'Syne',sans-serif;font-size:.8rem;font-weight:800;color:#f04060;letter-spacing:.08em;margin-bottom:6px">RISK — WHAT YOU COULD LOSE</div>
+    <div style="font-family:var(--mono);font-size:.7rem;color:#b0cce0;line-height:1.9">
+      On a <strong style="color:#f0c040">${invFmt}</strong> investment there is a
+      <strong style="color:#f04060">5% chance</strong> of losing more than
+      <strong style="color:#f04060">${lossAmt}</strong> (Value-at-Risk 95%).
+      In the worst 1% of scenarios — think a market crash — the average loss
+      reaches <strong style="color:#f04060">${cvarAmt}</strong> (CVaR 99%).
+      The Sharpe ratio of <strong style="color:#f0c040">${sharpe.toFixed(2)}</strong>
+      ${sharpe > 1 ? 'is strong, suggesting good risk-adjusted return' : sharpe > 0 ? 'is moderate — positive but not exceptional' : 'is negative, meaning expected return does not compensate for the risk taken'}.
+    </div>
+  </div>
+
+  <div style="background:rgba(0,200,120,.04);border:1px solid rgba(0,200,120,.2);border-radius:3px;padding:14px 16px">
+    <div style="font-family:'Syne',sans-serif;font-size:.8rem;font-weight:800;color:#00c878;letter-spacing:.08em;margin-bottom:6px">PROBABILITY SNAPSHOT</div>
+    <div style="font-family:var(--mono);font-size:.7rem;color:#b0cce0;line-height:1.9">
+      Across all ${n.toLocaleString()} paths,
+      <strong style="color:#f04060">${(pLoss*100).toFixed(1)}%</strong>
+      end in a net loss on this position.
+      That means roughly <strong style="color:#00c878">${((1-pLoss)*100).toFixed(1)}%</strong>
+      of the time the position profits over the ${T}-year horizon.
+      ${pLoss > 0.7 ? '⚠ High probability of loss — this position carries significant downside.' :
+        pLoss > 0.5 ? 'More paths end in loss than profit — the odds are against this trade.' :
+        pLoss > 0.3 ? 'A reasonable risk-reward balance — more paths profit than lose.' :
+        '✓ Strong probability of profit — the position has favorable odds.'}
+    </div>
+  </div>
+
+</div>`;
+}
+
+function rAll(d){['paths','dist','risk','options','greeks','portfolio','stress','conv','stats','ivsurf','calibrator'].forEach(t=>{try{rTab(t,d)}catch(e){console.error(t,e)}})}
+function rTab(tab,d){const f={paths:tPaths,dist:tDist,risk:tRisk,options:tOpts,greeks:tGrk,portfolio:tPort,stress:tSt,conv:tConv,stats:tStats,ivsurf:tIVSurf,calibrator:tCalibrator};
+  try{if(f[tab])f[tab](d)}catch(e){$('tp-'+tab).innerHTML=`<div class=empty>${e.message}</div>`}}
+
+function tPaths(d){
+  $('tp-paths').innerHTML=['gbm','heston','jd','sabr'].map(m=>`<div id=rp${m} style=height:195px></div>`).join('');
+  const t=d.t_ax,K=d.K;
+  [['gbm',C.teal,'GBM — Real-World'],['heston',C.purp,'Heston — Milstein'],
+   ['jd',C.red,'Merton — Jump-Diffusion'],['sabr',C.grn,'SABR']].forEach(([m,col,title])=>{
+    plot('rp'+m,[...samT(d.paths[m],t,col),...fanT(t,d.pcts[m],col,'Median')],{height:195,
+      shapes:[{type:'line',x0:0,x1:1,xref:'paper',y0:K,y1:K,line:{color:C.red,width:.7,dash:'dot'}}],
+      title:{text:d.ticker+' · '+title+' n='+d.n_sims.toLocaleString(),font:{color:C.gold,size:9,family:MN}},
+      xaxis:{...BL.xaxis,title:{text:'Years',font:{size:8}}},yaxis:{...BL.yaxis,title:{text:'Price ($)',font:{size:8}}}});
+  });
+}
+function tDist(d){
+  $('tp-dist').innerHTML='<div id=rdc style=height:240px></div><div id=rdl style=height:200px></div>';
+  const s=[[d.term_hist.gbm,C.teal,'GBM'],[d.term_hist.heston,C.purp,'Heston'],[d.term_hist.jd,C.red,'JD'],[d.term_hist.sabr,C.grn,'SABR']];
+  plot('rdc',s.map(([h,c,n])=>hT(h,c,n)),{height:240,barmode:'overlay',
+    title:{text:'Terminal Price S_T',font:{color:C.gold,size:9,family:MN}},
+    xaxis:{...BL.xaxis,title:{text:'S_T ($)',font:{size:8}}},yaxis:{...BL.yaxis,title:{text:'Density',font:{size:8}}},
+    shapes:[{type:'line',x0:d.K,x1:d.K,y0:0,y1:1,yref:'paper',line:{color:C.gold,width:1,dash:'dot'}}]});
+  plot('rdl',s.map(([h,c,n])=>{const{e}=h;const mid=e.slice(0,-1).map((v,i)=>(v+e[i+1])/2);
+    return{x:mid.map(v=>Math.log(Math.max(v,1e-10)/d.S0)),y:h.c,type:'bar',name:n,
+      marker:{color:c,opacity:.6},width:Array(mid.length).fill(e[1]-e[0]),showlegend:false}}),
+    {height:200,barmode:'overlay',title:{text:'Log-Return ln(S_T/S₀)',font:{color:C.gold,size:9,family:MN}},
+      xaxis:{...BL.xaxis,title:{text:'log ret',font:{size:8}}},yaxis:{...BL.yaxis,title:{text:'Count',font:{size:8}}},
+      shapes:[{type:'line',x0:0,x1:0,y0:0,y1:1,yref:'paper',line:{color:C.gold,width:1,dash:'dot'}}]});
+}
+function tRisk(d){
+  $('tp-risk').innerHTML='<div id=rrp style=height:250px></div><div id=rrc style=height:200px></div>';
+  const rg=d.risk.gbm;
+  plot('rrp',[[d.pnl_hist.gbm,C.teal,'GBM'],[d.pnl_hist.heston,C.purp,'Heston'],[d.pnl_hist.jd,C.red,'JD']].map(([h,c,n])=>hT(h,c,n)),
+    {height:250,barmode:'overlay',title:{text:'P&L Distribution',font:{color:C.gold,size:9,family:MN}},
+      xaxis:{...BL.xaxis,title:{text:'P&L ($)',font:{size:8}}},yaxis:{...BL.yaxis,title:{text:'Density',font:{size:8}}},
+      shapes:[{type:'line',x0:rg.VaR_95,x1:rg.VaR_95,y0:0,y1:1,yref:'paper',line:{color:C.red,width:1.8}},
+              {type:'line',x0:rg.CVaR_95,x1:rg.CVaR_95,y0:0,y1:1,yref:'paper',line:{color:C.red,width:1,dash:'dot'}},
+              {type:'line',x0:rg.VaR_99,x1:rg.VaR_99,y0:0,y1:1,yref:'paper',line:{color:C.org,width:1.8}},
+              {type:'line',x0:rg.mean_pnl,x1:rg.mean_pnl,y0:0,y1:1,yref:'paper',line:{color:C.gold,width:1.5}}]});
+  const models=['GBM','Heston','JD'],rks=['gbm','heston','jd'];
+  plot('rrc',[{k:'VaR_95',c:C.red},{k:'CVaR_95',c:C.org},{k:'VaR_99',c:'#c03030'},{k:'CVaR_99',c:'#902020'}].map(m=>({
+    name:m.k.replace('_',' '),x:models,y:rks.map(k=>d.risk[k][m.k]),type:'bar',marker:{color:m.c},opacity:.85})),
+    {height:200,barmode:'group',title:{text:'VaR/CVaR Comparison',font:{color:C.gold,size:9,family:MN}},
+      yaxis:{...BL.yaxis,title:{text:'P&L ($)',font:{size:8}}}});
+}
+function tOpts(d){
+  $('tp-options').innerHTML='<div id=rob style=height:280px></div><div id=ros style=height:200px></div>';
+  const o=d.options;
+  const items=[{n:'Eur(GBM)',v:o.eur_gbm,se:o.eur_gbm_se,c:C.teal},{n:'Eur(H)',v:o.eur_heston,se:0,c:C.purp},
+    {n:'Eur(JD)',v:o.eur_jd,se:0,c:C.red},{n:'Eur(SABR)',v:o.eur_sabr,se:0,c:C.grn},
+    {n:'Asian A',v:o.asian_arith,se:0,c:C.blu},{n:'Asian G',v:o.asian_geo,se:0,c:'#22d3ee'},
+    {n:'Barrier',v:o.barrier,se:0,c:C.org},{n:'Lookback',v:o.lookback,se:0,c:C.pink},
+    {n:'Digital',v:o.digital,se:0,c:'#9070e0'},{n:'B-S',v:o.bs,se:0,c:'#8090a0'}];
+  plot('rob',items.map(it=>({x:[it.n],y:[it.v],type:'bar',marker:{color:it.c},opacity:.85,
+    text:['$'+it.v.toFixed(3)],textposition:'outside',textfont:{color:C.txt,size:8,family:MN},
+    name:it.n,showlegend:false,
+    error_y:it.se>0?{type:'data',array:[1.96*it.se],visible:true,color:it.c,thickness:1,width:3}:undefined})),
+    {height:280,title:{text:`Options K=$${d.K} KO=${o.ko_pct.toFixed(1)}%`,font:{color:C.gold,size:9,family:MN}},
+      yaxis:{...BL.yaxis,title:{text:'Price ($)',font:{size:8}}},xaxis:{...BL.xaxis,tickangle:-30,tickfont:{size:8}},
+      shapes:[{type:'line',x0:0,x1:1,xref:'paper',y0:o.bs,y1:o.bs,line:{color:'#809',width:1,dash:'dash'}}]});
+  // IV smile
+  const nCdf=z=>0.5*(1+Math.sign(z)*Math.sqrt(1-Math.exp(-2/Math.PI*z*z*(1+.147*z*z)/(1+.147*z*z))));
+  const bsIV=(price,K2,S0=d.S0,r=d.r,T=d.T)=>{let sig=.25;for(let i=0;i<50;i++){
+    const sT=sig*Math.sqrt(T),F=S0*Math.exp(r*T),d1=(Math.log(F/K2)+.5*sig*sig*T)/sT,d2=d1-sT,disc=Math.exp(-r*T);
+    const f=disc*(F*nCdf(d1)-K2*nCdf(d2))-price,v=S0*Math.exp(-.5*d1*d1)/Math.sqrt(2*Math.PI)*Math.sqrt(T);
+    if(Math.abs(v)<1e-10)break;sig-=f/v;if(sig<=0||sig>10)return NaN;if(Math.abs(f)<1e-7)break}return sig};
+  const strs=[.80,.85,.90,.95,1,1.05,1.10,1.15,1.20].map(k=>d.S0*k);
+  const disc=Math.exp(-d.r*d.T);
+  const sm=(hist)=>strs.map(K2=>{const{c,e}=hist;let s=0,tot=0;
+    for(let i=0;i<c.length;i++){const m=(e[i]+e[i+1])/2;s+=Math.max(m-K2,0)*c[i];tot+=c[i]}
+    return tot>0?bsIV(disc*s/tot,K2)*100:NaN});
+  plot('ros',[
+    {x:strs.map(k=>k/d.S0),y:sm(d.term_hist.gbm),   mode:'lines+markers',name:'GBM',line:{color:C.teal,width:1.6},marker:{size:4}},
+    {x:strs.map(k=>k/d.S0),y:sm(d.term_hist.heston),mode:'lines+markers',name:'Heston',line:{color:C.purp,width:1.6},marker:{size:4}},
+  ],{height:200,title:{text:'Implied Vol Smile (K/S₀)',font:{color:C.gold,size:9,family:MN}},
+    xaxis:{...BL.xaxis,title:{text:'Moneyness',font:{size:8}}},yaxis:{...BL.yaxis,title:{text:'IV (%)',font:{size:8}}},
+    shapes:[{type:'line',x0:1,x1:1,y0:0,y1:1,yref:'paper',line:{color:C.gold,width:.7,dash:'dot'}}]});
+}
+function tGrk(d){
+  $('tp-greeks').innerHTML='<div id=rgc style=height:200px></div><div id=rgd style=height:195px></div><div id=rgg style=height:185px></div>';
+  const gbs=d.greeks_bs,gmc=d.greeks_mc;
+  plot('rgc',[
+    {name:'B-S',   x:['Δ Delta','ν Vega'],y:[gbs.delta,gbs.vega],type:'bar',marker:{color:C.teal},opacity:.85},
+    {name:'MC IPA',x:['Δ Delta','ν Vega'],y:[gmc.delta,gmc.vega],type:'bar',marker:{color:C.gold},opacity:.85},
+  ],{height:200,barmode:'group',title:{text:`Γ=${gbs.gamma.toFixed(6)}  θ=${gbs.theta.toFixed(6)}/day  ρ=${gbs.rho.toFixed(4)}`,font:{color:C.gold,size:9,family:MN}},yaxis:{...BL.yaxis}});
+  const S0=d.S0,K=d.K,r=d.r,T=d.T,veg=gbs.vega,gam=gbs.gamma;
+  const sigT=gam>1e-10?(veg*100/(S0*Math.sqrt(T))):.25*Math.sqrt(T);
+  const nCdf=z=>0.5*(1+Math.sign(z)*Math.sqrt(1-Math.exp(-2/Math.PI*z*z*(1+.147*z*z)/(1+.147*z*z))));
+  const spots=Array.from({length:100},(_,i)=>S0*.5+i*(S0*1.1)/99);
+  const cD=spots.map(s=>sigT<1e-8?(s>K?1:0):nCdf((Math.log(s/K)+(r+.5*sigT**2/T)*T)/sigT));
+  plot('rgd',[{x:spots,y:cD,mode:'lines',line:{color:C.teal,width:1.7},name:'Call Δ'},
+    {x:spots,y:cD.map(v=>v-1),mode:'lines',line:{color:C.red,width:1.7},name:'Put Δ'}],
+    {height:195,title:{text:'Delta Profile vs Spot',font:{color:C.gold,size:9,family:MN}},
+      xaxis:{...BL.xaxis,title:{text:'Spot',font:{size:8}}},yaxis:{...BL.yaxis,title:{text:'Δ',font:{size:8}}},
+      shapes:[{type:'line',x0:S0,x1:S0,y0:0,y1:1,yref:'paper',line:{color:C.gold,width:.8,dash:'dot'}},{type:'line',x0:K,x1:K,y0:0,y1:1,yref:'paper',line:{color:C.dim,width:.8,dash:'dot'}}]});
+  const gP=spots.map(s=>{if(sigT<1e-8)return 0;const d1=(Math.log(s/K)+(r+.5*sigT**2/T)*T)/sigT;return Math.exp(-.5*d1*d1)/Math.sqrt(2*Math.PI)/(s*sigT)});
+  plot('rgg',[{x:spots,y:gP,mode:'lines',line:{color:C.purp,width:1.7},name:'Γ'}],
+    {height:185,title:{text:'Gamma Profile',font:{color:C.gold,size:9,family:MN}},
+      xaxis:{...BL.xaxis,title:{text:'Spot',font:{size:8}}},yaxis:{...BL.yaxis,title:{text:'Γ',font:{size:8}}}});
+}
+function tPort(d){
+  $('tp-portfolio').innerHTML='<div id=rpp style=height:215px></div><div id=rppl style=height:200px></div>';
+  const t=d.t_ax,rp=d.risk.port;
+  plot('rpp',[...samT(d.paths.port,t,C.gold),...fanT(t,d.pcts.gbm,C.gold,'Portfolio')],
+    {height:215,title:{text:'4-Asset Portfolio (Cholesky)',font:{color:C.gold,size:9,family:MN}},
+      xaxis:{...BL.xaxis,title:{text:'Years',font:{size:8}}},yaxis:{...BL.yaxis,title:{text:'Value ($)',font:{size:8}}}});
+  plot('rppl',[hT(d.pnl_hist.port,C.gold,'P&L')],{height:200,barmode:'overlay',
+    title:{text:`Portfolio P&L  Sh=${rp.sharpe.toFixed(3)} So=${rp.sortino.toFixed(3)} Ω=${rp.omega.toFixed(3)}`,font:{color:C.gold,size:9,family:MN}},
+    xaxis:{...BL.xaxis,title:{text:'P&L ($)',font:{size:8}}},yaxis:{...BL.yaxis,title:{text:'Density',font:{size:8}}},
+    shapes:[{type:'line',x0:rp.VaR_95,x1:rp.VaR_95,y0:0,y1:1,yref:'paper',line:{color:C.red,width:1.8}},
+            {type:'line',x0:rp.CVaR_99,x1:rp.CVaR_99,y0:0,y1:1,yref:'paper',line:{color:C.org,width:1.2,dash:'dot'}},
+            {type:'line',x0:rp.mean_pnl,x1:rp.mean_pnl,y0:0,y1:1,yref:'paper',line:{color:C.gold,width:1.5}}]});
+}
+function tSt(d){
+  $('tp-stress').innerHTML='<div id=rsv style=height:240px></div><div id=rsh style=height:195px></div>';
+  const st=d.stress.filter(r=>r.VaR_95!==undefined);
+  if(!st.length){$('tp-stress').innerHTML='<div class=empty>No stress data</div>';return}
+  const sc=st.map(r=>r.Scenario),v95=st.map(r=>+r.VaR_95),cv99=st.map(r=>+r.CVaR_99),sh=st.map(r=>+r.Sharpe);
+  plot('rsv',[{x:sc,y:v95,type:'bar',name:'VaR 95%',marker:{color:C.red},opacity:.85},{x:sc,y:cv99,type:'bar',name:'CVaR 99%',marker:{color:C.org},opacity:.85}],
+    {height:240,barmode:'group',title:{text:'Stress Test — VaR/CVaR',font:{color:C.gold,size:9,family:MN}},
+      xaxis:{...BL.xaxis,tickangle:-26,tickfont:{size:8}},yaxis:{...BL.yaxis,title:{text:'P&L ($)',font:{size:8}}}});
+  plot('rsh',[{x:sc,y:sh,type:'bar',name:'Sharpe',marker:{color:sh.map(v=>v>0?C.grn:C.red)},opacity:.85}],
+    {height:195,title:{text:'Sharpe by Scenario',font:{color:C.gold,size:9,family:MN}},
+      xaxis:{...BL.xaxis,tickangle:-26,tickfont:{size:8}},yaxis:{...BL.yaxis}});
+}
+function tConv(d){
+  $('tp-conv').innerHTML='<div id=rcp style=height:220px></div><div id=rce style=height:200px></div>';
+  const cv=d.conv,ns=cv.map(r=>r.n_sims),mp=cv.map(r=>r.mc_price),err=cv.map(r=>r.error),
+    cilo=cv.map(r=>r.ci_lo),cihi=cv.map(r=>r.ci_hi),bs=d.options.bs;
+  plot('rcp',[{x:ns,y:mp,mode:'lines+markers',name:'MC',line:{color:C.teal,width:1.7},marker:{size:4},
+    error_y:{type:'data',array:cihi.map((h,i)=>h-mp[i]),arrayminus:mp.map((p,i)=>p-cilo[i]),visible:true,color:C.teal,thickness:1,width:3}}],
+    {height:220,title:{text:'MC → B-S Convergence',font:{color:C.gold,size:9,family:MN}},
+      xaxis:{...BL.xaxis,type:'log',title:{text:'n_sims',font:{size:8}}},yaxis:{...BL.yaxis,title:{text:'Price ($)',font:{size:8}}},
+      shapes:[{type:'line',x0:0,x1:1,xref:'paper',y0:bs,y1:bs,line:{color:C.gold,width:1,dash:'dash'}}]});
+  const c0=err[0]*Math.sqrt(ns[0]);
+  plot('rce',[{x:ns,y:err,mode:'lines+markers',name:'|MC−B-S|',line:{color:C.red,width:1.7},marker:{size:4}},
+    {x:ns,y:ns.map(n=>c0/Math.sqrt(n)),mode:'lines',name:'1/√n',line:{color:C.dim,width:1,dash:'dot'}}],
+    {height:200,title:{text:'Absolute Error',font:{color:C.gold,size:9,family:MN}},
+      xaxis:{...BL.xaxis,type:'log',title:{text:'n_sims',font:{size:8}}},
+      yaxis:{...BL.yaxis,type:'log',title:{text:'|err|',font:{size:8}}}});
+}
+function tStats(d){
+  const o=d.options,gbs=d.greeks_bs,gmc=d.greeks_mc;
+  const rg=d.risk.gbm,rh=d.risk.heston,rj=d.risk.jd,rs=d.risk.sabr,rp=d.risk.port;
+  const f$=v=>'$'+Math.round(v).toLocaleString(),fp=v=>(v*100).toFixed(2)+'%';
+  const secs=[
+    {t:'OPTIONS',rows:[
+      ['B-S','$'+o.bs.toFixed(5),'—','—','—'],
+      ['European(MC)','$'+o.eur_gbm.toFixed(4)+'±'+o.eur_gbm_se.toFixed(4),'$'+o.eur_heston.toFixed(4),'$'+o.eur_jd.toFixed(4),'$'+o.eur_sabr.toFixed(4)],
+      ['Asian Arith','$'+o.asian_arith.toFixed(4),'—','—','—'],
+      ['Asian Geo','$'+o.asian_geo.toFixed(4),'—','—','—'],
+      ['Barrier(KO'+o.ko_pct.toFixed(1)+'%)','$'+o.barrier.toFixed(4),'—','—','—'],
+      ['Lookback','$'+o.lookback.toFixed(4),'—','—','—'],
+      ['Digital','$'+o.digital.toFixed(4),'—','—','—'],
+    ]},
+    {t:'GREEKS',rows:[
+      ['Delta Δ',gbs.delta.toFixed(6),'MC:'+gmc.delta.toFixed(6),'—','—'],
+      ['Gamma Γ',gbs.gamma.toFixed(8),'—','—','—'],
+      ['Vega ν/1%',gbs.vega.toFixed(6),'MC:'+gmc.vega.toFixed(6),'—','—'],
+      ['Theta θ/day',gbs.theta.toFixed(8),'—','—','—'],
+      ['Rho ρ/1%',gbs.rho.toFixed(6),'—','—','—'],
+    ]},
+    {t:'RISK',rows:[
+      ['E[P&L]',f$(rg.mean_pnl),f$(rh.mean_pnl),f$(rj.mean_pnl),f$(rs.mean_pnl)],
+      ['Sharpe',rg.sharpe.toFixed(4),rh.sharpe.toFixed(4),rj.sharpe.toFixed(4),rs.sharpe.toFixed(4)],
+      ['Sortino',rg.sortino.toFixed(4),rh.sortino.toFixed(4),rj.sortino.toFixed(4),rs.sortino.toFixed(4)],
+      ['Omega',rg.omega.toFixed(4),rh.omega.toFixed(4),rj.omega.toFixed(4),rs.omega.toFixed(4)],
+      ['Calmar',rg.calmar.toFixed(4),rh.calmar.toFixed(4),rj.calmar.toFixed(4),rs.calmar.toFixed(4)],
+      ['Skewness',rg.skewness.toFixed(4),rh.skewness.toFixed(4),rj.skewness.toFixed(4),rs.skewness.toFixed(4)],
+      ['Kurtosis(ex)',rg.kurtosis.toFixed(4),rh.kurtosis.toFixed(4),rj.kurtosis.toFixed(4),rs.kurtosis.toFixed(4)],
+      ['VaR 95%',f$(rg.VaR_95),f$(rh.VaR_95),f$(rj.VaR_95),f$(rs.VaR_95)],
+      ['CVaR 95%',f$(rg.CVaR_95),f$(rh.CVaR_95),f$(rj.CVaR_95),f$(rs.CVaR_95)],
+      ['VaR 99%',f$(rg.VaR_99),f$(rh.VaR_99),f$(rj.VaR_99),f$(rs.VaR_99)],
+      ['CVaR 99%',f$(rg.CVaR_99),f$(rh.CVaR_99),f$(rj.CVaR_99),f$(rs.CVaR_99)],
+      ['MaxDD avg',fp(rg.max_dd_mean),fp(rh.max_dd_mean),fp(rj.max_dd_mean),fp(rs.max_dd_mean)],
+      ['P(loss)',rg.prob_loss.toFixed(3)+'%',rh.prob_loss.toFixed(3)+'%',rj.prob_loss.toFixed(3)+'%',rs.prob_loss.toFixed(3)+'%'],
+      ['Worst P&L',f$(rg.worst),f$(rh.worst),f$(rj.worst),f$(rs.worst)],
+      ['Best P&L',f$(rg.best),f$(rh.best),f$(rj.best),f$(rs.best)],
+    ]},
+    {t:'PORTFOLIO (4-ASSET)',rows:[
+      ['Sharpe',rp.sharpe.toFixed(4),'—','—','—'],['VaR 95%',f$(rp.VaR_95),'—','—','—'],
+      ['CVaR 99%',f$(rp.CVaR_99),'—','—','—'],['P(loss)',rp.prob_loss.toFixed(3)+'%','—','—','—'],
+    ]},
+  ];
+  let h='<div class=stbl-w><table class=stbl><thead><tr><th class=m>Metric</th><th class=g>GBM</th><th class=h>Heston</th><th class=j>Jump-D</th><th class=s>SABR</th></tr></thead><tbody>';
+  secs.forEach(s=>{h+=`<tr class=SH><td colspan=5>${s.t}</td></tr>`;
+    s.rows.forEach(([l,...v])=>{h+=`<tr><td>${l}</td>${v.map((x,i)=>`<td class="${i===0?'v':''}">${x}</td>`).join('')}</tr>`})});
+  $('tp-stats').innerHTML=h+'</tbody></table></div>';
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+//  TAB ⑩: IV SURFACE
+//  Pure-JS SABR closed-form (Hagan 2002) + Heston IV from MC histogram bins.
+//  No server call needed — all data comes from the MC simulation result.
+// ═══════════════════════════════════════════════════════════════════
+
+// SABR closed-form IV (Hagan 2002)
+function sabrIV(F,K,T,alpha,beta,rho,nu){
+  if(alpha<=0||T<=0)return NaN;
+  F=Math.max(F,1e-10);K=Math.max(K,1e-10);
+  if(Math.abs(F-K)<1e-7){
+    const fkb=Math.pow(F,1-beta);
+    return alpha/fkb*(1+((1-beta)**2/24*alpha**2/fkb**2+rho*beta*nu*alpha/(4*fkb)+(2-3*rho**2)*nu**2/24)*T);
+  }
+  const logfk=Math.log(F/K),fkb=Math.pow(F*K,(1-beta)/2);
+  const z=nu/alpha*fkb*logfk;
+  const xz=Math.log((Math.sqrt(1-2*rho*z+z*z)+z-rho)/(1-rho+1e-12));
+  const t1=alpha/(fkb*(1+(1-beta)**2/24*logfk**2+(1-beta)**4/1920*logfk**4));
+  const t2=Math.abs(xz)<1e-10?1:z/xz;
+  const t3=1+((1-beta)**2/24*alpha**2/fkb**2+rho*beta*nu*alpha/(4*fkb)+(2-3*rho**2)*nu**2/24)*T;
+  return Math.max(t1*t2*t3,1e-6);
+}
+
+// Newton-Raphson BS IV from a histogram bin set (reuse bsIV from tOpts)
+function histIV(hist,K2,S0,r,T){
+  const{c,e}=hist;let s=0,tot=0;
+  for(let i=0;i<c.length;i++){const m=(e[i]+e[i+1])/2;s+=Math.max(m-K2,0)*c[i];tot+=c[i]}
+  if(tot<1)return NaN;
+  const price=Math.exp(-r*T)*s/tot;
+  const nCdf=z=>0.5*(1+Math.sign(z)*Math.sqrt(1-Math.exp(-2/Math.PI*z*z*(1+.147*z*z)/(1+.147*z*z))));
+  let sig=0.25;
+  for(let i=0;i<60;i++){
+    const sT=sig*Math.sqrt(T),F=S0*Math.exp(r*T),d1=(Math.log(F/K2)+.5*sig*sig*T)/sT,d2=d1-sT;
+    const f=Math.exp(-r*T)*(F*nCdf(d1)-K2*nCdf(d2))-price;
+    const v=S0*Math.exp(-.5*d1*d1)/Math.sqrt(2*Math.PI)*Math.sqrt(T);
+    if(Math.abs(v)<1e-10)break;sig-=f/v;if(sig<=0||sig>10)return NaN;if(Math.abs(f)<1e-8)break;
+  }
+  return isNaN(sig)||sig<=0?NaN:sig*100;
+}
+
+function tIVSurf(d){
+  const el=$('tp-ivsurf');
+  el.innerHTML=
+    '<div id=ivs-3d style="height:320px"></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px">'+
+    '  <div id=ivs-smile style="height:220px"></div>'+
+    '  <div id=ivs-term  style="height:220px"></div>'+
+    '</div>'+
+    '<div id=ivs-skew style="height:180px"></div>';
+
+  const S0=d.S0,r=d.r,T=d.T;
+  const F=S0*Math.exp(r*T);
+
+  // Moneyness grid for display
+  const monos=[.75,.80,.85,.875,.90,.925,.95,.975,1.0,1.025,1.05,1.075,1.10,1.15,1.20,1.25];
+  const strikes=monos.map(m=>m*S0);
+
+  // Compute IVs from MC histogram bins (4 models)
+  const models=[
+    {key:'gbm',    col:C.teal,  name:'GBM'},
+    {key:'heston', col:C.purp,  name:'Heston'},
+    {key:'jd',     col:C.red,   name:'Jump-Diff'},
+    {key:'sabr',   col:C.grn,   name:'SABR'},
+  ];
+
+  const ivsByModel={};
+  models.forEach(({key,col,name})=>{
+    const hist=d.term_hist[key];
+    if(!hist){ivsByModel[key]=strikes.map(()=>NaN);return}
+    ivsByModel[key]=strikes.map(K2=>histIV(hist,K2,S0,r,T));
+  });
+
+  // ── Smile chart (all 4 models at current T) ───────────────────
+  const smileTraces=models.map(({key,col,name})=>({
+    x:monos,y:ivsByModel[key],mode:'lines+markers',name,
+    line:{color:col,width:2},marker:{size:4,color:col},
+    connectgaps:true,
+  }));
+
+  // Mark the actual ATM strike
+  plot('ivs-smile',smileTraces,{height:220,
+    title:{text:'IV Smile at T='+T.toFixed(2)+'yr  (from MC terminal distributions)',font:{color:C.gold,size:9,family:MN}},
+    xaxis:{...BL.xaxis,title:{text:'Moneyness K/S₀',font:{size:8}},tickformat:'.2f'},
+    yaxis:{...BL.yaxis,title:{text:'Implied Vol (%)',font:{size:8}}},
+    shapes:[{type:'line',x0:1,x1:1,y0:0,y1:1,yref:'paper',line:{color:C.gold,width:1,dash:'dot'}}],
+    annotations:[{x:1,y:1.04,yref:'paper',xref:'x',showarrow:false,
+      text:'ATM',font:{color:C.gold,size:8,family:MN}}],
+  });
+
+  // ── Fit SABR to GBM smile (show calibrated surface) ──────────
+  // Quick least-squares SABR fit using GBM IVs as "market"
+  const gbmIVs=ivsByModel.gbm.map(v=>isNaN(v)?null:v/100);
+  const validIdx=gbmIVs.map((v,i)=>v!==null&&strikes[i]>S0*.8&&strikes[i]<S0*1.2?i:-1).filter(i=>i>=0);
+
+  // Estimate SABR params via simple grid search (fast, no optim library)
+  let bestErr=Infinity,bestAlpha=0.25,bestRho=-0.3,bestNu=0.4;
+  [0.15,0.20,0.25,0.30,0.35].forEach(alpha=>{
+    [-0.6,-0.4,-0.2,0.0].forEach(rho=>{
+      [0.2,0.4,0.6].forEach(nu=>{
+        let err=0;
+        validIdx.forEach(i=>{
+          const iv=sabrIV(F,strikes[i],T,alpha,0.5,rho,nu);
+          if(!isNaN(iv))err+=(iv-gbmIVs[i])**2;
+        });
+        if(err<bestErr){bestErr=err;bestAlpha=alpha;bestRho=rho;bestNu=nu}
+      });
+    });
+  });
+
+  const sabrSmile=strikes.map(K=>sabrIV(F,K,T,bestAlpha,0.5,bestRho,bestNu)*100);
+  const smileWithSABR=[...smileTraces,{
+    x:monos,y:sabrSmile,mode:'lines',name:'SABR Fit',
+    line:{color:C.gold,width:2,dash:'dash'},connectgaps:true,
+  }];
+  // Re-plot smile with SABR overlay
+  plot('ivs-smile',smileWithSABR,{height:220,
+    title:{text:`IV Smile + SABR Fit  α=${bestAlpha.toFixed(3)} ρ=${bestRho.toFixed(2)} ν=${bestNu.toFixed(2)}`,font:{color:C.gold,size:9,family:MN}},
+    xaxis:{...BL.xaxis,title:{text:'Moneyness K/S₀',font:{size:8}},tickformat:'.2f'},
+    yaxis:{...BL.yaxis,title:{text:'IV (%)',font:{size:8}}},
+    shapes:[{type:'line',x0:1,x1:1,y0:0,y1:1,yref:'paper',line:{color:C.gold,width:1,dash:'dot'}}],
+  });
+
+  // ── 3D Surface: SABR surface across multiple expiries ────────
+  // Generate SABR surface at 7 expiries using calibrated params
+  const Tgrid=[0.08,0.17,0.25,0.5,0.75,1.0,1.5,2.0];
+  const ivSurf=Tgrid.map(Ti=>{
+    const Fi=S0*Math.exp(r*Ti);
+    return monos.map(m=>sabrIV(Fi,m*S0,Ti,bestAlpha,0.5,bestRho,bestNu)*100);
+  });
+  const atm6=ivsByModel.gbm[monos.findIndex(m=>Math.abs(m-1)<0.03)];
+  Plotly.newPlot('ivs-3d',[{
+    type:'surface',x:monos,y:Tgrid,z:ivSurf,
+    colorscale:[[0,'#06b6d4'],[.33,'#8b5cf6'],[.66,'#f59e0b'],[1,'#ef4444']],
+    opacity:.92,
+    colorbar:{thickness:10,len:.65,tickfont:{size:7,family:MN,color:C.txt},
+              ticksuffix:'%',bgcolor:C.card,bordercolor:C.bdr},
+    contours:{z:{show:true,usecolormap:true,project:{z:true},width:1}},
+  }],{
+    paper_bgcolor:C.card,plot_bgcolor:C.bg,
+    font:{color:C.txt,family:MN,size:8},margin:{l:0,r:0,t:32,b:0},
+    scene:{
+      xaxis:{title:'Moneyness',gridcolor:C.bdr,backgroundcolor:C.bg,tickformat:'.2f'},
+      yaxis:{title:'Expiry (yr)',gridcolor:C.bdr,backgroundcolor:C.bg},
+      zaxis:{title:'IV %',gridcolor:C.bdr,backgroundcolor:C.bg},
+      bgcolor:C.bg,camera:{eye:{x:1.5,y:-1.6,z:0.9}},
+    },
+    title:{text:'SABR Implied Vol Surface  (calibrated to GBM paths)',font:{color:C.gold,size:10,family:MN}},
+  },{displayModeBar:false,responsive:true});
+
+  // ── Term structure: ATM IV vs expiry ──────────────────────────
+  const atmIVs=Tgrid.map(Ti=>{
+    const Fi=S0*Math.exp(r*Ti);
+    return sabrIV(Fi,S0,Ti,bestAlpha,0.5,bestRho,bestNu)*100;
+  });
+  // 25-delta approximation: OTM put (90%) and OTM call (110%)
+  const iv90=Tgrid.map(Ti=>sabrIV(S0*Math.exp(r*Ti),0.9*S0,Ti,bestAlpha,0.5,bestRho,bestNu)*100);
+  const iv110=Tgrid.map(Ti=>sabrIV(S0*Math.exp(r*Ti),1.1*S0,Ti,bestAlpha,0.5,bestRho,bestNu)*100);
+
+  plot('ivs-term',[
+    {x:Tgrid,y:atmIVs,mode:'lines+markers',name:'ATM',line:{color:C.gold,width:2.2},marker:{size:5}},
+    {x:Tgrid,y:iv90,  mode:'lines+markers',name:'90% (put side)',line:{color:C.teal,width:1.6},marker:{size:4}},
+    {x:Tgrid,y:iv110, mode:'lines+markers',name:'110% (call side)',line:{color:C.purp,width:1.6},marker:{size:4}},
+  ],{height:220,
+    title:{text:'ATM Term Structure',font:{color:C.gold,size:9,family:MN}},
+    xaxis:{...BL.xaxis,title:{text:'Expiry (yr)',font:{size:8}}},
+    yaxis:{...BL.yaxis,title:{text:'IV (%)',font:{size:8}}},
+  });
+
+  // ── Skew chart: 25Δ skew = IV(90%) - IV(110%) ────────────────
+  const skew=Tgrid.map((_,i)=>iv90[i]-iv110[i]);
+  plot('ivs-skew',[{
+    x:Tgrid,y:skew,mode:'lines+markers',name:'25Δ Skew',
+    line:{color:C.red,width:2},marker:{size:5,color:skew.map(v=>v>0?C.red:C.teal)},
+    fill:'tozeroy',fillcolor:'rgba(224,85,85,.08)',
+  }],{height:180,
+    title:{text:'25Δ Skew = IV(90%) − IV(110%)',font:{color:C.gold,size:9,family:MN}},
+    xaxis:{...BL.xaxis,title:{text:'Expiry (yr)',font:{size:8}}},
+    yaxis:{...BL.yaxis,title:{text:'Skew (pp)',font:{size:8}}},
+    shapes:[{type:'line',x0:0,x1:1,xref:'paper',y0:0,y1:0,line:{color:C.bdr,width:1}}],
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  TAB ⑪: CALIBRATOR
+//  Fits SABR and a flat vol to the option prices from the MC result.
+//  Shows: fit quality, calibrated params, residual chart.
+// ═══════════════════════════════════════════════════════════════════
+function tCalibrator(d){
+  const el=$('tp-calibrator');
+  el.innerHTML=
+    '<div id=cal-fit  style="height:260px"></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px">'+
+    '  <div id=cal-resid style="height:220px"></div>'+
+    '  <div id=cal-tbl   style="height:220px;overflow:auto;padding:6px 8px"></div>'+
+    '</div>';
+
+  const S0=d.S0,r=d.r,T=d.T,F=S0*Math.exp(r*T);
+  const nCdf=z=>0.5*(1+Math.sign(z)*Math.sqrt(1-Math.exp(-2/Math.PI*z*z*(1+.147*z*z)/(1+.147*z*z))));
+
+  // Build calibration data from the 4 MC model prices at common strikes
+  // We use the histogram bins to back out MC call prices at a grid of strikes
+  const calStrikes=[0.82,0.85,0.88,0.90,0.92,0.95,0.97,1.0,1.03,1.05,1.08,1.10,1.13,1.16,1.20].map(m=>m*S0);
+  const calMonos=calStrikes.map(K=>K/S0);
+
+  // Compute MC implied vols for each model at each strike
+  function mcIV(hist,K2){return histIV(hist,K2,S0,r,T)}
+  const gbmIVs   = calStrikes.map(K=>mcIV(d.term_hist.gbm,   K));
+  const hestonIVs= calStrikes.map(K=>mcIV(d.term_hist.heston,K));
+  const jdIVs    = calStrikes.map(K=>mcIV(d.term_hist.jd,    K));
+  const sabrIVs  = calStrikes.map(K=>mcIV(d.term_hist.sabr,  K));
+
+  // Average across models as "composite market IV"
+  const mktIVs=calStrikes.map((_,i)=>{
+    const vals=[gbmIVs[i],hestonIVs[i],jdIVs[i],sabrIVs[i]].filter(v=>!isNaN(v)&&v>0);
+    return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:NaN;
+  });
+
+  // Calibrate SABR to the composite market IVs
+  // Extended grid search: more resolution for accuracy
+  let bestErr=Infinity,bA=0.25,bR=-0.3,bN=0.4;
+  const alphas=[0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.50];
+  const rhos=  [-0.8,-0.6,-0.4,-0.2,-0.1,0.0,0.1,0.2];
+  const nus=   [0.1,0.2,0.3,0.4,0.5,0.6,0.8];
+  alphas.forEach(a=>rhos.forEach(ro=>nus.forEach(nu=>{
+    let err=0,n=0;
+    calStrikes.forEach((K,i)=>{
+      if(isNaN(mktIVs[i]))return;
+      const iv=sabrIV(F,K,T,a,0.5,ro,nu)*100;
+      if(!isNaN(iv)){err+=(iv-mktIVs[i])**2;n++}
+    });
+    if(n>0&&err/n<bestErr){bestErr=err/n;bA=a;bR=ro;bN=nu}
+  })));
+
+  const sabrFit=calStrikes.map(K=>sabrIV(F,K,T,bA,0.5,bR,bN)*100);
+  const rmse=Math.sqrt(bestErr).toFixed(3);
+  const mae=calStrikes.reduce((s,K,i)=>{
+    const m=mktIVs[i],f=sabrFit[i];return(!isNaN(m)&&!isNaN(f))?s+Math.abs(m-f):s;
+  },0)/calStrikes.filter((_,i)=>!isNaN(mktIVs[i])).length;
+
+  // Flat vol (ATM)
+  const atmIdx=calStrikes.findIndex(K=>Math.abs(K/S0-1)<0.04);
+  const flatVol=atmIdx>=0&&!isNaN(mktIVs[atmIdx])?mktIVs[atmIdx]:25;
+
+  // ── Fit chart ────────────────────────────────────────────────
+  plot('cal-fit',[
+    {x:calMonos,y:gbmIVs,   mode:'markers',name:'GBM IV',  marker:{color:C.teal,size:6,symbol:'circle'}},
+    {x:calMonos,y:hestonIVs,mode:'markers',name:'Heston IV',marker:{color:C.purp,size:6,symbol:'square'}},
+    {x:calMonos,y:jdIVs,   mode:'markers',name:'JD IV',   marker:{color:C.red,size:6,symbol:'diamond'}},
+    {x:calMonos,y:sabrIVs,  mode:'markers',name:'SABR IV', marker:{color:C.grn,size:6,symbol:'triangle-up'}},
+    {x:calMonos,y:mktIVs,   mode:'lines',  name:'Composite Mkt',line:{color:C.txt,width:1.5,dash:'dot'}},
+    {x:calMonos,y:sabrFit,  mode:'lines',  name:'SABR Calib',line:{color:C.gold,width:2.5}},
+    {x:calMonos,y:Array(calMonos.length).fill(flatVol),
+     mode:'lines',name:'Flat σ',line:{color:C.org,width:1.2,dash:'dash'}},
+  ],{height:260,
+    title:{text:`SABR Calibration to MC IVs  RMSE=${rmse}pp  MAE=${mae.toFixed(3)}pp`,font:{color:C.gold,size:9,family:MN}},
+    xaxis:{...BL.xaxis,title:{text:'Moneyness K/S₀',font:{size:8}},tickformat:'.2f'},
+    yaxis:{...BL.yaxis,title:{text:'Implied Vol (%)',font:{size:8}}},
+    shapes:[{type:'line',x0:1,x1:1,y0:0,y1:1,yref:'paper',line:{color:C.gold,width:.8,dash:'dot'}}],
+  });
+
+  // ── Residual chart ───────────────────────────────────────────
+  const resids=calStrikes.map((_,i)=>(!isNaN(mktIVs[i])&&!isNaN(sabrFit[i]))?sabrFit[i]-mktIVs[i]:NaN);
+  plot('cal-resid',[{
+    x:calMonos,y:resids,type:'bar',
+    marker:{color:resids.map(v=>isNaN(v)?C.bdr:v>0?C.teal:C.red),opacity:.8},
+    name:'Residual (Model − Market)',
+  }],{height:220,
+    title:{text:'Residuals (Model − Market IV pp)',font:{color:C.gold,size:9,family:MN}},
+    xaxis:{...BL.xaxis,title:{text:'Moneyness',font:{size:8}},tickformat:'.2f'},
+    yaxis:{...BL.yaxis,title:{text:'pp',font:{size:8}}},
+    shapes:[{type:'line',x0:0,x1:1,xref:'paper',y0:0,y1:0,line:{color:C.bdr,width:1}}],
+  });
+
+  // ── Params table ─────────────────────────────────────────────
+  const mn='font-family:var(--mono);font-size:.62rem;';
+  const rows=[
+    ['Model','SABR (Hagan 2002)','β=0.5 fixed'],
+    ['α  (initial vol)',bA.toFixed(5),'ATM vol level'],
+    ['ρ  (F–vol corr)', bR.toFixed(5),'Skew driver'],
+    ['ν  (vol-of-vol)', bN.toFixed(5),'Smile curvature'],
+    ['RMSE', rmse+'pp','Root mean sq error'],
+    ['MAE',  mae.toFixed(3)+'pp','Mean absolute error'],
+    ['Flat σ reference', flatVol.toFixed(2)+'%','ATM IV'],
+    ['Fit points',calStrikes.filter((_,i)=>!isNaN(mktIVs[i])).length+'','Liquid strikes'],
+  ];
+  $('cal-tbl').innerHTML=`<table style="width:100%;border-collapse:collapse;${mn}">
+    <thead><tr>${['Parameter','Value','Note'].map(h=>`<th style="padding:3px 7px;background:var(--sf);color:var(--dim);font-size:.52rem;text-transform:uppercase;border-bottom:1px solid var(--bdr);letter-spacing:.07em">${h}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map((r,i)=>`<tr style="background:${i===0?'rgba(240,192,64,.05)':'transparent'}">
+      <td style="padding:3px 7px;color:var(--dim);border-bottom:1px solid rgba(26,40,64,.4)">${r[0]}</td>
+      <td style="padding:3px 7px;color:${i===0?C.gold:C.teal};font-weight:700;border-bottom:1px solid rgba(26,40,64,.4)">${r[1]}</td>
+      <td style="padding:3px 7px;color:var(--dim);font-size:.55rem;border-bottom:1px solid rgba(26,40,64,.4)">${r[2]}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  CHART EXPAND — double-click any chart or canvas to fullscreen it
+// ═══════════════════════════════════════════════════════════════════
+(function(){
+
+  // Map of chart div IDs to human-readable titles
+  const CHART_TITLES = {
+    'rp-gbm':     'GBM — Real-World Paths',
+    'rp-heston':  'Heston — Stochastic Volatility',
+    'rpjd':       'Merton — Jump-Diffusion',
+    'rpsabr':     'SABR Stochastic Vol',
+    'rdc':        'Terminal Price Distribution',
+    'rdl':        'Log-Return Distribution',
+    'rrp':        'P&L Distribution',
+    'rrc':        'VaR / CVaR Comparison',
+    'rob':        'Option Prices',
+    'ros':        'Implied Vol Smile',
+    'rgc':        'Greeks — B-S vs MC',
+    'rgd':        'Delta Profile',
+    'rgg':        'Gamma Profile',
+    'rpp':        'Portfolio Paths',
+    'rppl':       'Portfolio P&L',
+    'rsv':        'Stress Test — VaR/CVaR',
+    'rsh':        'Stress Test — Sharpe',
+    'rcp':        'Convergence — MC Price',
+    'rce':        'Convergence — Error',
+    'ivs-3d':     'SABR Implied Vol Surface (3D)',
+    'ivs-smile':  'IV Smile — All Models',
+    'ivs-term':   'Volatility Term Structure',
+    'ivs-skew':   '25Δ Skew vs Expiry',
+    'cal-fit':    'SABR Calibration Fit',
+    'cal-resid':  'Calibration Residuals',
+  };
+
+  let _expandActive = false;
+  let _lastData = null;   // stores {traces, layout} for re-render
+
+  window.closeExpand = function(e) {
+    // Click on the overlay bg closes; click on inner content does not
+    if (e && e.target !== document.getElementById('expand-overlay') &&
+        !e.target.classList.contains('expand-close')) return;
+    const ov = document.getElementById('expand-overlay');
+    if (ov) ov.classList.remove('on');
+    _expandActive = false;
+    // Clear the chart so it doesn't hog memory
+    try { Plotly.purge('expand-chart'); } catch(_) {}
+  };
+
+  // Keyboard: Escape closes
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && _expandActive) window.closeExpand({target: document.getElementById('expand-overlay')});
+  });
+
+  // The main expand function — called with a Plotly div element
+  function expandChart(sourceDivId, title) {
+    const src = document.getElementById(sourceDivId);
+    if (!src || !src._fullLayout) return; // not a Plotly chart
+
+    const ov    = document.getElementById('expand-overlay');
+    const dest  = document.getElementById('expand-chart');
+    const ttl   = document.getElementById('expand-title');
+    if (!ov || !dest || !ttl) return;
+
+    ttl.textContent = title || CHART_TITLES[sourceDivId] || sourceDivId;
+    ov.classList.add('on');
+    _expandActive = true;
+
+    // Deep-copy traces and layout from the source chart
+    const traces  = src.data  ? JSON.parse(JSON.stringify(src.data))  : [];
+    const layout  = src.layout? JSON.parse(JSON.stringify(src.layout)) : {};
+
+    // Override layout for the expanded view
+    const expandLayout = Object.assign({}, layout, {
+      height:   undefined,   // fill parent
+      width:    undefined,
+      autosize: true,
+      margin:   { l:60, r:30, t:50, b:50 },
+      paper_bgcolor: layout.paper_bgcolor || '#0e1520',
+      plot_bgcolor:  layout.plot_bgcolor  || '#080c12',
+      // For 3D scenes, give more room and re-enable camera controls
+      scene: layout.scene ? Object.assign({}, layout.scene, {
+        camera: { eye: { x: 1.4, y: -1.6, z: 0.8 } },
+      }) : undefined,
+    });
+
+    // Restore displayModeBar so the 3D surface is fully interactive
+    const config = {
+      displayModeBar: true,
+      modeBarButtonsToRemove: ['sendDataToCloud','editInChartStudio'],
+      responsive: true,
+      scrollZoom: true,
+    };
+
+    dest.innerHTML = '';
+    Plotly.newPlot('expand-chart', traces, expandLayout, config)
+      .then(() => Plotly.Plots.resize('expand-chart'));
+  }
+
+  // Expand for canvas panels (GBM/Heston/JD/SABR live paths)
+  function expandCanvas(cellId, title) {
+    const cell = document.getElementById(cellId);
+    const cv   = cell ? cell.querySelector('canvas') : null;
+    if (!cv) return;
+
+    const ov  = document.getElementById('expand-overlay');
+    const dest= document.getElementById('expand-chart');
+    const ttl = document.getElementById('expand-title');
+    if (!ov || !dest || !ttl) return;
+
+    ttl.textContent = title;
+    ov.classList.add('on');
+    _expandActive = true;
+
+    // Scale the canvas up into the expand area
+    dest.innerHTML = '';
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;';
+    const img = document.createElement('img');
+    img.src = cv.toDataURL();
+    img.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;border-radius:4px;';
+    wrapper.appendChild(img);
+    dest.appendChild(wrapper);
+  }
+
+  // Attach dblclick listeners once DOM is ready
+  function attachListeners() {
+    // Plotly chart divs — attach after a short delay so Plotly has initialised
+    Object.entries(CHART_TITLES).forEach(([id, title]) => {
+      // Use event delegation so charts rendered later also get it
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('dblclick', e => {
+          e.stopPropagation();
+          expandChart(id, title);
+        });
+      }
+    });
+
+    // Tab panels — attach to any Plotly chart that gets rendered later
+    // Use a MutationObserver to catch dynamically created chart divs
+    const observer = new MutationObserver(mutations => {
+      mutations.forEach(m => {
+        m.addedNodes.forEach(node => {
+          if (node.nodeType !== 1) return;
+          // Check if the added node is a Plotly chart or contains one
+          const charts = node.querySelectorAll ? 
+            [node, ...node.querySelectorAll('[id]')] : [];
+          charts.forEach(el => {
+            if (el.id && CHART_TITLES[el.id] && !el.dataset.expandBound) {
+              el.dataset.expandBound = '1';
+              el.addEventListener('dblclick', e => {
+                e.stopPropagation();
+                expandChart(el.id, CHART_TITLES[el.id]);
+              });
+            }
+          });
+        });
+      });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Canvas cells — dblclick shows the last frame scaled up
+    [
+      ['cell-gbm',    'GBM — Live Paths'],
+      ['cell-heston', 'Heston — Live Paths'],
+      ['cell-jd',     'Jump-Diffusion — Live Paths'],
+      ['cell-sabr',   'SABR — Live Paths'],
+    ].forEach(([cellId, title]) => {
+      const cell = document.getElementById(cellId);
+      if (cell) cell.addEventListener('dblclick', () => expandCanvas(cellId, title));
+    });
+
+    // Also catch any chart div that was already rendered before this ran
+    document.querySelectorAll('.js-plotly-plot').forEach(el => {
+      if (el.id && CHART_TITLES[el.id] && !el.dataset.expandBound) {
+        el.dataset.expandBound = '1';
+        el.addEventListener('dblclick', e => {
+          e.stopPropagation();
+          expandChart(el.id, CHART_TITLES[el.id]);
+        });
+      }
+    });
+  }
+
+  // Run after page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attachListeners);
+  } else {
+    setTimeout(attachListeners, 0);
+  }
+
+  // Expose globally so other code can trigger expand
+  window.expandChart  = expandChart;
+  window.expandCanvas = expandCanvas;
+
+})();
+// ═══════════════════════════════════════════════════════════════════
+</script>
+
+<script>
+(function(){
+  function sgInit(){
+    try{
+      const n=localStorage.getItem('sg_name')||localStorage.getItem('aeq_name')||'User';
+      const p=(localStorage.getItem('sg_plan')||localStorage.getItem('aeq_plan')||'free').toUpperCase();
+      const u=document.getElementById('sg-user');if(u)u.textContent=n+' · '+p;
+    }catch(e){}
+    function upSess(){
+      try{
+        const et=new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));
+        const hm=et.getHours()*100+et.getMinutes(),wd=et.getDay();
+        const d=document.getElementById('sg-dot'),l=document.getElementById('sg-sess');
+        if(!d||!l)return;
+        d.className='sg-sess-dot';
+        if(wd===0||wd===6){l.textContent='WEEKEND';return;}
+        if(hm>=930&&hm<1600){d.classList.add('open');l.textContent='MKT OPEN';}
+        else if(hm>=400&&hm<930){d.classList.add('pre');l.textContent='PRE-MKT';}
+        else l.textContent='CLOSED';
+      }catch(e){}
+    }
+    upSess();setInterval(upSess,15000);
+  }
+  window.sgOut=function(){
+    ['sg_auth','sg_name','sg_plan','sg_verified','aeq_auth','aeq_name','aeq_plan','aeq_verified']
+      .forEach(k=>localStorage.removeItem(k));
+    window.location.replace('/');
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',sgInit);
+  else sgInit();
+})();
+</script>
+
+</body>
+</html>
