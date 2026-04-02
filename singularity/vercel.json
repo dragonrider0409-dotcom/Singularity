@@ -1,0 +1,25 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/hub",          "destination": "/hub.html" },
+    { "source": "/bot",          "destination": "/bot.html" },
+    { "source": "/surveillance", "destination": "/surveillance.html" },
+    { "source": "/mc",           "destination": "/mc.html" },
+    { "source": "/iv",           "destination": "/iv.html" },
+    { "source": "/alpha",        "destination": "/alpha.html" },
+    { "source": "/pairs",        "destination": "/pairs.html" },
+    { "source": "/portfolio",    "destination": "/portfolio.html" },
+    { "source": "/fi",           "destination": "/fi.html" },
+    { "source": "/credit",       "destination": "/credit.html" },
+    { "source": "/vol",          "destination": "/vol.html" },
+    { "source": "/api/surveillance/(.*)", "destination": "/api/surveillance" },
+    { "source": "/api/mc/(.*)",           "destination": "/api/mc" },
+    { "source": "/api/iv/(.*)",           "destination": "/api/iv" },
+    { "source": "/api/portfolio/(.*)",    "destination": "/api/portfolio" },
+    { "source": "/api/fi/(.*)",           "destination": "/api/fi" },
+    { "source": "/api/vol/(.*)",          "destination": "/api/vol" },
+    { "source": "/api/alpha/(.*)",        "destination": "/api/alpha" },
+    { "source": "/api/credit/(.*)",       "destination": "/api/credit" },
+    { "source": "/api/pairs/(.*)",        "destination": "/api/pairs" }
+  ]
+}
