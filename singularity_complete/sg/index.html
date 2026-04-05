@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SINGULARITY — Free Quantitative Finance Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#05030d;--s0:#07050f;--s1:#0a0714;
+  --bdr:#1a1030;--bdr2:#241540;
+  --violet:#7c3aed;--vio2:#a78bfa;--vio3:#c4b5fd;
+  --cyan:#06b6d4;--grn:#10b981;--red:#f43f5e;--amb:#f59e0b;
+  --txt:#c8c0e0;--dim:#3d2d6a;--ghost:#180f30;--cream:#f5f0ff;
+  --mono:'JetBrains Mono',monospace;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --display:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--txt);font-family:var(--mono);font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--violet);color:var(--cream)}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--bdr2)}
+@keyframes gp{0%,100%{box-shadow:0 0 20px rgba(124,58,237,.4)}50%{box-shadow:0 0 40px rgba(124,58,237,.7)}}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.fade{animation:fade .6s ease forwards}
+.fade-1{animation-delay:.1s;opacity:0}
+.fade-2{animation-delay:.25s;opacity:0}
+.fade-3{animation-delay:.4s;opacity:0}
+.fade-4{animation-delay:.55s;opacity:0}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:60px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 36px;
+  background:rgba(5,3,13,.9);backdrop-filter:blur(24px);border-bottom:1px solid var(--bdr2)}
+.nav-brand{display:flex;align-items:center;gap:12px;cursor:pointer;text-decoration:none}
+.nav-glyph{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--violet);
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--violet);
+  box-shadow:0 0 20px rgba(124,58,237,.4);animation:gp 3s ease-in-out infinite}
+.nav-word{font-family:var(--display);font-size:1rem;font-weight:700;color:var(--cream);letter-spacing:.14em}
+.nav-right{display:flex;align-items:center;gap:10px}
+.nav-link{font-size:.62rem;color:var(--dim);text-decoration:none;padding:6px 12px;
+  border:1px solid transparent;border-radius:2px;transition:all .12s}
+.nav-link:hover{border-color:var(--bdr2);color:var(--txt)}
+.nav-cta{background:linear-gradient(135deg,var(--violet),#5b21b6);color:var(--cream);border:none;
+  font-family:var(--display);font-size:.68rem;font-weight:600;padding:8px 20px;
+  cursor:pointer;letter-spacing:.08em;transition:filter .14s;border-radius:3px;text-decoration:none}
+.nav-cta:hover{filter:brightness(1.14)}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:80px 36px 60px;text-align:center;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;pointer-events:none}
+.orb{position:absolute;border-radius:50%;filter:blur(140px);opacity:.38}
+.orb-1{width:700px;height:700px;background:radial-gradient(circle,rgba(124,58,237,.65),transparent 70%);top:-200px;left:50%;transform:translateX(-50%)}
+.orb-2{width:500px;height:500px;background:radial-gradient(circle,rgba(6,182,212,.38),transparent 70%);bottom:-100px;left:-100px}
+.orb-3{width:400px;height:400px;background:radial-gradient(circle,rgba(244,63,94,.22),transparent 70%);top:20%;right:-150px}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--bdr) 1px,transparent 1px),linear-gradient(90deg,var(--bdr) 1px,transparent 1px);background-size:64px 64px;opacity:.25}
+.hero-content{position:relative;z-index:1;max-width:920px}
+.eyebrow{font-size:.56rem;letter-spacing:.3em;text-transform:uppercase;color:var(--vio2);
+  margin-bottom:32px;display:flex;align-items:center;justify-content:center;gap:12px}
+.eyebrow::before,.eyebrow::after{content:'';flex:1;height:1px;background:linear-gradient(to right,transparent,var(--bdr2));max-width:100px}
+.hero-title{font-family:var(--display);font-size:clamp(3rem,8vw,6rem);font-weight:700;
+  color:var(--cream);line-height:1.0;letter-spacing:-.02em;margin-bottom:24px}
+.hero-title .gradient{background:linear-gradient(135deg,var(--vio2) 0%,var(--cyan) 50%,var(--vio3) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-family:var(--serif);font-size:clamp(1rem,2.5vw,1.45rem);font-weight:300;
+  color:var(--txt);line-height:1.75;margin-bottom:48px;font-style:italic;opacity:.85}
+.hero-actions{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin-bottom:72px}
+.btn-primary{background:linear-gradient(135deg,var(--violet),#5b21b6);color:var(--cream);border:none;
+  font-family:var(--display);font-size:.84rem;font-weight:600;padding:15px 36px;
+  cursor:pointer;letter-spacing:.08em;transition:filter .14s;border-radius:4px;text-decoration:none;display:inline-block}
+.btn-primary:hover{filter:brightness(1.14)}
+.btn-ghost{background:transparent;color:var(--txt);border:1px solid var(--bdr2);
+  font-family:var(--mono);font-size:.74rem;padding:14px 30px;cursor:pointer;
+  transition:all .14s;border-radius:4px;text-decoration:none;display:inline-block}
+.btn-ghost:hover{border-color:var(--vio3);color:var(--vio3)}
+.hero-stats{display:flex;gap:56px;justify-content:center;flex-wrap:wrap}
+.stat-n{font-family:var(--serif);font-size:2rem;font-weight:300;color:var(--cream);line-height:1;margin-bottom:5px}
+.stat-l{font-size:.52rem;color:var(--dim);letter-spacing:.2em;text-transform:uppercase}
+
+/* SECTIONS */
+section{padding:88px 36px;max-width:1280px;margin:0 auto}
+.s-eye{font-size:.52rem;letter-spacing:.26em;text-transform:uppercase;color:var(--vio2);margin-bottom:14px}
+.s-title{font-family:var(--display);font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;
+  color:var(--cream);line-height:1.15;margin-bottom:18px}
+.s-sub{font-size:.76rem;color:var(--dim);line-height:1.85;max-width:560px}
+
+/* TOOL GRID */
+.tools-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:52px}
+.tool-card{background:var(--s0);border:1px solid var(--bdr);padding:26px;border-radius:4px;
+  position:relative;overflow:hidden;transition:all .18s;text-decoration:none;display:block}
+.tool-card:hover{border-color:var(--bdr2);transform:translateY(-3px)}
+.tool-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .18s;
+  background:radial-gradient(ellipse at top left,rgba(124,58,237,.09),transparent 60%)}
+.tool-card:hover::before{opacity:1}
+.tc-accent{height:2px;position:absolute;top:0;left:0;right:0}
+.tc-icon{font-size:1.7rem;margin-bottom:14px}
+.tc-name{font-family:var(--display);font-size:.96rem;font-weight:600;color:var(--cream);margin-bottom:7px}
+.tc-desc{font-size:.62rem;color:var(--dim);line-height:1.7}
+.tc-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:12px}
+.tc-tag{font-size:.46rem;padding:2px 6px;border:1px solid var(--bdr2);color:var(--dim);border-radius:2px}
+
+/* FEATURES */
+.feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:52px}
+.feat{display:flex;gap:18px;padding:26px;background:var(--s0);border:1px solid var(--bdr);border-radius:4px;transition:border-color .14s}
+.feat:hover{border-color:var(--bdr2)}
+.feat-icon{font-size:1.5rem;flex-shrink:0;margin-top:2px}
+.feat-name{font-family:var(--display);font-size:.86rem;font-weight:600;color:var(--cream);margin-bottom:6px}
+.feat-desc{font-size:.62rem;color:var(--dim);line-height:1.75}
+
+/* PRICING */
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:52px}
+.p-card{background:var(--s0);border:1px solid var(--bdr);padding:30px;border-radius:4px;position:relative}
+.p-card.featured{border-color:var(--violet);background:linear-gradient(135deg,rgba(124,58,237,.07),var(--s0))}
+.p-card.featured::after{content:'MOST POPULAR';position:absolute;top:-1px;right:18px;
+  font-size:.44rem;padding:3px 10px;background:var(--violet);color:var(--cream);letter-spacing:.16em;font-weight:700}
+.p-tier{font-size:.54rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:14px}
+.p-price{font-family:var(--serif);font-size:2.4rem;font-weight:300;color:var(--cream);line-height:1;margin-bottom:5px}
+.p-per{font-size:.58rem;color:var(--dim);margin-bottom:24px}
+.p-feats{list-style:none;font-size:.62rem;color:var(--dim);margin-bottom:26px}
+.p-feats li{padding:6px 0;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:7px}
+.p-feats li:last-child{border-bottom:none}
+.tick{color:var(--grn);flex-shrink:0}.cross{color:var(--bdr2);flex-shrink:0}
+.p-btn{width:100%;padding:11px;background:transparent;border:1px solid var(--bdr2);color:var(--dim);
+  font-family:var(--mono);font-size:.62rem;cursor:pointer;letter-spacing:.06em;transition:all .14s;border-radius:3px}
+.p-btn:hover{border-color:var(--vio2);color:var(--vio2)}
+.p-btn-feat{background:linear-gradient(135deg,var(--violet),#5b21b6);border:none;color:var(--cream)}
+.p-btn-feat:hover{filter:brightness(1.12)}
+
+/* SIGNUP */
+#signup{background:var(--s0);border-top:1px solid var(--bdr2);padding:88px 36px;text-align:center}
+.su-inner{max-width:460px;margin:0 auto}
+.su-title{font-family:var(--display);font-size:1.8rem;font-weight:700;color:var(--cream);margin-bottom:10px}
+.su-sub{font-size:.7rem;color:var(--dim);margin-bottom:32px;line-height:1.7}
+.su-form{display:flex;flex-direction:column;gap:11px}
+.su-field{background:var(--bg);border:1px solid var(--bdr2);color:var(--cream);
+  font-family:var(--mono);font-size:.76rem;padding:13px 16px;border-radius:3px;outline:none;width:100%;transition:border-color .12s}
+.su-field:focus{border-color:var(--violet);box-shadow:0 0 0 2px rgba(124,58,237,.12)}
+.su-field::placeholder{color:var(--dim)}
+.su-btn{background:linear-gradient(135deg,var(--violet),#5b21b6);color:var(--cream);border:none;
+  font-family:var(--display);font-size:.78rem;font-weight:600;padding:14px;width:100%;
+  cursor:pointer;letter-spacing:.08em;transition:filter .14s;border-radius:3px}
+.su-btn:hover{filter:brightness(1.14)}
+.su-err{color:var(--red);font-size:.62rem;margin-top:4px;display:none}
+.su-ok{color:var(--grn);font-size:.7rem;margin-top:10px;display:none}
+.su-terms{font-size:.54rem;color:var(--dim);margin-top:10px}
+
+footer{border-top:1px solid var(--bdr);padding:30px 36px;display:flex;align-items:center;
+  justify-content:space-between;font-size:.56rem;color:var(--dim)}
+.ft-brand{font-family:var(--display);font-size:.76rem;font-weight:600;color:var(--cream);letter-spacing:.12em}
+
+@media(max-width:960px){.tools-grid,.feat-grid,.price-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.tools-grid,.feat-grid,.price-grid{grid-template-columns:1fr};section{padding:56px 20px};nav{padding:0 20px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="/">
+    <div class="nav-glyph">◎</div>
+    <div class="nav-word">SINGULARITY</div>
+  </a>
+  <div class="nav-right">
+    <a class="nav-link" href="#tools">Platform</a>
+    <a class="nav-link" href="#pricing">Pricing</a>
+    <a class="nav-link" href="#signup">Sign In</a>
+    <a class="nav-cta" href="#signup">Get Access →</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-bg">
+    <div class="hero-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <div class="hero-content">
+    <div class="eyebrow fade fade-1">The point where everything converges</div>
+    <h1 class="hero-title fade fade-2">
+      <span style="display:block">◎ SINGULARITY</span>
+      <span class="gradient">Quantitative Platform</span>
+    </h1>
+    <p class="hero-sub fade fade-3">
+      Professional-grade quant tools. Market surveillance. An autonomous trading bot<br>
+      that actually learns. Built for serious traders. Free to use.
+    </p>
+    <div class="hero-actions fade fade-4">
+      <a class="btn-primary" href="#signup">Get Free Access →</a>
+      <a class="btn-ghost" href="/hub">Open Platform</a>
+    </div>
+    <div class="hero-stats fade fade-4">
+      <div><div class="stat-n">11</div><div class="stat-l">Quant Dashboards</div></div>
+      <div><div class="stat-n">100k</div><div class="stat-l">MC Sim Paths</div></div>
+      <div><div class="stat-n">Live</div><div class="stat-l">Market Data</div></div>
+      <div><div class="stat-n">IB+TV</div><div class="stat-l">Broker Support</div></div>
+    </div>
+  </div>
+</div>
+
+<section id="tools">
+  <div class="s-eye">Platform</div>
+  <div class="s-title">Everything a quant needs</div>
+  <div class="s-sub">Eleven interconnected dashboards from dark pool surveillance to an autonomous bot that trains on real volume-ranked market data.</div>
+  <div class="tools-grid">
+    <a class="tool-card" href="/hub"><div class="tc-accent" style="background:linear-gradient(90deg,var(--violet),var(--vio3))"></div><div class="tc-icon">🏠</div><div class="tc-name">Command Center</div><div class="tc-desc">Live ticker strip, global indices, market alerts, sector quadrant snapshot — your daily briefing in one view.</div><div class="tc-tags"><span class="tc-tag">Live</span><span class="tc-tag">Indices</span><span class="tc-tag">Alerts</span></div></a>
+    <a class="tool-card" href="/surveillance"><div class="tc-accent" style="background:linear-gradient(90deg,#ef4444,#f97316)"></div><div class="tc-icon">🌐</div><div class="tc-name">Market Surveillance</div><div class="tc-desc">Dark pool detection, whale tracker, SEC Form 4 insider flow, sector quadrant, unusual volume scanner with live Yahoo Finance data.</div><div class="tc-tags"><span class="tc-tag">Dark Pool</span><span class="tc-tag">Whales</span><span class="tc-tag">Insiders</span></div></a>
+    <a class="tool-card" href="/bot"><div class="tc-accent" style="background:linear-gradient(90deg,var(--violet),var(--vio2))"></div><div class="tc-icon">🤖</div><div class="tc-name">Trading Bot</div><div class="tc-desc">Volume-ranked training across 20 instruments. Ghost candle predictions. SL/TP. Paper + live IB trading. TradingView webhook. Gets smarter every session.</div><div class="tc-tags"><span class="tc-tag">Live Data</span><span class="tc-tag">IB Paper</span><span class="tc-tag">IB Live</span><span class="tc-tag">TradingView</span></div></a>
+    <a class="tool-card" href="/mc"><div class="tc-accent" style="background:linear-gradient(90deg,#06b6d4,#0ea5e9)"></div><div class="tc-icon">📊</div><div class="tc-name">Monte Carlo Suite</div><div class="tc-desc">100k simulation paths. GBM, Heston stochastic vol, Merton jump-diffusion, SABR. Options pricing, VaR, CVaR, Sharpe, Greeks. Full stress test.</div><div class="tc-tags"><span class="tc-tag">Options</span><span class="tc-tag">VaR</span><span class="tc-tag">Greeks</span></div></a>
+    <a class="tool-card" href="/portfolio"><div class="tc-accent" style="background:linear-gradient(90deg,#84cc16,#10b981)"></div><div class="tc-icon">⚖️</div><div class="tc-name">Portfolio Optimizer</div><div class="tc-desc">Efficient frontier, Black-Litterman, risk parity, min-CVaR. Ledoit-Wolf covariance, rolling backtest with transaction costs, factor decomposition.</div><div class="tc-tags"><span class="tc-tag">Frontier</span><span class="tc-tag">BL</span><span class="tc-tag">CVaR</span></div></a>
+    <a class="tool-card" href="/iv"><div class="tc-accent" style="background:linear-gradient(90deg,var(--vio2),var(--violet))"></div><div class="tc-icon">📐</div><div class="tc-name">Implied Volatility</div><div class="tc-desc">SABR calibration, Heston characteristic function pricing, IV surface construction, vol smile and skew analysis, term structure.</div><div class="tc-tags"><span class="tc-tag">SABR</span><span class="tc-tag">Heston</span><span class="tc-tag">Surface</span></div></a>
+    <a class="tool-card" href="/alpha"><div class="tc-accent" style="background:linear-gradient(90deg,#f59e0b,#f97316)"></div><div class="tc-icon">⚡</div><div class="tc-name">Alpha Research</div><div class="tc-desc">Multi-factor regression, rolling betas, PCA factor decomposition, alpha decay curves, Almgren-Chriss optimal execution, TWAP/VWAP schedules.</div><div class="tc-tags"><span class="tc-tag">Factor</span><span class="tc-tag">PCA</span><span class="tc-tag">Execution</span></div></a>
+    <a class="tool-card" href="/pairs"><div class="tc-accent" style="background:linear-gradient(90deg,#06b6d4,var(--vio2))"></div><div class="tc-icon">🔗</div><div class="tc-name">Pairs / Stat Arb</div><div class="tc-desc">Engle-Granger cointegration, Johansen trace test, ADF, Hurst exponent, OU process half-life, z-score signal engine, backtest.</div><div class="tc-tags"><span class="tc-tag">Cointegration</span><span class="tc-tag">Z-Score</span></div></a>
+    <a class="tool-card" href="/fi"><div class="tc-accent" style="background:linear-gradient(90deg,#fbbf24,#f59e0b)"></div><div class="tc-icon">📈</div><div class="tc-name">Fixed Income</div><div class="tc-desc">Live Treasury yield curve via FRED, Nelson-Siegel + Svensson fitting, bond analytics, swap DV01, Z-spread, I-spread, scenario P&L.</div><div class="tc-tags"><span class="tc-tag">Live Yields</span><span class="tc-tag">Duration</span><span class="tc-tag">Swaps</span></div></a>
+    <a class="tool-card" href="/credit"><div class="tc-accent" style="background:linear-gradient(90deg,#f43f5e,#fb7185)"></div><div class="tc-icon">🛡</div><div class="tc-name">Credit Risk</div><div class="tc-desc">Merton structural model calibrated from equity data, hazard rate bootstrapping, CDS par spread, CVA calculation, Gaussian copula portfolio loss.</div><div class="tc-tags"><span class="tc-tag">Merton</span><span class="tc-tag">CDS</span><span class="tc-tag">CVA</span></div></a>
+    <a class="tool-card" href="/vol"><div class="tc-accent" style="background:linear-gradient(90deg,#a855f7,var(--violet))"></div><div class="tc-icon">📉</div><div class="tc-name">Volatility Dynamics</div><div class="tc-desc">GARCH(1,1), GJR-GARCH via MLE, HAR-RV realized volatility, HMM regime detection (EM algorithm), Kalman filter, 30-day forecast bands.</div><div class="tc-tags"><span class="tc-tag">GARCH</span><span class="tc-tag">HMM</span><span class="tc-tag">Kalman</span></div></a>
+  </div>
+</section>
+
+<section>
+  <div class="s-eye">Capabilities</div>
+  <div class="s-title">Built for the real market</div>
+  <div class="feat-grid">
+    <div class="feat"><div class="feat-icon">📡</div><div><div class="feat-name">Live Market Data</div><div class="feat-desc">All dashboards pull real-time prices via Yahoo Finance. The Trading Bot fetches live intraday volume every 3 minutes to rank which instruments have the highest activity and trains hardest on those.</div></div></div>
+    <div class="feat"><div class="feat-icon">🤖</div><div><div class="feat-name">Autonomous Training Bot</div><div class="feat-desc">Trains across 4 global sessions: New York (US equities), London (forex + UK), Tokyo (JPY pairs + Japanese equities), Hong Kong (AUD/CNH + crypto). Overdrive mode activates when two sessions overlap — all 20 instruments training simultaneously.</div></div></div>
+    <div class="feat"><div class="feat-icon">🔮</div><div><div class="feat-name">Ghost Candle Predictions</div><div class="feat-desc">5 distinct Monte Carlo scenarios rendered as translucent OHLC candles on the live chart. Each scenario detects the dominant candle pattern (engulfing, doji, hammer, shooting star), calculates SL/TP from ATR, and shows the R:R ratio. Focus boxes show where the bot is watching.</div></div></div>
+    <div class="feat"><div class="feat-icon">🏦</div><div><div class="feat-name">Interactive Brokers Integration</div><div class="feat-desc">Paper trading on port 7497 — IBKR's own simulator, no real money. Switch to live (port 7496) after validation. The included Python bridge script (singularity_ib_bridge.py) handles order routing. Manual order entry with Market, Limit, and Stop types. TradingView webhook also supported.</div></div></div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="s-eye">Pricing</div>
+  <div class="s-title">Start free. Always.</div>
+  <div class="price-grid">
+    <div class="p-card">
+      <div class="p-tier">Free</div>
+      <div class="p-price">$0</div>
+      <div class="p-per">forever · no card required</div>
+      <ul class="p-feats">
+        <li><span class="tick">✓</span> All 11 quant dashboards</li>
+        <li><span class="tick">✓</span> Monte Carlo, IV, Portfolio</li>
+        <li><span class="tick">✓</span> Market Surveillance</li>
+        <li><span class="tick">✓</span> Live market data</li>
+        <li><span class="cross">—</span> Trading Bot</li>
+        <li><span class="cross">—</span> IB / TradingView integration</li>
+      </ul>
+      <button class="p-btn" onclick="scrollToSignup()">Get Started →</button>
+    </div>
+    <div class="p-card featured">
+      <div class="p-tier">Pro</div>
+      <div class="p-price">$29</div>
+      <div class="p-per">/ month · cancel anytime</div>
+      <ul class="p-feats">
+        <li><span class="tick">✓</span> Everything in Free</li>
+        <li><span class="tick">✓</span> Trading Bot — full access</li>
+        <li><span class="tick">✓</span> IB paper + live trading</li>
+        <li><span class="tick">✓</span> TradingView webhook</li>
+        <li><span class="tick">✓</span> Volume-ranked training</li>
+        <li><span class="tick">✓</span> Ghost candle predictions</li>
+      </ul>
+      <button class="p-btn p-btn-feat" onclick="scrollToSignup()">Start Pro →</button>
+    </div>
+    <div class="p-card">
+      <div class="p-tier">Institutional</div>
+      <div class="p-price">$149</div>
+      <div class="p-per">/ month · 5 seats</div>
+      <ul class="p-feats">
+        <li><span class="tick">✓</span> Everything in Pro</li>
+        <li><span class="tick">✓</span> Unlimited API calls</li>
+        <li><span class="tick">✓</span> Priority data refresh</li>
+        <li><span class="tick">✓</span> Custom instrument universe</li>
+        <li><span class="tick">✓</span> Team access (5 seats)</li>
+        <li><span class="tick">✓</span> Dedicated support</li>
+      </ul>
+      <button class="p-btn" onclick="alert('Contact us at singularity@example.io')">Contact Sales →</button>
+    </div>
+  </div>
+</section>
+
+<div id="signup">
+  <div class="su-inner">
+    <div class="su-title">Get Access</div>
+    <div class="su-sub">Free forever. All 11 dashboards. No credit card required.<br>Join thousands of traders using Singularity.</div>
+    <div class="su-form">
+      <input class="su-field" id="su-name"  type="text"     placeholder="Your name"            autocomplete="name"/>
+      <input class="su-field" id="su-email" type="email"    placeholder="Email address"        autocomplete="email"/>
+      <input class="su-field" id="su-pass"  type="password" placeholder="Password (min 8 chars)"/>
+      <select class="su-field" id="su-plan">
+        <option value="free">Free — $0/mo</option>
+        <option value="pro">Pro — $29/mo</option>
+        <option value="institutional">Institutional — $149/mo</option>
+      </select>
+      <div class="su-err" id="su-err"></div>
+      <button class="su-btn" onclick="signUp()">Create Account →</button>
+      <div class="su-terms">By signing up you agree to our Terms of Service. We never sell your data.</div>
+      <div class="su-ok" id="su-ok">✓ Welcome to Singularity! Redirecting to platform…</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="ft-brand">◎ SINGULARITY</div>
+  <div>The point where everything converges · Free quantitative finance platform</div>
+  <a href="/hub" style="color:var(--vio2);text-decoration:none;font-size:.56rem">Open Platform →</a>
+</footer>
+
+<script>
+'use strict';
+function scrollToSignup(){document.getElementById('signup').scrollIntoView({behavior:'smooth'});}
+function signUp(){
+  const name=document.getElementById('su-name').value.trim();
+  const email=document.getElementById('su-email').value.trim();
+  const pass=document.getElementById('su-pass').value;
+  const plan=document.getElementById('su-plan').value;
+  const err=document.getElementById('su-err');
+  const ok=document.getElementById('su-ok');
+  err.style.display='none';ok.style.display='none';
+  if(!name||!email||!pass){err.textContent='Please fill in all fields.';err.style.display='block';return;}
+  if(!email.includes('@')){err.textContent='Please enter a valid email address.';err.style.display='block';return;}
+  if(pass.length<8){err.textContent='Password must be at least 8 characters.';err.style.display='block';return;}
+  const token=btoa(JSON.stringify({email,ts:Date.now()}));
+  localStorage.setItem('sg_auth',token);
+  localStorage.setItem('sg_verified','1');
+  localStorage.setItem('sg_name',name);
+  localStorage.setItem('sg_email',email);
+  localStorage.setItem('sg_plan',plan);
+  ok.style.display='block';
+  setTimeout(()=>window.location.href='/hub',1600);
+}
+function signIn(){
+  const email=prompt('Email:'); if(!email)return;
+  const pass=prompt('Password:'); if(!pass)return;
+  const token=btoa(JSON.stringify({email,ts:Date.now()}));
+  localStorage.setItem('sg_auth',token);
+  localStorage.setItem('sg_verified','1');
+  localStorage.setItem('sg_name',email.split('@')[0]);
+  localStorage.setItem('sg_email',email);
+  localStorage.setItem('sg_plan','free');
+  window.location.href='/hub';
+}
+// If already signed in, adapt nav
+(function(){
+  const t=localStorage.getItem('sg_auth')||localStorage.getItem('aeq_auth');
+  const v=localStorage.getItem('sg_verified')||localStorage.getItem('aeq_verified');
+  if(t&&v){
+    try{
+      const p=JSON.parse(atob(t));
+      if(p.email&&p.ts&&Date.now()-p.ts<30*24*60*60*1000){
+        const cta=document.querySelector('.nav-cta');
+        if(cta){cta.textContent='Open Platform →';cta.href='/hub';}
+      }
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>

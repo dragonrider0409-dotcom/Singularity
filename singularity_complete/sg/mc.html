@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Monte Carlo Suite — SINGULARITY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+<style>
+
+:root{
+  --bg:#05030d;--s0:#07050f;--s1:#0a0714;--s2:#0d0a1a;
+  --bdr:#1a1030;--bdr2:#241540;--bdr3:#2e1a50;
+  --violet:#7c3aed;--vio2:#a78bfa;--vio3:#c4b5fd;
+  --cyan:#06b6d4;--cyn2:#22d3ee;
+  --grn:#10b981;--red:#f43f5e;--amb:#f59e0b;--rose:#fb7185;--purp:#a855f7;
+  --txt:#c8c0e0;--dim:#3d2d6a;--ghost:#180f30;--cream:#f5f0ff;
+  --mono:'JetBrains Mono',monospace;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --display:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--txt);font-family:var(--mono);font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased}
+::selection{background:var(--violet);color:var(--cream)}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:var(--bdr3)}
+@keyframes gp{0%,100%{box-shadow:0 0 14px rgba(124,58,237,.35)}50%{box-shadow:0 0 28px rgba(124,58,237,.65)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.fade-in{animation:fadeIn .25s ease forwards}
+
+
+.sg-nav{position:sticky;top:0;z-index:900;height:50px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 20px;
+  background:rgba(5,3,13,.97);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--bdr2);gap:16px;flex-shrink:0}
+.sg-brand{display:flex;align-items:center;gap:9px;text-decoration:none;flex-shrink:0}
+.sg-glyph{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--violet);
+  display:flex;align-items:center;justify-content:center;font-size:.85rem;color:var(--violet);
+  flex-shrink:0;box-shadow:0 0 12px rgba(124,58,237,.3);animation:gp 3s ease-in-out infinite}
+.sg-wordmark{font-family:var(--display);font-size:.82rem;font-weight:700;color:var(--cream);letter-spacing:.14em}
+.sg-tagline{font-size:.38rem;color:var(--dim);letter-spacing:.16em;text-transform:uppercase;margin-top:1px}
+.sg-nav-center{flex:1;display:flex;justify-content:center;gap:2px;overflow:hidden}
+.sg-nav-a{font-size:.52rem;color:var(--dim);text-decoration:none;padding:4px 8px;
+  border:1px solid transparent;border-radius:2px;transition:all .12s;white-space:nowrap}
+.sg-nav-a:hover{border-color:var(--bdr2);color:var(--txt)}
+.sg-nav-a.active{color:var(--vio2);border-color:rgba(124,58,237,.3);background:rgba(124,58,237,.06)}
+.sg-nav-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.sg-session{display:flex;align-items:center;gap:4px;font-size:.5rem;color:var(--dim);
+  padding:3px 9px;border:1px solid var(--bdr);border-radius:20px}
+.sg-session-dot{width:5px;height:5px;border-radius:50%;background:var(--bdr2)}
+.sg-session-dot.open{background:var(--grn);box-shadow:0 0 5px rgba(16,185,129,.5);animation:pulse 2s ease-in-out infinite}
+.sg-session-dot.pre{background:var(--amb)}
+.sg-user-pill{font-size:.5rem;color:var(--dim);padding:3px 9px;background:var(--ghost);
+  border:1px solid var(--bdr);border-radius:20px;white-space:nowrap}
+
+
+.page-wrap{display:flex;flex-direction:column;min-height:100vh}
+.page-body{flex:1;padding:20px;max-width:1400px;margin:0 auto;width:100%}
+.page-hdr{margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--bdr)}
+.page-title{font-family:var(--display);font-size:1.4rem;font-weight:700;color:var(--cream);margin-bottom:4px}
+.page-sub{font-size:.62rem;color:var(--dim);line-height:1.6}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.card{background:var(--s0);border:1px solid var(--bdr);border-radius:3px;padding:16px;position:relative;overflow:hidden}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--bdr)}
+.card-title{font-family:var(--display);font-size:.82rem;font-weight:600;color:var(--cream)}
+.card-sub{font-size:.56rem;color:var(--dim);margin-top:1px}
+.stat-card{background:var(--s0);border:1px solid var(--bdr);border-radius:3px;padding:14px}
+.stat-label{font-size:.48rem;color:var(--dim);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px}
+.stat-val{font-family:var(--display);font-size:1.2rem;font-weight:700;color:var(--cream);line-height:1}
+.stat-val.pos{color:var(--grn)}.stat-val.neg{color:var(--red)}.stat-val.vio{color:var(--vio2)}
+.stat-delta{font-size:.54rem;margin-top:3px}
+.btn{padding:7px 14px;font-family:var(--mono);font-size:.6rem;font-weight:700;letter-spacing:.05em;
+  cursor:pointer;border:none;transition:all .14s;border-radius:2px}
+.btn-primary{background:linear-gradient(135deg,var(--violet),#5b21b6);color:var(--cream)}
+.btn-primary:hover{filter:brightness(1.12)}
+.btn-ghost{background:transparent;border:1px solid var(--bdr2);color:var(--dim)}
+.btn-ghost:hover{border-color:var(--txt);color:var(--txt)}
+.btn-danger{background:transparent;border:1px solid rgba(244,63,94,.3);color:var(--red)}
+.btn-danger:hover{background:rgba(244,63,94,.07)}
+.btn-cyan{background:var(--cyan);color:var(--bg)}.btn-cyan:hover{filter:brightness(1.08)}
+.btn-sm{padding:5px 10px;font-size:.54rem}
+.btn-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.input{background:var(--s0);border:1px solid var(--bdr2);color:var(--cream);
+  font-family:var(--mono);font-size:.7rem;padding:8px 11px;border-radius:2px;outline:none;width:100%}
+.input:focus{border-color:var(--violet);box-shadow:0 0 0 2px rgba(124,58,237,.1)}
+.input::placeholder{color:var(--dim)}
+.select{background:var(--s0);border:1px solid var(--bdr2);color:var(--cream);
+  font-family:var(--mono);font-size:.7rem;padding:8px 11px;border-radius:2px;outline:none;width:100%}
+.select:focus{border-color:var(--violet)}
+.label{font-size:.48rem;color:var(--dim);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;display:block}
+.field{margin-bottom:10px}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.fg4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.tbl{width:100%;border-collapse:collapse;font-size:.62rem}
+.tbl th{font-size:.48rem;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;
+  padding:7px 10px;border-bottom:1px solid var(--bdr2);text-align:left;white-space:nowrap}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--bdr);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(124,58,237,.03)}
+.badge{display:inline-block;font-size:.46rem;padding:2px 6px;border-radius:2px;font-weight:700}
+.badge-grn{background:rgba(16,185,129,.15);color:var(--grn);border:1px solid rgba(16,185,129,.3)}
+.badge-red{background:rgba(244,63,94,.12);color:var(--red);border:1px solid rgba(244,63,94,.25)}
+.badge-vio{background:rgba(124,58,237,.12);color:var(--vio2);border:1px solid rgba(124,58,237,.25)}
+.badge-amb{background:rgba(245,158,11,.12);color:var(--amb);border:1px solid rgba(245,158,11,.25)}
+.badge-cyan{background:rgba(6,182,212,.12);color:var(--cyan);border:1px solid rgba(6,182,212,.25)}
+.pos{color:var(--grn)}.neg{color:var(--red)}.dim{color:var(--dim)}.vio{color:var(--vio2)}
+.sec{display:flex;justify-content:space-between;align-items:center;
+  font-size:.5rem;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;
+  margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--bdr)}
+.info{padding:10px 13px;font-size:.62rem;line-height:1.7;border-radius:2px;margin-bottom:10px}
+.info-vio{background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.18)}
+.info-grn{background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.18)}
+.info-red{background:rgba(244,63,94,.05);border:1px solid rgba(244,63,94,.18)}
+.info-amb{background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.18)}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--bdr2);
+  border-top-color:var(--violet);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-row{text-align:center;padding:24px;color:var(--dim);font-size:.62rem}
+.chart-wrap{background:var(--bg);border:1px solid var(--bdr);border-radius:2px;position:relative;overflow:hidden}
+.chart-canvas{display:block;width:100%;height:100%}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+
+
+</style>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+<nav class="sg-nav">
+  <a class="sg-brand" href="/hub">
+    <div class="sg-glyph">◎</div>
+    <div><div class="sg-wordmark">SINGULARITY</div><div class="sg-tagline">Quant Platform</div></div>
+  </a>
+  <div class="sg-nav-center"><a class="sg-nav-a" href="/hub">Hub</a><a class="sg-nav-a" href="/surveillance">Surveillance</a><a class="sg-nav-a active" href="/mc">Monte Carlo</a><a class="sg-nav-a" href="/iv">Options IV</a><a class="sg-nav-a" href="/portfolio">Portfolio</a><a class="sg-nav-a" href="/alpha">Alpha</a><a class="sg-nav-a" href="/pairs">Pairs</a><a class="sg-nav-a" href="/fi">Fixed Income</a><a class="sg-nav-a" href="/credit">Credit</a><a class="sg-nav-a" href="/vol">Volatility</a><a class="sg-nav-a" href="/bot">Trading Bot</a></div>
+  <div class="sg-nav-right">
+    <div class="sg-session"><div class="sg-session-dot" id="sg-dot"></div><span id="sg-sess">—</span></div>
+    <div class="sg-user-pill" id="sg-user">—</div>
+  </div>
+</nav>
+<div class="page-wrap">
+<div class="page-body">
+  <div class="page-hdr">
+    <div class="page-title">📊 Monte Carlo Suite</div>
+    <div class="page-sub">100,000 simulation paths · GBM · Heston stochastic vol · Merton jump-diffusion · SABR · Options pricing · Risk metrics</div>
+  </div>
+  <div class="grid-2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Configuration</div></div>
+      <div class="fg3">
+        <div class="field"><label class="label">Spot Price (S₀)</label><input class="input" id="mc-s0" type="number" value="100" step="1"/></div>
+        <div class="field"><label class="label">Strike (K)</label><input class="input" id="mc-k" type="number" value="100" step="1"/></div>
+        <div class="field"><label class="label">Maturity (T years)</label><input class="input" id="mc-t" type="number" value="1" step="0.1"/></div>
+      </div>
+      <div class="fg3">
+        <div class="field"><label class="label">Risk-Free Rate</label><input class="input" id="mc-r" type="number" value="0.05" step="0.01"/></div>
+        <div class="field"><label class="label">Volatility (σ)</label><input class="input" id="mc-sig" type="number" value="0.2" step="0.01"/></div>
+        <div class="field"><label class="label">Dividend Yield (q)</label><input class="input" id="mc-q" type="number" value="0" step="0.01"/></div>
+      </div>
+      <div class="fg2">
+        <div class="field"><label class="label">Simulations</label>
+          <select class="select" id="mc-n"><option value="10000">10,000</option><option value="50000" selected>50,000</option><option value="100000">100,000</option></select>
+        </div>
+        <div class="field"><label class="label">Model</label>
+          <select class="select" id="mc-model">
+            <option value="gbm">GBM (Black-Scholes)</option>
+            <option value="heston">Heston Stochastic Vol</option>
+            <option value="jump">Merton Jump-Diffusion</option>
+            <option value="sabr">SABR</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg2">
+        <div class="field"><label class="label">Option Type</label>
+          <select class="select" id="mc-opt"><option value="call" selected>Call</option><option value="put">Put</option></select>
+        </div>
+        <div class="field"><label class="label">Payoff</label>
+          <select class="select" id="mc-payoff">
+            <option value="european">European</option>
+            <option value="asian_arith">Asian (Arithmetic)</option>
+            <option value="barrier_do">Barrier Down-Out</option>
+            <option value="lookback">Lookback Fixed</option>
+            <option value="digital">Digital Cash</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="runMC()">▶ Run Simulation</button>
+        <button class="btn btn-ghost btn-sm" onclick="runStress()">⚡ Stress Test</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Results</div><span id="mc-status" class="badge badge-vio">Ready</span></div>
+      <div id="mc-results" class="grid-2" style="gap:8px;margin-bottom:12px"></div>
+      <div id="mc-greeks" class="grid-4" style="gap:6px"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-hdr"><div class="card-title">Simulation Paths</div></div>
+    <div id="mc-chart" style="height:320px"></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Return Distribution</div></div>
+      <div id="mc-dist" style="height:240px"></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Stress Test Results</div></div>
+      <div id="mc-stress" style="height:240px"><div class="loading-row">Run stress test to see results</div></div>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+'use strict';
+
+(function(){
+  'use strict';
+  const t=localStorage.getItem('sg_auth')||localStorage.getItem('aeq_auth');
+  const v=localStorage.getItem('sg_verified')||localStorage.getItem('aeq_verified');
+  if(!t||!v){window.location.href='/';return;}
+  try{
+    const p=JSON.parse(atob(t));
+    if(!p.email||Date.now()-p.ts>30*24*60*60*1000){window.location.href='/';return;}
+    const u=document.getElementById('sg-user');
+    if(u)u.textContent=(localStorage.getItem('sg_name')||p.email.split('@')[0])+' · '+(localStorage.getItem('sg_plan')||'free').toUpperCase();
+  }catch(e){window.location.href='/';}
+  function upSess(){
+    const et=new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));
+    const hm=et.getHours()*100+et.getMinutes(),wd=et.getDay();
+    const d=document.getElementById('sg-dot'),l=document.getElementById('sg-sess');
+    if(!d||!l)return;
+    if(wd>=1&&wd<=5){
+      if(hm>=930&&hm<1600){d.className='sg-session-dot open';l.textContent='NY Open';}
+      else if(hm>=400&&hm<930){d.className='sg-session-dot pre';l.textContent='Pre-Market';}
+      else{d.className='sg-session-dot';l.textContent='After Hours';}
+    }else{d.className='sg-session-dot';l.textContent='Weekend';}
+  }
+  upSess();setInterval(upSess,30000);
+})();
+
+
+async function runMC(){
+  const s=document.getElementById('mc-status');
+  if(s){s.textContent='Running…';s.className='badge badge-amb';}
+  const body={
+    S0: +document.getElementById('mc-s0').value,
+    K:  +document.getElementById('mc-k').value,
+    T:  +document.getElementById('mc-t').value,
+    r:  +document.getElementById('mc-r').value,
+    sigma:+document.getElementById('mc-sig').value,
+    q:  +document.getElementById('mc-q').value,
+    n_sims:+document.getElementById('mc-n').value,
+    model:document.getElementById('mc-model').value,
+    option_type:document.getElementById('mc-opt').value,
+    payoff:document.getElementById('mc-payoff').value,
+  };
+  try{
+    const res=await fetch('/api/mc',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body),signal:AbortSignal.timeout(30000)});
+    const d=await res.json();
+    if(d.error){if(s){s.textContent='Error';s.className='badge badge-red';}return;}
+    renderMCResults(d);
+    if(s){s.textContent='Done';s.className='badge badge-grn';}
+  }catch(e){
+    if(s){s.textContent='API error — check /api/mc';s.className='badge badge-red';}
+  }
+}
+
+function renderMCResults(d){
+  const res=document.getElementById('mc-results');
+  const metrics=[
+    ['MC Price',   '$'+(d.option_price||0).toFixed(4),'vio'],
+    ['BS Price',   '$'+(d.bs_price||0).toFixed(4),''],
+    ['Std Error',  (d.std_error||0).toFixed(6),'dim'],
+    ['VaR 95%',    (d.var_95||0).toFixed(4),'neg'],
+    ['CVaR 95%',   (d.cvar_95||0).toFixed(4),'neg'],
+    ['Prob Loss',  (d.prob_loss||0).toFixed(2)+'%',''],
+    ['Sharpe',     (d.sharpe||0).toFixed(3),'pos'],
+    ['Max DD',     (d.max_dd_mean||0).toFixed(4),'neg'],
+  ];
+  if(res)res.innerHTML=metrics.map(([l,v,cls])=>`<div class="stat-card">
+    <div class="stat-label">${l}</div>
+    <div class="stat-val ${cls}" style="font-size:.9rem">${v}</div>
+  </div>`).join('');
+  const gEl=document.getElementById('mc-greeks');
+  if(gEl&&d.greeks){
+    const g=d.greeks;
+    gEl.innerHTML=[['Delta',(g.delta||0).toFixed(4)],['Gamma',(g.gamma||0).toFixed(4)],
+      ['Theta',(g.theta||0).toFixed(4)],['Vega',(g.vega||0).toFixed(4)],
+      ['Rho',(g.rho||0).toFixed(4)]].map(([l,v])=>`<div class="stat-card">
+      <div class="stat-label">${l}</div><div class="stat-val" style="font-size:.82rem">${v}</div>
+    </div>`).join('');
+  }
+  // Plot paths
+  if(d.sample_paths&&window.Plotly){
+    const traces=d.sample_paths.slice(0,50).map((p,i)=>({
+      y:p,mode:'lines',line:{width:0.5,color:`hsla(${260+i*3},70%,65%,0.15)`},showlegend:false
+    }));
+    Plotly.react('mc-chart',traces,{
+      margin:{t:8,b:28,l:40,r:8},height:320,
+      plot_bgcolor:'#05030d',paper_bgcolor:'#07050f',
+      font:{color:'#c8c0e0',size:10,family:'JetBrains Mono'},
+      xaxis:{gridcolor:'#1a1030',zeroline:false},
+      yaxis:{gridcolor:'#1a1030',zeroline:false,tickprefix:'$'},
+    },{responsive:true});
+  }
+  // Distribution
+  if(d.terminal_returns&&window.Plotly){
+    Plotly.react('mc-dist',[{
+      x:d.terminal_returns,type:'histogram',nbinsx:60,
+      marker:{color:'rgba(124,58,237,0.55)',line:{color:'rgba(124,58,237,0.8)',width:0.5}}
+    }],{
+      margin:{t:8,b:28,l:40,r:8},height:240,
+      plot_bgcolor:'#05030d',paper_bgcolor:'#07050f',
+      font:{color:'#c8c0e0',size:10,family:'JetBrains Mono'},
+      xaxis:{title:'Return',gridcolor:'#1a1030',zeroline:false},
+      yaxis:{gridcolor:'#1a1030'},
+    },{responsive:true});
+  }
+}
+
+async function runStress(){
+  const body={
+    S0:+document.getElementById('mc-s0').value,
+    K: +document.getElementById('mc-k').value,
+    T: +document.getElementById('mc-t').value,
+    r: +document.getElementById('mc-r').value,
+    sigma:+document.getElementById('mc-sig').value,
+    q: +document.getElementById('mc-q').value,
+    n_sims:5000,model:'gbm',option_type:'call',payoff:'european',stress:true
+  };
+  try{
+    const res=await fetch('/api/mc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(20000)});
+    const d=await res.json();
+    if(d.stress_results&&window.Plotly){
+      const scenarios=Object.entries(d.stress_results);
+      Plotly.react('mc-stress',[{
+        x:scenarios.map(s=>s[0]),
+        y:scenarios.map(s=>s[1].option_price||0),
+        type:'bar',
+        marker:{color:scenarios.map((_,i)=>i%2===0?'rgba(124,58,237,0.6)':'rgba(6,182,212,0.6)')}
+      }],{
+        margin:{t:8,b:60,l:50,r:8},height:240,
+        plot_bgcolor:'#05030d',paper_bgcolor:'#07050f',
+        font:{color:'#c8c0e0',size:9,family:'JetBrains Mono'},
+        xaxis:{tickangle:-30,gridcolor:'#1a1030'},
+        yaxis:{gridcolor:'#1a1030',tickprefix:'$'},
+      },{responsive:true});
+    }
+  }catch(e){}
+}
+
+</script>
+</body>
+</html>

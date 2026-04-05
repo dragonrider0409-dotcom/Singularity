@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Credit Risk — SINGULARITY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+<style>
+
+:root{
+  --bg:#05030d;--s0:#07050f;--s1:#0a0714;--s2:#0d0a1a;
+  --bdr:#1a1030;--bdr2:#241540;--bdr3:#2e1a50;
+  --violet:#7c3aed;--vio2:#a78bfa;--vio3:#c4b5fd;
+  --cyan:#06b6d4;--cyn2:#22d3ee;
+  --grn:#10b981;--red:#f43f5e;--amb:#f59e0b;--rose:#fb7185;--purp:#a855f7;
+  --txt:#c8c0e0;--dim:#3d2d6a;--ghost:#180f30;--cream:#f5f0ff;
+  --mono:'JetBrains Mono',monospace;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --display:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--txt);font-family:var(--mono);font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased}
+::selection{background:var(--violet);color:var(--cream)}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:var(--bdr3)}
+@keyframes gp{0%,100%{box-shadow:0 0 14px rgba(124,58,237,.35)}50%{box-shadow:0 0 28px rgba(124,58,237,.65)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.fade-in{animation:fadeIn .25s ease forwards}
+
+
+.sg-nav{position:sticky;top:0;z-index:900;height:50px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 20px;
+  background:rgba(5,3,13,.97);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--bdr2);gap:16px;flex-shrink:0}
+.sg-brand{display:flex;align-items:center;gap:9px;text-decoration:none;flex-shrink:0}
+.sg-glyph{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--violet);
+  display:flex;align-items:center;justify-content:center;font-size:.85rem;color:var(--violet);
+  flex-shrink:0;box-shadow:0 0 12px rgba(124,58,237,.3);animation:gp 3s ease-in-out infinite}
+.sg-wordmark{font-family:var(--display);font-size:.82rem;font-weight:700;color:var(--cream);letter-spacing:.14em}
+.sg-tagline{font-size:.38rem;color:var(--dim);letter-spacing:.16em;text-transform:uppercase;margin-top:1px}
+.sg-nav-center{flex:1;display:flex;justify-content:center;gap:2px;overflow:hidden}
+.sg-nav-a{font-size:.52rem;color:var(--dim);text-decoration:none;padding:4px 8px;
+  border:1px solid transparent;border-radius:2px;transition:all .12s;white-space:nowrap}
+.sg-nav-a:hover{border-color:var(--bdr2);color:var(--txt)}
+.sg-nav-a.active{color:var(--vio2);border-color:rgba(124,58,237,.3);background:rgba(124,58,237,.06)}
+.sg-nav-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.sg-session{display:flex;align-items:center;gap:4px;font-size:.5rem;color:var(--dim);
+  padding:3px 9px;border:1px solid var(--bdr);border-radius:20px}
+.sg-session-dot{width:5px;height:5px;border-radius:50%;background:var(--bdr2)}
+.sg-session-dot.open{background:var(--grn);box-shadow:0 0 5px rgba(16,185,129,.5);animation:pulse 2s ease-in-out infinite}
+.sg-session-dot.pre{background:var(--amb)}
+.sg-user-pill{font-size:.5rem;color:var(--dim);padding:3px 9px;background:var(--ghost);
+  border:1px solid var(--bdr);border-radius:20px;white-space:nowrap}
+
+
+.page-wrap{display:flex;flex-direction:column;min-height:100vh}
+.page-body{flex:1;padding:20px;max-width:1400px;margin:0 auto;width:100%}
+.page-hdr{margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--bdr)}
+.page-title{font-family:var(--display);font-size:1.4rem;font-weight:700;color:var(--cream);margin-bottom:4px}
+.page-sub{font-size:.62rem;color:var(--dim);line-height:1.6}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.card{background:var(--s0);border:1px solid var(--bdr);border-radius:3px;padding:16px;position:relative;overflow:hidden}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--bdr)}
+.card-title{font-family:var(--display);font-size:.82rem;font-weight:600;color:var(--cream)}
+.card-sub{font-size:.56rem;color:var(--dim);margin-top:1px}
+.stat-card{background:var(--s0);border:1px solid var(--bdr);border-radius:3px;padding:14px}
+.stat-label{font-size:.48rem;color:var(--dim);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px}
+.stat-val{font-family:var(--display);font-size:1.2rem;font-weight:700;color:var(--cream);line-height:1}
+.stat-val.pos{color:var(--grn)}.stat-val.neg{color:var(--red)}.stat-val.vio{color:var(--vio2)}
+.stat-delta{font-size:.54rem;margin-top:3px}
+.btn{padding:7px 14px;font-family:var(--mono);font-size:.6rem;font-weight:700;letter-spacing:.05em;
+  cursor:pointer;border:none;transition:all .14s;border-radius:2px}
+.btn-primary{background:linear-gradient(135deg,var(--violet),#5b21b6);color:var(--cream)}
+.btn-primary:hover{filter:brightness(1.12)}
+.btn-ghost{background:transparent;border:1px solid var(--bdr2);color:var(--dim)}
+.btn-ghost:hover{border-color:var(--txt);color:var(--txt)}
+.btn-danger{background:transparent;border:1px solid rgba(244,63,94,.3);color:var(--red)}
+.btn-danger:hover{background:rgba(244,63,94,.07)}
+.btn-cyan{background:var(--cyan);color:var(--bg)}.btn-cyan:hover{filter:brightness(1.08)}
+.btn-sm{padding:5px 10px;font-size:.54rem}
+.btn-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.input{background:var(--s0);border:1px solid var(--bdr2);color:var(--cream);
+  font-family:var(--mono);font-size:.7rem;padding:8px 11px;border-radius:2px;outline:none;width:100%}
+.input:focus{border-color:var(--violet);box-shadow:0 0 0 2px rgba(124,58,237,.1)}
+.input::placeholder{color:var(--dim)}
+.select{background:var(--s0);border:1px solid var(--bdr2);color:var(--cream);
+  font-family:var(--mono);font-size:.7rem;padding:8px 11px;border-radius:2px;outline:none;width:100%}
+.select:focus{border-color:var(--violet)}
+.label{font-size:.48rem;color:var(--dim);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;display:block}
+.field{margin-bottom:10px}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.fg4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.tbl{width:100%;border-collapse:collapse;font-size:.62rem}
+.tbl th{font-size:.48rem;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;
+  padding:7px 10px;border-bottom:1px solid var(--bdr2);text-align:left;white-space:nowrap}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--bdr);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(124,58,237,.03)}
+.badge{display:inline-block;font-size:.46rem;padding:2px 6px;border-radius:2px;font-weight:700}
+.badge-grn{background:rgba(16,185,129,.15);color:var(--grn);border:1px solid rgba(16,185,129,.3)}
+.badge-red{background:rgba(244,63,94,.12);color:var(--red);border:1px solid rgba(244,63,94,.25)}
+.badge-vio{background:rgba(124,58,237,.12);color:var(--vio2);border:1px solid rgba(124,58,237,.25)}
+.badge-amb{background:rgba(245,158,11,.12);color:var(--amb);border:1px solid rgba(245,158,11,.25)}
+.badge-cyan{background:rgba(6,182,212,.12);color:var(--cyan);border:1px solid rgba(6,182,212,.25)}
+.pos{color:var(--grn)}.neg{color:var(--red)}.dim{color:var(--dim)}.vio{color:var(--vio2)}
+.sec{display:flex;justify-content:space-between;align-items:center;
+  font-size:.5rem;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;
+  margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--bdr)}
+.info{padding:10px 13px;font-size:.62rem;line-height:1.7;border-radius:2px;margin-bottom:10px}
+.info-vio{background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.18)}
+.info-grn{background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.18)}
+.info-red{background:rgba(244,63,94,.05);border:1px solid rgba(244,63,94,.18)}
+.info-amb{background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.18)}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--bdr2);
+  border-top-color:var(--violet);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-row{text-align:center;padding:24px;color:var(--dim);font-size:.62rem}
+.chart-wrap{background:var(--bg);border:1px solid var(--bdr);border-radius:2px;position:relative;overflow:hidden}
+.chart-canvas{display:block;width:100%;height:100%}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+
+
+</style>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+<nav class="sg-nav">
+  <a class="sg-brand" href="/hub">
+    <div class="sg-glyph">◎</div>
+    <div><div class="sg-wordmark">SINGULARITY</div><div class="sg-tagline">Quant Platform</div></div>
+  </a>
+  <div class="sg-nav-center"><a class="sg-nav-a" href="/hub">Hub</a><a class="sg-nav-a" href="/surveillance">Surveillance</a><a class="sg-nav-a" href="/mc">Monte Carlo</a><a class="sg-nav-a" href="/iv">Options IV</a><a class="sg-nav-a" href="/portfolio">Portfolio</a><a class="sg-nav-a" href="/alpha">Alpha</a><a class="sg-nav-a" href="/pairs">Pairs</a><a class="sg-nav-a" href="/fi">Fixed Income</a><a class="sg-nav-a active" href="/credit">Credit</a><a class="sg-nav-a" href="/vol">Volatility</a><a class="sg-nav-a" href="/bot">Trading Bot</a></div>
+  <div class="sg-nav-right">
+    <div class="sg-session"><div class="sg-session-dot" id="sg-dot"></div><span id="sg-sess">—</span></div>
+    <div class="sg-user-pill" id="sg-user">—</div>
+  </div>
+</nav>
+<div class="page-wrap">
+<div class="page-body">
+  <div class="page-hdr">
+    <div class="page-title">🛡 Credit Risk</div>
+    <div class="page-sub">Merton structural model · CDS par spread · CVA calculation · Credit curve bootstrapping · Portfolio credit loss</div>
+  </div>
+  <div class="grid-2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Parameters</div></div>
+      <div class="fg2"><div class="field"><label class="label">Equity Value (V)</label><input class="input" id="cr-v" type="text" value="100" step="1"/></div><div class="field"><label class="label">Equity Vol (σ)</label><input class="input" id="cr-sv" type="number" value="0.3" step="0.01"/></div><div class="field"><label class="label">Debt Face (D)</label><input class="input" id="cr-d" type="text" value="80" step="1"/></div><div class="field"><label class="label">Maturity (T)</label><input class="input" id="cr-t" type="text" value="1" step="1"/></div></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="runAnalysis()">▶ Run Analysis</button>
+        <span id="api-status" class="badge badge-vio" style="margin-left:auto">Ready</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Results</div></div>
+      <div class="grid-4" style="gap:6px"><div class="stat-card"><div class="stat-label">PD (Merton)</div><div class="stat-val neg" id="r-pd">—</div></div><div class="stat-card"><div class="stat-label">Distance-to-Default</div><div class="stat-val vio" id="r-dd">—</div></div><div class="stat-card"><div class="stat-label">CDS Spread (bps)</div><div class="stat-val amb" id="r-cds">—</div></div><div class="stat-card"><div class="stat-label">Recovery</div><div class="stat-val " id="r-rec">—</div></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div id="main-chart" style="height:340px"><div class="loading-row">Run analysis to see chart</div></div>
+  </div>
+  
+</div>
+</div>
+<script>
+'use strict';
+
+(function(){
+  'use strict';
+  const t=localStorage.getItem('sg_auth')||localStorage.getItem('aeq_auth');
+  const v=localStorage.getItem('sg_verified')||localStorage.getItem('aeq_verified');
+  if(!t||!v){window.location.href='/';return;}
+  try{
+    const p=JSON.parse(atob(t));
+    if(!p.email||Date.now()-p.ts>30*24*60*60*1000){window.location.href='/';return;}
+    const u=document.getElementById('sg-user');
+    if(u)u.textContent=(localStorage.getItem('sg_name')||p.email.split('@')[0])+' · '+(localStorage.getItem('sg_plan')||'free').toUpperCase();
+  }catch(e){window.location.href='/';}
+  function upSess(){
+    const et=new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));
+    const hm=et.getHours()*100+et.getMinutes(),wd=et.getDay();
+    const d=document.getElementById('sg-dot'),l=document.getElementById('sg-sess');
+    if(!d||!l)return;
+    if(wd>=1&&wd<=5){
+      if(hm>=930&&hm<1600){d.className='sg-session-dot open';l.textContent='NY Open';}
+      else if(hm>=400&&hm<930){d.className='sg-session-dot pre';l.textContent='Pre-Market';}
+      else{d.className='sg-session-dot';l.textContent='After Hours';}
+    }else{d.className='sg-session-dot';l.textContent='Weekend';}
+  }
+  upSess();setInterval(upSess,30000);
+})();
+
+
+async function runAnalysis(){
+  const s=document.getElementById('api-status');
+  if(s){s.textContent='Running…';s.className='badge badge-amb';}
+  const body=getParams();
+  try{
+    const res=await fetch('/api/credit',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body),signal:AbortSignal.timeout(25000)});
+    const d=await res.json();
+    if(d.error){if(s){s.textContent='Error: '+d.error;s.className='badge badge-red';} return;}
+    renderResults(d);
+    if(s){s.textContent='Done';s.className='badge badge-grn';}
+  }catch(e){
+    if(s){s.textContent='API unavailable';s.className='badge badge-red';}
+  }
+}
+
+function getParams(){
+  return{V:+document.getElementById('cr-v').value,sigma_equity:+document.getElementById('cr-sv').value,
+    D:+document.getElementById('cr-d').value,T:+document.getElementById('cr-t').value,r:0.05,recovery:0.4};
+}
+function renderResults(d){
+  if(d.prob_default!==undefined)document.getElementById('r-pd').textContent=((d.prob_default||0)*100).toFixed(4)+'%';
+  if(d.distance_to_default!==undefined)document.getElementById('r-dd').textContent=(d.distance_to_default||0).toFixed(4);
+  if(d.cds_spread_bps!==undefined)document.getElementById('r-cds').textContent=(d.cds_spread_bps||0).toFixed(2)+' bps';
+  document.getElementById('r-rec').textContent='40.0%';
+  if(d.term_structure&&window.Plotly){
+    Plotly.react('main-chart',[
+      {x:d.term_structure.maturities,y:d.term_structure.spreads,mode:'lines+markers',name:'Credit Spread Term Structure',
+       line:{color:'rgba(244,63,94,0.8)',width:2},marker:{color:'rgba(251,113,133,0.9)',size:5}},
+    ],{margin:{t:8,b:36,l:50,r:8},height:340,plot_bgcolor:'#05030d',paper_bgcolor:'#07050f',
+      font:{color:'#c8c0e0',size:10,family:'JetBrains Mono'},
+      xaxis:{title:'Maturity (years)',gridcolor:'#1a1030'},yaxis:{title:'Spread (bps)',gridcolor:'#1a1030'},
+      legend:{bgcolor:'transparent',font:{color:'#c8c0e0',size:9}}},{responsive:true});
+  }
+}
+
+</script>
+</body>
+</html>
