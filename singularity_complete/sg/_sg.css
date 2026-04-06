@@ -1,0 +1,19 @@
+/* SINGULARITY DESIGN SYSTEM v3 — injected into every page */
+:root{
+  --bg:#05030d;--s0:#07050f;--s1:#0a0714;--s2:#0d0a1a;
+  --bdr:#1a1030;--bdr2:#241540;--bdr3:#2e1a50;
+  --violet:#7c3aed;--vio2:#a78bfa;--vio3:#c4b5fd;
+  --cyan:#06b6d4;--cyn2:#22d3ee;
+  --grn:#10b981;--red:#f43f5e;--amb:#f59e0b;--rose:#fb7185;--purp:#a855f7;
+  --txt:#c8c0e0;--dim:#3d2d6a;--ghost:#180f30;--cream:#f5f0ff;
+  --mono:'JetBrains Mono',monospace;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --display:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--txt);font-family:var(--mono);font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased}
+::selection{background:var(--violet);color:var(--cream)}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:var(--bdr3)}
