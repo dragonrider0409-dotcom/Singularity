@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Singularity — adaptive trading desk for Interactive Brokers</title>
+<meta name="description" content="Download Singularity: an adaptive, multi-asset trading desk for Interactive Brokers. Sign in, follow the guided setup, run."/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070809;--panel:#0d1012;--line:#1b2024;--ink:#d6e2e4;--dim:#67767a;
+ --cyan:#34e0e0;--green:#37dca0;--red:#ff5d63;--violet:#9b8cff;
+ --mono:'IBM Plex Mono',monospace;--disp:'Sora',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--mono);font-size:15px;line-height:1.6;
+ background-image:radial-gradient(1200px 600px at 85% -10%,rgba(52,224,224,.10),transparent 60%),
+ radial-gradient(900px 500px at -10% 110%,rgba(155,140,255,.08),transparent 60%);
+ min-height:100vh;overflow-x:hidden}
+.wrap{max-width:980px;margin:0 auto;padding:0 22px}
+nav{display:flex;justify-content:space-between;align-items:center;padding:22px 0}
+.logo{font-family:var(--disp);font-weight:800;font-size:20px;letter-spacing:-.5px;
+ background:linear-gradient(90deg,#fff,var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+nav a{color:var(--dim);text-decoration:none;font-size:13px;letter-spacing:1px;text-transform:uppercase}
+nav a:hover{color:var(--ink)}
+
+.hero{text-align:center;padding:70px 0 50px}
+.eyebrow{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:11px;
+ letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:26px}
+h1{font-family:var(--disp);font-weight:800;font-size:clamp(44px,8vw,82px);line-height:.98;letter-spacing:-2px;color:#fff;
+ background:linear-gradient(180deg,#fff 30%,#9fe9e9);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub{max-width:620px;margin:22px auto 0;color:var(--dim);font-size:17px}
+.dl{margin-top:38px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.dlbtn{display:inline-flex;align-items:center;gap:12px;background:var(--cyan);color:#02191a;font-family:var(--disp);
+ font-weight:700;font-size:17px;text-decoration:none;padding:16px 30px;border-radius:12px;letter-spacing:.3px;
+ box-shadow:0 10px 40px -10px rgba(52,224,224,.5);transition:.15s}
+.dlbtn:hover{transform:translateY(-2px);box-shadow:0 16px 50px -10px rgba(52,224,224,.65)}
+.dlbtn .ico{font-size:20px}
+.alt{font-size:13px;color:var(--dim)}
+.alt a{color:var(--cyan);text-decoration:none}.alt a:hover{text-decoration:underline}
+
+.section{padding:46px 0;border-top:1px solid var(--line)}
+.section h2{font-family:var(--disp);font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;
+ color:var(--dim);margin-bottom:26px;display:flex;align-items:center;gap:9px}
+.section h2::before{content:"";width:16px;height:2px;background:var(--cyan)}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:760px){.steps{grid-template-columns:1fr 1fr}}
+.step{border:1px solid var(--line);border-radius:12px;padding:18px;background:linear-gradient(180deg,#0e1214,#0a0e0f)}
+.step .n{font-family:var(--disp);font-weight:800;font-size:13px;color:var(--cyan);border:1px solid var(--cyan);
+ width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:13px}
+.step .t{font-family:var(--disp);font-weight:700;font-size:15px;color:var(--ink);margin-bottom:6px}
+.step .d{font-size:13px;color:var(--dim);line-height:1.5}
+.feats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:760px){.feats{grid-template-columns:1fr}}
+.feat{border:1px solid var(--line);border-radius:12px;padding:18px;background:#0a0e0f}
+.feat .t{font-family:var(--disp);font-weight:700;color:var(--ink);margin-bottom:6px;font-size:15px}
+.feat .d{font-size:13px;color:var(--dim)}
+.note{border:1px solid var(--line);border-left:3px solid var(--amber,#f5c049);background:#0c0f10;border-radius:0 10px 10px 0;
+ padding:16px 18px;font-size:13.5px;color:var(--dim);line-height:1.6}
+.note b{color:var(--ink)}
+footer{padding:40px 0 60px;border-top:1px solid var(--line);color:var(--dim);font-size:12px;line-height:1.7;text-align:center}
+.osnote{font-size:12px;color:var(--dim);margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav>
+    <div class="logo">SINGULARITY</div>
+    <div style="display:flex;gap:22px">
+      <a href="#how">How it works</a>
+      <a href="#inside">Inside</a>
+      <a href="#get" id="navget">Download</a>
+    </div>
+  </nav>
+
+  <section class="hero" id="get">
+    <span class="eyebrow">Interactive Brokers · adaptive · multi-asset</span>
+    <h1>Trade on autopilot.</h1>
+    <p class="sub">An adaptive, medium-frequency trading desk for Interactive Brokers. Download it, sign in,
+      follow the on-screen setup, and run — all from one window. No code, no setup files.</p>
+    <div class="dl">
+      <a class="dlbtn" id="primaryDl" href="#"><span class="ico" id="dlIco">⬇</span><span id="dlLabel">Download</span></a>
+      <div class="osnote" id="osNote"></div>
+      <div class="alt" id="altDl"></div>
+    </div>
+  </section>
+
+  <section class="section" id="how">
+    <h2>How it works</h2>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><div class="t">Download &amp; open</div><div class="d">Grab the file above and double-click it. Singularity opens as a window on your computer.</div></div>
+      <div class="step"><div class="n">2</div><div class="t">Sign up / log in</div><div class="d">Create a local account. It keeps the app private to you — nothing leaves your machine.</div></div>
+      <div class="step"><div class="n">3</div><div class="t">Follow the checklist</div><div class="d">A guided setup walks you through connecting Interactive Brokers and ticks each step as you finish.</div></div>
+      <div class="step"><div class="n">4</div><div class="t">Press start</div><div class="d">Pick a symbol and your risk:reward, run in Paper, and watch the live charts and learning panel.</div></div>
+    </div>
+  </section>
+
+  <section class="section" id="inside">
+    <h2>What's inside</h2>
+    <div class="feats">
+      <div class="feat"><div class="t">Any market</div><div class="d">US &amp; international stocks, crypto, and forex through Interactive Brokers.</div></div>
+      <div class="feat"><div class="t">Risk:reward on every trade</div><div class="d">Bracket orders enforce your stop and target on each entry, automatically.</div></div>
+      <div class="feat"><div class="t">Adaptive learning</div><div class="d">It records every trade and tilts position size toward conditions that have historically worked.</div></div>
+      <div class="feat"><div class="t">Live charts</div><div class="d">Equity curve, per-trade P&amp;L, and a panel showing what it has learned.</div></div>
+      <div class="feat"><div class="t">Medium frequency</div><div class="d">Fast loop on short bars with momentum-breakout entries.</div></div>
+      <div class="feat"><div class="t">Paper by default</div><div class="d">Starts on simulated money so you can test before risking a real dollar.</div></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Before you trade</h2>
+    <div class="note">
+      You'll need an <b>Interactive Brokers account</b> and their free <b>IB Gateway</b> running and logged in —
+      the in-app checklist walks you through it (it's how any IB app reaches the market). Singularity runs on
+      <b>your computer</b>, not in the cloud. And to be straight: no tool, this one included, can <b>guarantee
+      profit</b> — keep it in Paper mode until the results hold up over many trades, and only risk money you can
+      afford to lose. Not financial advice.
+    </div>
+  </section>
+
+  <footer>
+    Singularity · not affiliated with Interactive Brokers · for personal use<br/>
+    Built with FastAPI + ib_async. Trading involves risk of loss.
+  </footer>
+
+</div>
+
+<script>
+/* ====== SET THESE TWO LINES to your GitHub repo, then redeploy ====== */
+const GH_USER = "YOUR_GITHUB_USERNAME";
+const GH_REPO = "singularity";
+/* =================================================================== */
+
+const base = `https://github.com/${GH_USER}/${GH_REPO}/releases/latest/download`;
+const WIN = `${base}/Singularity-Windows.zip`;
+const MAC = `${base}/Singularity-macOS.zip`;
+const RELEASES = `https://github.com/${GH_USER}/${GH_REPO}/releases/latest`;
+
+function detectOS(){
+  const p = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || "";
+  const ua = navigator.userAgent || "";
+  if (/Mac|iPhone|iPad/i.test(p+ua)) return "mac";
+  if (/Win/i.test(p+ua)) return "win";
+  return "other";
+}
+function apply(){
+  const os = detectOS();
+  const btn=document.getElementById("primaryDl"), label=document.getElementById("dlLabel"),
+        ico=document.getElementById("dlIco"), alt=document.getElementById("altDl"),
+        note=document.getElementById("osNote");
+  const notReady = GH_USER.startsWith("YOUR_");
+  if(notReady){
+    note.innerHTML = "⚙ Download links not set yet — edit GH_USER in website/index.html and redeploy.";
+  }
+  if(os==="win"){
+    btn.href=WIN; ico.textContent="⊞"; label.textContent="Download for Windows";
+    alt.innerHTML=`On a Mac? <a href="${MAC}">Download for macOS</a>`;
+  }else if(os==="mac"){
+    btn.href=MAC; ico.textContent=""; label.textContent="Download for macOS";
+    alt.innerHTML=`On Windows? <a href="${WIN}">Download for Windows</a>`;
+  }else{
+    btn.href=RELEASES; label.textContent="Get the latest release";
+    alt.innerHTML=`Direct: <a href="${WIN}">Windows</a> · <a href="${MAC}">macOS</a>`;
+  }
+}
+apply();
+</script>
+</body>
+</html>

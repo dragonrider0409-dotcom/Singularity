@@ -1,0 +1,37 @@
+SINGULARITY — START HERE
+========================
+
+There are two roles. Don't mix them up.
+
+YOUR FRIEND (the trader): downloads ONE file, double-clicks it, a window
+opens, he signs up / logs in, follows the on-screen checklist, presses Start.
+He never sees code or a terminal. He installs nothing except IB Gateway,
+which the checklist walks him through.
+
+YOU (the sender): you turn this source folder into that one clickable file,
+ONE TIME, on the same kind of computer your friend uses. Pick ONE option:
+
+  OPTION A — Cloud build (you install nothing):
+    1. Make a free account at github.com and create a new repository.
+    2. Upload this whole folder (drag-and-drop in the browser works).
+    3. Open the "Actions" tab -> "Build Singularity" -> "Run workflow".
+    4. When it's green, open the run and download from "Artifacts":
+         Singularity-windows-latest  (the .exe for a Windows friend)
+         Singularity-macos-latest    (the app for a Mac friend)
+    5. Send your friend the right one.
+
+  OPTION B — Build on your own computer (needs Python once, on YOUR PC):
+    Windows: double-click BUILD-WINDOWS.bat   -> creates dist\Singularity.exe
+    Mac:     double-click BUILD-MAC.command   -> creates dist/Singularity
+    Then send the file from the dist folder.
+
+That's it. After that, your friend's experience is pure click-and-run.
+
+Honest note: no app can guarantee profit, and Interactive Brokers requires
+your friend to run their free IB Gateway and log in (the checklist guides him).
+Keep it in Paper mode until it proves itself. Not financial advice.
+
+  OPTION C — Give him a download website (Vercel):
+    See website/README.md. You publish the app to GitHub Releases (one tag),
+    deploy the /website folder to Vercel, and send your friend the Vercel link.
+    He clicks Download on the page and gets the right file for his computer.
